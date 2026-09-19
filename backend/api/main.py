@@ -21,12 +21,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
 from api.errors import register_exception_handlers
-from api.mock import BUILD_STAGE
 from api.middleware import (
     RequestContextMiddleware,
     RequestSizeLimitMiddleware,
     SecurityHeadersMiddleware,
 )
+from api.mock import BUILD_STAGE
 from api.v1 import api_router
 from core.config import Settings, fatal_config_exit, get_settings
 from core.logging import configure_logging, get_logger

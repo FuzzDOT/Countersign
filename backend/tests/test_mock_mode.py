@@ -19,9 +19,7 @@ def test_pending_route_serves_its_fixture_in_mock_mode(mock_client: TestClient) 
     assert login.status_code == 200
     token = login.json()["access_token"]
 
-    response = mock_client.get(
-        "/api/v1/insights", headers={"Authorization": f"Bearer {token}"}
-    )
+    response = mock_client.get("/api/v1/insights", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     body = response.json()
     assert body["data"], "the insights fixture served an empty page"
@@ -65,15 +63,14 @@ def test_unauthenticated_requests_are_still_rejected_in_mock_mode(
     assert mock_client.get("/api/v1/evals/fragility").status_code == 401
 
 
-def test_mock_mode_refuses_to_boot_in_production(monkeypatch) -> None:  # type: ignore[no-untyped-def]
-    """`check_production_safety` treats MOCK_MODE as a hard failure.
+def test_mock_mode_is_a_production_config_error() -> None:
+    """`Settings.check_production_safety()` reports MOCK_MODE as a problem.
 
     Serving fixtures from something labelled production would be the worst
-    possible way to find out about a misconfigured deploy.
+    possible way to discover a misconfigured deploy. The app factory calls
+    this and exits via `fatal_config_exit` if the list is non-empty.
     """
-    import pytest
-
-    from core.config import Settings, check_production_safety
+    from core.config import Settings
 
     settings = Settings(
         environment="production",
@@ -81,8 +78,16 @@ def test_mock_mode_refuses_to_boot_in_production(monkeypatch) -> None:  # type: 
         jwt_secret="x" * 48,
         refresh_cookie_secure=True,
     )
-    with pytest.raises(RuntimeError, match="MOCK_MODE"):
-        check_production_safety(settings)
+    problems = settings.check_production_safety()
+    assert any("MOCK_MODE" in problem for problem in problems), problems
+
+
+def test_development_config_reports_no_production_problems() -> None:
+    """The check must be a no-op outside production, or `make dev` would not
+    start with the placeholder secret in .env.example."""
+    from core.config import Settings
+
+    assert Settings(environment="development", mock_mode=True).check_production_safety() == []
 
 
 def test_pending_route_is_a_501_in_live_mode(client: TestClient, auth_header) -> None:  # type: ignore[no-untyped-def]
@@ -104,9 +109,9 @@ def test_job_websocket_streams_progress_in_mock_mode(mock_client: TestClient) ->
     """The progress bar and the socket-to-polling fallback are fiddly; frontend
     dev 2 should be able to build them at hour 4, not discover the state
     transitions at hour 14."""
+    from api.deps import permissions_for
     from core.config import get_settings
     from core.security import mint_access_token
-    from api.deps import permissions_for
     from db.models import UserRole
 
     settings = get_settings()
@@ -131,13 +136,13 @@ def test_job_websocket_streams_progress_in_mock_mode(mock_client: TestClient) ->
 
 
 def test_job_websocket_rejects_a_bad_token(mock_client: TestClient) -> None:
-    from starlette.websockets import WebSocketDisconnect
     import pytest
+    from starlette.websockets import WebSocketDisconnect
 
     job_id = ids.stable_uuid("job", "seed", "meridian_shell_ring")
-    with pytest.raises(WebSocketDisconnect) as caught:
-        with mock_client.websocket_connect(
-            f"/api/v1/ws/jobs/{job_id}?token={'x' * 40}"
-        ) as ws:
-            ws.receive_json()
+    with (
+        pytest.raises(WebSocketDisconnect) as caught,
+        mock_client.websocket_connect(f"/api/v1/ws/jobs/{job_id}?token={'x' * 40}") as ws,
+    ):
+        ws.receive_json()
     assert caught.value.code == 1008

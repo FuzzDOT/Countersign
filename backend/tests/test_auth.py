@@ -34,8 +34,15 @@ def register(client: TestClient, email: str, org: str = "Acme Audit") -> dict:
     return response.json()
 
 
+# NOT `.test`, `.invalid`, `.local` or `.localhost`: those are RFC 2606 /
+# RFC 6761 special-use names and `email-validator` rejects them outright, so
+# every registration came back 422 before reaching any application logic.
+# `example.com` is reserved for documentation and passes validation.
+EMAIL_DOMAIN = "example.com"
+
+
 def unique_email(prefix: str = "user") -> str:
-    return f"{prefix}-{uuid.uuid4().hex[:12]}@example.test"
+    return f"{prefix}-{uuid.uuid4().hex[:12]}@{EMAIL_DOMAIN}"
 
 
 # ── register ─────────────────────────────────────────────────────────────────
@@ -83,9 +90,7 @@ def test_login_succeeds_with_correct_credentials(client: TestClient) -> None:
     register(client, email)
     client.cookies.clear()
 
-    response = client.post(
-        "/api/v1/auth/login", json={"email": email, "password": STRONG_PASSWORD}
-    )
+    response = client.post("/api/v1/auth/login", json={"email": email, "password": STRONG_PASSWORD})
     assert response.status_code == 200
     assert response.json()["user"]["email"] == email
 
@@ -116,9 +121,7 @@ def test_wrong_password_and_unknown_email_are_indistinguishable(
     assert wrong.json()["error"]["message"] == unknown.json()["error"]["message"]
 
 
-def test_repeated_failures_lock_the_account(
-    client: TestClient, settings: Settings
-) -> None:
+def test_repeated_failures_lock_the_account(client: TestClient, settings: Settings) -> None:
     email = unique_email()
     register(client, email)
 
@@ -132,17 +135,13 @@ def test_repeated_failures_lock_the_account(
     assert codes[-1] == "ACCOUNT_LOCKED"
 
     # The correct password must not open a locked account.
-    locked = client.post(
-        "/api/v1/auth/login", json={"email": email, "password": STRONG_PASSWORD}
-    )
+    locked = client.post("/api/v1/auth/login", json={"email": email, "password": STRONG_PASSWORD})
     assert locked.status_code == 423
     assert locked.json()["error"]["code"] == "ACCOUNT_LOCKED"
     assert "locked_until" in locked.json()["error"]["details"]
 
 
-def test_successful_login_clears_the_failure_counter(
-    client: TestClient, db_session
-) -> None:  # type: ignore[no-untyped-def]
+def test_successful_login_clears_the_failure_counter(client: TestClient, db_session) -> None:  # type: ignore[no-untyped-def]
     email = unique_email()
     register(client, email)
 
@@ -191,11 +190,15 @@ def test_replaying_a_used_refresh_token_revokes_the_whole_family(
     assert replay.status_code == 401
     assert replay.json()["error"]["code"] == "REFRESH_REUSED"
 
-    live = db_session.execute(
-        select(RefreshToken).where(
-            RefreshToken.user_id == user_id, RefreshToken.revoked_at.is_(None)
+    live = (
+        db_session.execute(
+            select(RefreshToken).where(
+                RefreshToken.user_id == user_id, RefreshToken.revoked_at.is_(None)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     assert not live, "the token family survived a detected replay"
 
 
@@ -248,7 +251,5 @@ def test_me_requires_a_token(client: TestClient) -> None:
 def test_me_rejects_a_tampered_token(client: TestClient) -> None:
     payload = register(client, unique_email())
     tampered = payload["access_token"][:-4] + "AAAA"
-    response = client.get(
-        "/api/v1/auth/me", headers={"Authorization": f"Bearer {tampered}"}
-    )
+    response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {tampered}"})
     assert response.status_code == 401

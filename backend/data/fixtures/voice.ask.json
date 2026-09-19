@@ -1,0 +1,18 @@
+{
+  "question_id": "152e222f-4e82-5b40-a15a-2776a512f352",
+  "heard": "Why is Meridian flagged?",
+  "stt_confidence": 0.94,
+  "intent": "explain_flag",
+  "resolved_insight_id": "1e393acd-271a-5ffc-a3ca-13098a181f4d",
+  "answer_text": "Meridian Supply LLC is flagged because routed a payment through Advent Holdings on INV-4471 Meridian Supply. The dependency link between 'Payment' and '$48,200' accounts for 41 points of confidence \u2014 removing it downgrades the flag, so that connection is what's driving this.",
+  "citation": {
+    "document_id": "5206d34f-d6b2-59c5-bded-e978531573f8",
+    "document_title": "INV-4471 Meridian Supply",
+    "char_start": 411,
+    "char_end": 498,
+    "sentence_text": "Payment of $48,200 was routed through Advent Holdings on behalf of Meridian Supply LLC."
+  },
+  "ablation_run_id": "3fde1577-b55a-52fc-a4fe-7931f09ef2ad",
+  "audio_url": "/api/v1/voice/audio/a20163bd-e080-570e-a612-c8e0953c40bb.mp3",
+  "duration_ms": 16400
+}

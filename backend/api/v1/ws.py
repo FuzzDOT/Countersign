@@ -18,6 +18,7 @@ a 15-minute token over a localhost demo. It is in the debt ledger
 from __future__ import annotations
 
 import asyncio
+import time
 import uuid
 from typing import Annotated, Any
 
@@ -42,6 +43,17 @@ WS_INTERNAL = 1011
 
 # The mock progression, in order. Terminal frame is `done`, then the server
 # closes with 1000 — which is exactly the sequence the real pipeline emits.
+# Live polling cadence. The pipeline commits on every stage transition and
+# every 5 documents (brief §5), so a poll this frequent with change detection
+# reproduces exactly the push schedule the contract promises — without the
+# pipeline needing a handle on the socket, which would couple a background
+# thread to a connection that may already be gone.
+POLL_INTERVAL_SECONDS = 0.4
+
+# A socket that outlives any plausible job is a leak. `invoice_flood` is 120
+# documents; ten minutes is generous by an order of magnitude.
+MAX_STREAM_SECONDS = 600.0
+
 MOCK_SEQUENCE: tuple[tuple[str, float], ...] = (
     ("ingest.job.queued.json", 0.4),
     ("ingest.job.tagging.json", 1.2),
@@ -84,12 +96,9 @@ async def job_progress(
         if settings.mock_mode:
             await _stream_mock_progress(websocket, job_id)
         else:
-            # Stage 2 replaces this with a poll of the ingest_jobs row via
-            # asyncio.to_thread (the session is sync — see plan §1.1).
-            await websocket.close(
-                code=WS_INTERNAL, reason="job progress stream lands in build stage 2"
-            )
-            return
+            closed = await _stream_live_progress(websocket, job_id, principal.org_id)
+            if closed:
+                return
         await websocket.close(code=WS_NORMAL)
     except WebSocketDisconnect:
         # The frontend navigating away is normal, not an error.
@@ -103,3 +112,72 @@ async def _stream_mock_progress(websocket: WebSocket, job_id: uuid.UUID) -> None
         # Echo the id the client asked about so its query keys line up.
         frame["id"] = str(job_id)
         await websocket.send_json(frame)
+
+
+def _read_job(job_id: uuid.UUID, org_id: uuid.UUID) -> dict[str, Any] | None:
+    """Read one job row, scoped to the caller's organization.
+
+    Synchronous on purpose: the session is sync (plan §1.1) and the caller
+    hands this to `asyncio.to_thread`, which is the whole reason the handler
+    can be `async def` without an async database driver.
+
+    Returns None for a job that does not exist *for this org* — a job id
+    belonging to another tenant is indistinguishable from one that was never
+    created, which is the same answer `get_or_404` gives over HTTP.
+    """
+    from api.v1.ingest import job_out
+    from db.models import IngestJob
+    from db.session import db_session
+
+    with db_session() as db:
+        job = db.get(IngestJob, job_id)
+        if job is None or job.org_id != org_id:
+            return None
+        return job_out(job).model_dump(mode="json")
+
+
+def _signature(frame: dict[str, Any]) -> tuple[Any, ...]:
+    """What counts as a change worth pushing.
+
+    Progress is included, so the "every 5 documents" frames arrive; timestamps
+    are not, so a job that is merely still running does not generate a frame
+    per poll.
+    """
+    return (
+        frame["state"],
+        frame["docs_done"],
+        frame["insights_found"],
+        tuple(sorted(frame["stage_progress"].items())),
+    )
+
+
+async def _stream_live_progress(websocket: WebSocket, job_id: uuid.UUID, org_id: uuid.UUID) -> bool:
+    """Poll the job row and push on change. True if the socket was closed here.
+
+    Polling rather than a pub/sub channel: the pipeline runs in a background
+    thread in this same process, and the alternative — handing it a reference
+    to the socket — means a disconnected client can make an ingest job raise.
+    A 0.4s poll of one indexed row is cheaper than that coupling.
+    """
+    last: tuple[Any, ...] | None = None
+    deadline = time.monotonic() + MAX_STREAM_SECONDS
+
+    while time.monotonic() < deadline:
+        frame = await asyncio.to_thread(_read_job, job_id, org_id)
+        if frame is None:
+            await websocket.close(code=WS_POLICY_VIOLATION, reason="unknown job")
+            return True
+
+        signature = _signature(frame)
+        if signature != last:
+            await websocket.send_json(frame)
+            last = signature
+
+        if frame["state"] in ("done", "failed"):
+            return False
+
+        await asyncio.sleep(POLL_INTERVAL_SECONDS)
+
+    log.warning("ws_stream_timeout", job_id=str(job_id))
+    await websocket.close(code=WS_INTERNAL, reason="job did not finish in time")
+    return True

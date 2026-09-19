@@ -1,0 +1,17 @@
+{
+  "id": "3ca2cea4-a769-5c32-be59-20756efa1d21",
+  "state": "queued",
+  "docs_total": 34,
+  "docs_done": 0,
+  "insights_found": 0,
+  "stage_progress": {
+    "tagging": 0.0,
+    "parsing": 0.0,
+    "relating": 0.0,
+    "scoring": 0.0,
+    "routing": 0.0
+  },
+  "started_at": null,
+  "finished_at": null,
+  "error": null
+}

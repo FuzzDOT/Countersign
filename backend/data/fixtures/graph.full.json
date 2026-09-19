@@ -1,0 +1,769 @@
+{
+  "nodes": [
+    {
+      "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "canonical": "Meridian Supply LLC",
+      "entity_type": "ORG",
+      "mention_count": 36,
+      "degree": 30,
+      "risk": 0.785,
+      "flags": [
+        "ownership_cycle",
+        "shared_address",
+        "escalated_activity"
+      ]
+    },
+    {
+      "id": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "canonical": "Advent Holdings",
+      "entity_type": "ORG",
+      "mention_count": 15,
+      "degree": 12,
+      "risk": 0.8625,
+      "flags": [
+        "ownership_cycle",
+        "shared_address",
+        "escalated_activity"
+      ]
+    },
+    {
+      "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "canonical": "Northgate Logistics Inc",
+      "entity_type": "ORG",
+      "mention_count": 25,
+      "degree": 18,
+      "risk": 0.3833,
+      "flags": [
+        "escalated_activity"
+      ]
+    },
+    {
+      "id": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "canonical": "Kestrel Registry Ltd",
+      "entity_type": "ORG",
+      "mention_count": 20,
+      "degree": 14,
+      "risk": 0.8179,
+      "flags": [
+        "ownership_cycle",
+        "shared_address",
+        "escalated_activity"
+      ]
+    },
+    {
+      "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "canonical": "Halcyon Tooling LLC",
+      "entity_type": "ORG",
+      "mention_count": 30,
+      "degree": 23,
+      "risk": 0.3761,
+      "flags": [
+        "shared_address"
+      ]
+    },
+    {
+      "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "canonical": "Pinebrook Freight Co",
+      "entity_type": "ORG",
+      "mention_count": 19,
+      "degree": 16,
+      "risk": 0.3875,
+      "flags": [
+        "shared_address"
+      ]
+    },
+    {
+      "id": "aed8bdcf-c7bc-5d11-b8f0-cf5e2c1de565",
+      "canonical": "Dara Okonkwo",
+      "entity_type": "PERSON",
+      "mention_count": 3,
+      "degree": 3,
+      "risk": 0.3375,
+      "flags": [
+        "escalated_activity"
+      ]
+    },
+    {
+      "id": "31b02680-a7d2-585e-8279-5d631a39ff69",
+      "canonical": "Miles Vantree",
+      "entity_type": "PERSON",
+      "mention_count": 3,
+      "degree": 3,
+      "risk": 0.0875,
+      "flags": []
+    },
+    {
+      "id": "2bd23374-4de2-504c-aea4-f709e7503550",
+      "canonical": "Priya Raghunathan",
+      "entity_type": "PERSON",
+      "mention_count": 3,
+      "degree": 3,
+      "risk": 0.0875,
+      "flags": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "b29763e4-32e9-5541-8bc9-49d7df6ca22e",
+      "source": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "target": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.9213,
+      "vacuity": 0.1552,
+      "routing": "flag_for_review",
+      "insight_ids": [
+        "0ac53066-7377-5e34-af0b-d489c0e51e99",
+        "c6015353-e98b-5b4d-b7b1-4eb1f1a5902c"
+      ],
+      "weight": 2
+    },
+    {
+      "id": "5a28137b-19d1-5b9c-b553-8b069e5e3d0b",
+      "source": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "target": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "relation": "INVOICED",
+      "confidence": 0.99,
+      "vacuity": 0.01,
+      "routing": "auto_file",
+      "insight_ids": [
+        "e515fd30-8581-51fc-bfd5-ad479af3ecbb"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "94fde250-4d7c-51ff-9c77-ff17f8c26c74",
+      "source": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "target": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "relation": "INVOICED",
+      "confidence": 0.99,
+      "vacuity": 0.1132,
+      "routing": "auto_file",
+      "insight_ids": [
+        "3172ec0a-d48d-5a91-b832-e707df7a9b21",
+        "c2b43990-559e-5fdb-a4d3-7c5d0bd0b029"
+      ],
+      "weight": 2
+    },
+    {
+      "id": "b28aefa7-499d-551e-a2e0-34f57fca420e",
+      "source": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "target": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.6897,
+      "vacuity": 0.4943,
+      "routing": "flag_for_review",
+      "insight_ids": [
+        "92493cc6-80dc-5c71-9f19-2cf5ffaf4522"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "a374c9d9-aa27-5788-9409-486d88af4788",
+      "source": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "target": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.9894,
+      "vacuity": 0.1509,
+      "routing": "auto_file",
+      "insight_ids": [
+        "83447997-5af4-5cf2-b0bb-3ca4a2feadcb"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "dd00d64d-17cd-574c-a287-2a0d252a9df5",
+      "source": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "target": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "relation": "INVOICED",
+      "confidence": 0.6108,
+      "vacuity": 0.7969,
+      "routing": "auto_file",
+      "insight_ids": [
+        "c56659ef-b9a6-5512-9117-eb7f41dfad87",
+        "0d517e41-28ff-5757-be6a-25d5825a9f5c",
+        "70794026-5911-52ff-872a-1d4955ab9717"
+      ],
+      "weight": 3
+    },
+    {
+      "id": "e7260bc1-f5ef-59e2-8c8d-037062710d8e",
+      "source": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "target": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.8328,
+      "vacuity": 0.3763,
+      "routing": "auto_file",
+      "insight_ids": [
+        "2eb5f3e4-2412-5b8b-94fa-4318dc2fba62"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "be7fa618-8b36-5cb9-ae3b-b7c8bb7084d5",
+      "source": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "target": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.9889,
+      "vacuity": 0.0994,
+      "routing": "auto_file",
+      "insight_ids": [
+        "9e6d8b0d-525d-5acb-956b-07d96d7fbb28",
+        "db1db174-4508-52cb-b853-df03e0d28909"
+      ],
+      "weight": 2
+    },
+    {
+      "id": "c331d275-7754-5474-bb58-a90fcf37ed49",
+      "source": "aed8bdcf-c7bc-5d11-b8f0-cf5e2c1de565",
+      "target": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "relation": "SIGNATORY_OF",
+      "confidence": 0.8606,
+      "vacuity": 0.0508,
+      "routing": "flag_for_review",
+      "insight_ids": [
+        "209a223f-506f-5b1b-b944-085f94fb7593"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "0a3ed8c5-597b-5d47-8066-b46a5e9121d5",
+      "source": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "target": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "relation": "INVOICED",
+      "confidence": 0.9485,
+      "vacuity": 0.01,
+      "routing": "auto_file",
+      "insight_ids": [
+        "bbf4ac71-1da8-5ba6-8ed4-78a5156ccde7"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "54b45c70-04e1-573f-b3aa-c259ad513c7b",
+      "source": "31b02680-a7d2-585e-8279-5d631a39ff69",
+      "target": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "relation": "SIGNATORY_OF",
+      "confidence": 0.99,
+      "vacuity": 0.1017,
+      "routing": "auto_file",
+      "insight_ids": [
+        "7e6956c6-8cad-5111-ae81-b36e148f8f1e"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "ecece0c1-a2cc-5ac2-afa4-21ffc242700d",
+      "source": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "target": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.8948,
+      "vacuity": 0.0647,
+      "routing": "auto_file",
+      "insight_ids": [
+        "2866183f-9fb0-52f3-b038-0ca3e7906fcb",
+        "12e89ffe-4ab2-5da3-9b17-838171377285"
+      ],
+      "weight": 2
+    },
+    {
+      "id": "463529a5-3a80-58dc-9fb4-d515836040c6",
+      "source": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "target": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.8674,
+      "vacuity": 0.0592,
+      "routing": "auto_file",
+      "insight_ids": [
+        "67245947-9b8c-5e22-80ff-a3cbb05817a7"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "5f177cd6-c930-54d7-9e28-7a83f141ed34",
+      "source": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "target": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "relation": "INVOICED",
+      "confidence": 0.9432,
+      "vacuity": 0.3011,
+      "routing": "auto_file",
+      "insight_ids": [
+        "f23239f5-e232-515a-93c3-4205d807b396",
+        "bbed1eed-b77d-59b5-8987-6e4064dbec59"
+      ],
+      "weight": 2
+    },
+    {
+      "id": "225b8c5d-8182-549e-9911-64856bb3d2df",
+      "source": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "target": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "relation": "OWNED_BY",
+      "confidence": 0.5628,
+      "vacuity": 0.8229,
+      "routing": "escalate_now",
+      "insight_ids": [
+        "b6c8b842-450f-54a9-8196-0b44c26ffaf1"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "bff3b558-571b-5bc6-97dd-1406377da569",
+      "source": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "target": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "relation": "INVOICED",
+      "confidence": 0.7682,
+      "vacuity": 0.3365,
+      "routing": "auto_file",
+      "insight_ids": [
+        "f19474f1-2a8e-5cc8-a145-00f51a13b834"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "8819dfba-2547-5e38-ae9c-7589f5bd7f1f",
+      "source": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "target": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "relation": "INVOICED",
+      "confidence": 0.9746,
+      "vacuity": 0.1065,
+      "routing": "auto_file",
+      "insight_ids": [
+        "95e2a601-ab86-5eff-b235-17cb5ca71b1f",
+        "f7d6251d-c1b2-5f07-b00e-0be647f5d8e9"
+      ],
+      "weight": 2
+    },
+    {
+      "id": "9c5bb653-2e5f-5548-9319-d49d05874330",
+      "source": "2bd23374-4de2-504c-aea4-f709e7503550",
+      "target": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "relation": "SIGNATORY_OF",
+      "confidence": 0.9552,
+      "vacuity": 0.1136,
+      "routing": "auto_file",
+      "insight_ids": [
+        "454fd019-3952-5339-886f-9a840015d2c6"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "8762b06b-1360-57ae-9a7f-538166160bff",
+      "source": "2bd23374-4de2-504c-aea4-f709e7503550",
+      "target": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "relation": "SIGNATORY_OF",
+      "confidence": 0.9662,
+      "vacuity": 0.0805,
+      "routing": "auto_file",
+      "insight_ids": [
+        "2a4e86d0-d264-5390-a274-fd4e638fa43d"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "f98d7b84-9f2b-56c9-b4e3-fc1625467ea2",
+      "source": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "target": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "relation": "INVOICED",
+      "confidence": 0.8513,
+      "vacuity": 0.27,
+      "routing": "auto_file",
+      "insight_ids": [
+        "d2030c14-00bf-506a-ad86-7e8171fbe860"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "d803f06a-cf49-5201-b096-06da588677ba",
+      "source": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "target": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "relation": "INVOICED",
+      "confidence": 0.509,
+      "vacuity": 0.5087,
+      "routing": "flag_for_review",
+      "insight_ids": [
+        "e2f8a9d1-734e-59bc-89e0-114a079d152d"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "49ad1080-1827-5d7b-988c-73495c9107ab",
+      "source": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "target": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "relation": "INVOICED",
+      "confidence": 0.9091,
+      "vacuity": 0.4538,
+      "routing": "auto_file",
+      "insight_ids": [
+        "6bfd2735-48ab-5383-b560-d87218fd006a",
+        "4fb19856-4f14-595b-8df4-6ee3fbe9a103"
+      ],
+      "weight": 2
+    },
+    {
+      "id": "aedbd944-9382-5dd2-a2dc-2a17e87d5e65",
+      "source": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "target": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.5827,
+      "vacuity": 0.6979,
+      "routing": "flag_for_review",
+      "insight_ids": [
+        "ea173b27-5bc6-5799-adad-041cec5e1e3f",
+        "e3ebd174-904c-5594-ae54-3d64aacaae46"
+      ],
+      "weight": 2
+    },
+    {
+      "id": "4d32b139-6805-5183-bd39-14cef9938207",
+      "source": "aed8bdcf-c7bc-5d11-b8f0-cf5e2c1de565",
+      "target": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "relation": "SIGNATORY_OF",
+      "confidence": 0.7058,
+      "vacuity": 0.4064,
+      "routing": "escalate_now",
+      "insight_ids": [
+        "b094271e-2be2-571f-a614-87091a03686f"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "735a35a5-478e-5e6f-b36a-bfdafb2fd1c6",
+      "source": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "target": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.8902,
+      "vacuity": 0.2404,
+      "routing": "escalate_now",
+      "insight_ids": [
+        "afb0eed2-35a4-5279-ae73-967a9b7648cb"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "bd7ffdbc-37e6-589b-800d-2113507c8922",
+      "source": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "target": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "relation": "INVOICED",
+      "confidence": 0.9036,
+      "vacuity": 0.0142,
+      "routing": "auto_file",
+      "insight_ids": [
+        "83a5df8d-c2e5-527d-8c5f-f1e0200626d7"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "4f0fc62f-9281-575a-a60b-c4211f868587",
+      "source": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "target": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "relation": "INVOICED",
+      "confidence": 0.9281,
+      "vacuity": 0.01,
+      "routing": "auto_file",
+      "insight_ids": [
+        "223aa80b-b5a6-5228-87f3-c8c8a3dde758"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "02f3e58f-4aa9-559d-9483-cb1face2eae5",
+      "source": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "target": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "relation": "INVOICED",
+      "confidence": 0.99,
+      "vacuity": 0.01,
+      "routing": "auto_file",
+      "insight_ids": [
+        "5ec5a7ad-8c97-5293-9455-70e29fb346c7",
+        "af2fd57a-435d-5543-b25f-21fd3d0e7c6b"
+      ],
+      "weight": 2
+    },
+    {
+      "id": "cb9c3152-c865-5160-bf81-1d8a4a02e0b7",
+      "source": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "target": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.9054,
+      "vacuity": 0.0635,
+      "routing": "auto_file",
+      "insight_ids": [
+        "70e80ab9-b430-5044-8616-b2c80b068ddf"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "a6b69493-719a-530e-9d3f-b700fd4614ab",
+      "source": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "target": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "relation": "INVOICED",
+      "confidence": 0.7946,
+      "vacuity": 0.3502,
+      "routing": "auto_file",
+      "insight_ids": [
+        "0bd38c84-a1ee-5e1e-a820-77083f606ea2"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "e7193884-cc21-5d68-8eb2-9baea8315f76",
+      "source": "2bd23374-4de2-504c-aea4-f709e7503550",
+      "target": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "relation": "SIGNATORY_OF",
+      "confidence": 0.8139,
+      "vacuity": 0.2764,
+      "routing": "auto_file",
+      "insight_ids": [
+        "b7ef3e9a-b616-5c1a-b61a-c1d1511310e6"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "50feeae0-304d-555a-a4ad-ecd2809a2a18",
+      "source": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "target": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "relation": "INVOICED",
+      "confidence": 0.9797,
+      "vacuity": 0.1268,
+      "routing": "auto_file",
+      "insight_ids": [
+        "f0e48e69-4dd0-5d7a-bd80-ac39945b4c57"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "2c0e52d9-3bf2-5366-81b6-04e20949436f",
+      "source": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "target": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "relation": "INVOICED",
+      "confidence": 0.6005,
+      "vacuity": 0.6897,
+      "routing": "auto_file",
+      "insight_ids": [
+        "4b9c9795-2941-5b68-80c6-71155be0f026",
+        "1fb727b4-2136-55c5-bc2e-ca19f7561047"
+      ],
+      "weight": 2
+    },
+    {
+      "id": "2dd10858-5bfa-5202-8e80-a2035f3e2932",
+      "source": "31b02680-a7d2-585e-8279-5d631a39ff69",
+      "target": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "relation": "SIGNATORY_OF",
+      "confidence": 0.99,
+      "vacuity": 0.109,
+      "routing": "auto_file",
+      "insight_ids": [
+        "8c558f78-66c0-56eb-b5af-1dbea25874af"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "3631f2ed-b359-5da0-9a4d-e0b87059acfa",
+      "source": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "target": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "relation": "SHARES_ADDRESS_WITH",
+      "confidence": 0.8609,
+      "vacuity": 0.3999,
+      "routing": "flag_for_review",
+      "insight_ids": [
+        "4ee2832f-172e-5ea8-8d40-2902ee80fd09"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "2524f830-8b6e-57f2-a584-c984954efd47",
+      "source": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "target": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.5153,
+      "vacuity": 0.8814,
+      "routing": "flag_for_review",
+      "insight_ids": [
+        "bca80e8f-37ce-5e82-ac95-de4bc1587872"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "59922e6e-81cd-5194-aa71-5e5a6d15bce5",
+      "source": "31b02680-a7d2-585e-8279-5d631a39ff69",
+      "target": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "relation": "SIGNATORY_OF",
+      "confidence": 0.7781,
+      "vacuity": 0.5379,
+      "routing": "auto_file",
+      "insight_ids": [
+        "a93a4fc1-c091-5b0d-bdfb-1f16ccc16400"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "eb188e64-cfbe-5435-8d9a-e8e23671a62f",
+      "source": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "target": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "relation": "INVOICED",
+      "confidence": 0.9183,
+      "vacuity": 0.1952,
+      "routing": "auto_file",
+      "insight_ids": [
+        "76b86853-c45f-5703-b5e3-60703d63c2fe"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "5b4a33d3-ea0a-5ada-9711-236c0133c9d5",
+      "source": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "target": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "relation": "OWNED_BY",
+      "confidence": 0.9801,
+      "vacuity": 0.01,
+      "routing": "auto_file",
+      "insight_ids": [
+        "01db875f-9064-5406-a75a-5916973fb245"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "f9fc7bb7-025a-58c1-b8c2-e1e9cda18f9e",
+      "source": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+      "target": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "relation": "INVOICED",
+      "confidence": 0.99,
+      "vacuity": 0.01,
+      "routing": "auto_file",
+      "insight_ids": [
+        "86f3dd43-c408-55f7-9d0a-8787da87ec53"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "2183ddd3-1c83-5394-80fd-d0b33e9b1ee4",
+      "source": "aed8bdcf-c7bc-5d11-b8f0-cf5e2c1de565",
+      "target": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "relation": "SIGNATORY_OF",
+      "confidence": 0.5651,
+      "vacuity": 0.8728,
+      "routing": "escalate_now",
+      "insight_ids": [
+        "77abb81f-8a97-51d2-bfe2-7a6c00b25db6"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "ea96fc7e-7f24-5f29-8c96-d058fd4d6fd4",
+      "source": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "target": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "relation": "OWNED_BY",
+      "confidence": 0.8768,
+      "vacuity": 0.051,
+      "routing": "escalate_now",
+      "insight_ids": [
+        "ad5cb400-00d5-5f4f-a436-baaf91496c09"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "da9d61fb-a63c-5106-bde9-a09b9023f8fd",
+      "source": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "target": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.99,
+      "vacuity": 0.0771,
+      "routing": "auto_file",
+      "insight_ids": [
+        "fc3f51d0-7c2d-543e-b73d-ce4c57172fa8"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "f05c2e15-ec7c-5f0a-9829-318fea6542d7",
+      "source": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "target": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.654,
+      "vacuity": 0.4506,
+      "routing": "flag_for_review",
+      "insight_ids": [
+        "dc879653-ebdc-5ec9-9b19-b2fefd37b524"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "0218725b-9605-5d9b-bc11-0e395b2ecefb",
+      "source": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+      "target": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+      "relation": "SHARES_ADDRESS_WITH",
+      "confidence": 0.6485,
+      "vacuity": 0.5189,
+      "routing": "auto_file",
+      "insight_ids": [
+        "ee8828f9-8f98-5804-a8b5-f684a55a40f7"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "e202b64b-35c9-5467-9915-925ec4fd9fe3",
+      "source": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "target": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+      "relation": "OWNED_BY",
+      "confidence": 0.72,
+      "vacuity": 0.4456,
+      "routing": "flag_for_review",
+      "insight_ids": [
+        "1e438066-9ff3-5eea-b522-54efe8b60e07"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "42193497-4d3a-56b5-b326-c47a9f1c376b",
+      "source": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "target": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "relation": "INVOICED",
+      "confidence": 0.8098,
+      "vacuity": 0.2723,
+      "routing": "escalate_now",
+      "insight_ids": [
+        "4ce99269-e7d6-5671-8516-a3c49b5f9f7e"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "8822787f-3aeb-5a5a-b7a0-fe7e07d5826f",
+      "source": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "target": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "relation": "SHARES_ADDRESS_WITH",
+      "confidence": 0.9264,
+      "vacuity": 0.023,
+      "routing": "flag_for_review",
+      "insight_ids": [
+        "4f7bef48-3fe7-5c65-9b43-a6a0caffd9f6"
+      ],
+      "weight": 1
+    },
+    {
+      "id": "0936ec23-6f36-5349-baa6-45f4ab0fbe11",
+      "source": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+      "target": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+      "relation": "WIRED_FUNDS_TO",
+      "confidence": 0.7401,
+      "vacuity": 0.5957,
+      "routing": "escalate_now",
+      "insight_ids": [
+        "1e393acd-271a-5ffc-a3ca-13098a181f4d"
+      ],
+      "weight": 1
+    }
+  ],
+  "cycles": [
+    {
+      "node_ids": [
+        "5613874e-7fc0-5c71-a928-1afd76485aa4",
+        "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "e3cbb700-23ff-59aa-9e74-d8922d731310"
+      ],
+      "length": 3,
+      "relation": "OWNED_BY",
+      "risk": 0.91
+    }
+  ],
+  "truncated": false
+}

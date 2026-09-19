@@ -1,0 +1,210 @@
+{
+  "scenario": "train_corpus",
+  "seed": 20260919,
+  "epochs": 12,
+  "word_dropout": 0.3,
+  "train_documents": 340,
+  "dev_documents": 60,
+  "train_sentences": 2150,
+  "dev_sentences": 327,
+  "parameters": 916840,
+  "train_seconds": 68.9,
+  "loss_history": [
+    {
+      "epoch": 1,
+      "loss": 22.8806
+    },
+    {
+      "epoch": 2,
+      "loss": 8.2382
+    },
+    {
+      "epoch": 3,
+      "loss": 2.3125
+    },
+    {
+      "epoch": 4,
+      "loss": 1.0575
+    },
+    {
+      "epoch": 5,
+      "loss": 0.6764
+    },
+    {
+      "epoch": 6,
+      "loss": 0.4366
+    },
+    {
+      "epoch": 7,
+      "loss": 0.3294
+    },
+    {
+      "epoch": 8,
+      "loss": 0.2609
+    },
+    {
+      "epoch": 9,
+      "loss": 0.2225
+    },
+    {
+      "epoch": 10,
+      "loss": 0.1723
+    },
+    {
+      "epoch": 11,
+      "loss": 0.1686
+    },
+    {
+      "epoch": 12,
+      "loss": 0.1252
+    }
+  ],
+  "dev": {
+    "token_precision": 1.0,
+    "token_recall": 1.0,
+    "token_f1": 1.0,
+    "span_precision": 1.0,
+    "span_recall": 1.0,
+    "span_f1": 1.0,
+    "per_type": {
+      "ACCOUNT_REF": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 99.0
+      },
+      "DATE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 167.0
+      },
+      "MONEY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 70.0
+      },
+      "ORG": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 253.0
+      },
+      "PERSON": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 17.0
+      },
+      "TRANSACTION_TYPE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 41.0
+      }
+    },
+    "n_sentences": 327,
+    "n_gold_spans": 647
+  },
+  "weak_supervision_on_dev": {
+    "token_precision": 1.0,
+    "token_recall": 1.0,
+    "token_f1": 1.0,
+    "span_precision": 1.0,
+    "span_recall": 1.0,
+    "span_f1": 1.0,
+    "per_type": {
+      "ACCOUNT_REF": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 99.0
+      },
+      "DATE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 167.0
+      },
+      "MONEY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 70.0
+      },
+      "ORG": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 253.0
+      },
+      "PERSON": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 17.0
+      },
+      "TRANSACTION_TYPE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 41.0
+      }
+    },
+    "n_sentences": 327,
+    "n_gold_spans": 647
+  },
+  "heldout_scenario": "meridian_shell_ring",
+  "heldout": {
+    "token_precision": 0.9941,
+    "token_recall": 0.9902,
+    "token_f1": 0.9922,
+    "span_precision": 0.9861,
+    "span_recall": 0.9861,
+    "span_f1": 0.9861,
+    "per_type": {
+      "ACCOUNT_REF": {
+        "precision": 0.9851,
+        "recall": 1.0,
+        "f1": 0.9925,
+        "support": 66.0
+      },
+      "DATE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 81.0
+      },
+      "MONEY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 41.0
+      },
+      "ORG": {
+        "precision": 0.986,
+        "recall": 0.9724,
+        "f1": 0.9792,
+        "support": 145.0
+      },
+      "PERSON": {
+        "precision": 1.0,
+        "recall": 0.8889,
+        "f1": 0.9412,
+        "support": 9.0
+      },
+      "TRANSACTION_TYPE": {
+        "precision": 0.9048,
+        "recall": 1.0,
+        "f1": 0.95,
+        "support": 19.0
+      }
+    },
+    "n_sentences": 167,
+    "n_gold_spans": 361
+  },
+  "note": "`dev` is a held-out slice of train_corpus: same 36 templates, same TRAIN_* name pool. On a closed-vocabulary synthetic corpus the weak labeling functions are exact against the generator's gold (see weak_supervision_on_dev), so `dev` measures how well the model fits a distribution it has fully seen and nothing more \u2014 read it as a floor, not as a result. `heldout` is the number worth quoting: meridian_shell_ring uses the HELDOUT_* name pools and 10% band-D syntax, neither of which the model or the gazetteer has ever seen. Both corpora are ones we authored; the writeup says so rather than implying real-world performance.",
+  "checkpoint": "/app/ml/checkpoints/tagger.pt",
+  "checkpoint_bytes": 3681358
+}

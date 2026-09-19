@@ -29,7 +29,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # The value shipped in .env.example. If this reaches production, the app refuses
 # to start rather than signing tokens with a public secret.
-PLACEHOLDER_JWT_SECRET = "change-me-openssl-rand-hex-32"
+PLACEHOLDER_JWT_SECRET = "change-me-openssl-rand-hex-32"  # noqa: S105 - the value we refuse  # noqa: S105 - the value we refuse
 
 BACKEND_ROOT = Path(__file__).resolve().parent.parent
 
@@ -237,7 +237,9 @@ class Settings(BaseSettings):
         if self.mock_error_rate > 0:
             problems.append("MOCK_ERROR_RATE must be 0 in production")
         if self.db_echo:
-            problems.append("DB_ECHO must be false in production — it logs full SQL including values")
+            problems.append(
+                "DB_ECHO must be false in production — it logs full SQL including values"
+            )
         return problems
 
 

@@ -52,7 +52,22 @@ def emit_and_capture(
     return json.loads(captured[-1])
 
 
-# ── the bug that broke startup ───────────────────────────────────────────────
+# ── the bugs that broke startup ──────────────────────────────────────────────
+
+
+def test_get_logger_accepts_a_name_without_colliding() -> None:
+    """`get_logger` must not pass a reserved keyword to structlog.
+
+    `structlog.get_logger(**initial_values)` forwards into
+    `wrap_logger(logger, ...)`, so binding the module name under the key
+    `logger` raises `TypeError: got multiple values for argument 'logger'`.
+    Because every module calls `get_logger(__name__)` at import time, that
+    error surfaces as an ImportError during test collection and nothing runs
+    at all — so it is worth asserting on its own, ahead of any log call.
+    """
+    logger = get_logger("tests.naming")
+    assert logger is not None
+    assert get_logger() is not None
 
 
 def test_a_log_call_actually_emits(capsys: pytest.CaptureFixture[str]) -> None:
@@ -234,9 +249,23 @@ def test_request_id_is_a_26_char_crockford_ulid() -> None:
 
 
 def test_request_ids_sort_chronologically() -> None:
-    """Timestamp-prefixed, so grepping "what happened just before this" works."""
-    first, second = new_request_id(), new_request_id()
-    assert first <= second
+    """Timestamp-prefixed, so grepping "what happened just before this" works.
+
+    The guarantee is across milliseconds, not within one: the low 80 bits are
+    random, so two ids minted in the same millisecond order arbitrarily.
+    Asserting `first <= second` on back-to-back calls made this test a coin
+    flip that failed roughly half the time. Sleeping past a millisecond
+    boundary tests the property the docstring actually claims.
+    """
+    import time as _time
+
+    first = new_request_id()
+    _time.sleep(0.002)
+    second = new_request_id()
+
+    assert first < second
+    # The timestamp is the first 48 bits, which is the first 10 base32 chars.
+    assert first[:10] <= second[:10]
 
 
 def test_request_id_appears_on_every_log_line(

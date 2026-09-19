@@ -45,11 +45,14 @@ def include_object(obj, name, type_, reflected, compare_to) -> bool:
     """
     if type_ == "table" and name in {"spatial_ref_sys"}:
         return False
-    if type_ == "index" and name in {
-        "ix_entities_embedding_hnsw",
-        "ix_insights_sentence_text_trgm",
-    }:
-        return False
+    return not (
+        type_ == "index"
+        and name
+        in {
+            "ix_entities_embedding_hnsw",
+            "ix_insights_sentence_text_trgm",
+        }
+    )
     return True
 
 

@@ -23,11 +23,13 @@ from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 
 from api.errors import (
+    AppError,
     Forbidden,
     NotFound,
     Unauthenticated,
     ValidationFailed,
 )
+from core import ids
 from core.config import Settings, get_settings
 from core.security import Principal, decode_access_token
 from db.models import Base, OrgScoped, User, UserRole
@@ -112,6 +114,7 @@ def get_principal(
 def get_current_user(
     principal: Annotated[Principal, Depends(get_principal)],
     db: Annotated[Session, Depends(get_db)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> User:
     """Load the live user row. Use where freshness matters (e.g. /auth/me).
 
@@ -119,6 +122,27 @@ def get_current_user(
     cryptographically valid after deactivation, so any endpoint that should
     stop working immediately must depend on this rather than on the principal.
     """
+    if settings.mock_mode:
+        # Mock mode promises the frontend a working API with no Postgres at
+        # all (brief §12). This dependency was the one thing that broke that:
+        # a token minted by mock login is valid, but the user row it points at
+        # does not exist, so /auth/me returned 401 and the frontend's session
+        # bootstrap would have failed on their first commit.
+        #
+        # The object is synthesized from the verified token and never added to
+        # a session. The handler is fixture-backed in mock mode and does not
+        # read it — what matters is that a valid token resolves rather than
+        # 401s. Signature verification and permission checks are unaffected
+        # and still real.
+        return User(
+            id=principal.user_id,
+            org_id=principal.org_id,
+            email=ids.DEMO_OWNER_EMAIL,
+            password_hash="",
+            role=UserRole(principal.role),
+            is_active=True,
+        )
+
     user = db.get(User, principal.user_id)
     if user is None or not user.is_active:
         raise Unauthenticated("This account is no longer active.")
@@ -194,7 +218,7 @@ class Scope:
         model: type[ScopedModel],
         record_id: uuid.UUID,
         *,
-        error: type[NotFound] = NotFound,
+        error: type[AppError] = NotFound,
     ) -> ScopedModel:
         stmt = self.query(model).where(model.id == record_id)
         found = self.db.execute(stmt).scalar_one_or_none()
@@ -214,11 +238,7 @@ class Scope:
         only through an org-scoped parent. Forcing the join through this method
         means those tables cannot be read unfiltered by accident.
         """
-        return (
-            select(model)
-            .join(parent, join_condition)
-            .where(parent.org_id == self.org_id)
-        )
+        return select(model).join(parent, join_condition).where(parent.org_id == self.org_id)
 
 
 def get_scope(
@@ -292,3 +312,97 @@ PrincipalDep = Annotated[Principal, Depends(get_principal)]
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
 ScopeDep = Annotated[Scope, Depends(get_scope)]
 PaginationDep = Annotated[Pagination, Depends(get_pagination)]
+
+
+# ── keyset pagination helper ─────────────────────────────────────────────────
+
+
+@dataclass(slots=True)
+class Page:
+    """One page of rows plus the envelope the response model expects."""
+
+    rows: list[Any]
+    next_cursor: str | None
+    cursor: str | None
+    limit: int
+
+    def envelope(self) -> dict[str, Any]:
+        return {
+            "cursor": self.cursor,
+            "next_cursor": self.next_cursor,
+            "has_more": self.next_cursor is not None,
+            "limit": self.limit,
+        }
+
+
+def keyset_page(
+    db: Session,
+    stmt: Select[Any],
+    pagination: Pagination,
+    *,
+    sort_column: Any,
+    id_column: Any,
+    sort_value: Callable[[Any], str],
+    parse_sort_value: Callable[[str], Any],
+    descending: bool = True,
+) -> Page:
+    """Fetch one keyset page, ordered by `(sort_column, id_column)`.
+
+    Keyset rather than OFFSET for the reason in `Cursor`: rows arrive during
+    the demo, and an offset second page would skip or repeat them. The id is
+    part of the key so a tie on the sort column — two documents received in
+    the same second, which the generator produces on purpose — cannot make a
+    row invisible.
+
+    One row past the limit is fetched to decide `has_more` without a second
+    COUNT query over the same predicate.
+    """
+    from sqlalchemy import literal, tuple_
+
+    if pagination.cursor is not None:
+        boundary = tuple_(sort_column, id_column)
+        pivot = tuple_(
+            literal(parse_sort_value(pagination.cursor.sort_value)),
+            literal(pagination.cursor.record_id),
+        )
+        stmt = stmt.where(boundary < pivot if descending else boundary > pivot)
+
+    order = (
+        (sort_column.desc(), id_column.desc())
+        if descending
+        else (sort_column.asc(), id_column.asc())
+    )
+    rows = list(db.execute(stmt.order_by(*order).limit(pagination.limit + 1)).scalars())
+
+    next_cursor: str | None = None
+    if len(rows) > pagination.limit:
+        rows = rows[: pagination.limit]
+        last = rows[-1]
+        # The sort value is read off the row through the column's own key,
+        # so a caller cannot pass a formatter and a column that disagree.
+        next_cursor = Cursor(
+            sort_value=sort_value(getattr(last, sort_column.key)), record_id=last.id
+        ).encode()
+
+    return Page(
+        rows=rows,
+        next_cursor=next_cursor,
+        cursor=pagination.cursor.encode() if pagination.cursor else None,
+        limit=pagination.limit,
+    )
+
+
+def iso_cursor_value(value: Any) -> str:
+    return value.isoformat()
+
+
+def parse_iso_cursor_value(raw: str) -> Any:
+    from datetime import datetime
+
+    try:
+        return datetime.fromisoformat(raw)
+    except ValueError:
+        raise ValidationFailed(
+            "The pagination cursor is not valid.",
+            details={"fields": {"cursor": "unparseable sort value"}},
+        ) from None

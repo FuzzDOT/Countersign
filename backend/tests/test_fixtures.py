@@ -9,6 +9,7 @@ table exactly.
 
 from __future__ import annotations
 
+import itertools
 import json
 
 import pytest
@@ -44,22 +45,22 @@ def test_coverage_matches_the_route_table(app: FastAPI) -> None:
 
 
 @pytest.mark.parametrize("name", sorted(BUILT))
-def test_fixtures_on_disk_match_what_the_builder_produces(
-    name: str, settings: Settings
-) -> None:
+def test_fixtures_on_disk_match_what_the_builder_produces(name: str, settings: Settings) -> None:
     """Catches a fixture edited by hand, or one left stale after a model change.
 
     Hand-editing a fixture is the failure mode this is really aimed at: it
     works for one afternoon and then silently disagrees with the server.
     """
-    path = fixture_path(name, settings) if "/" not in name else (
-        settings.path(settings.fixtures_dir) / name
+    path = (
+        fixture_path(name, settings)
+        if "/" not in name
+        else (settings.path(settings.fixtures_dir) / name)
     )
     if not path.exists():
         pytest.skip(f"{name} not yet generated — run `make fixtures`")
-    assert json.loads(path.read_text(encoding="utf-8")) == validate(name, BUILT[name]), (
-        f"{name} on disk differs from the generated payload. Run `make fixtures`."
-    )
+    assert json.loads(path.read_text(encoding="utf-8")) == validate(
+        name, BUILT[name]
+    ), f"{name} on disk differs from the generated payload. Run `make fixtures`."
 
 
 def test_document_spans_index_into_the_returned_raw_text() -> None:
@@ -84,9 +85,9 @@ def test_document_spans_index_into_the_returned_raw_text() -> None:
         assert sliced, f"empty span at {span['char_start']}:{span['char_end']}"
 
         insight = by_id.get(span["insight_id"])
-        assert insight is not None, (
-            f"span references insight {span['insight_id']} which does not exist"
-        )
+        assert (
+            insight is not None
+        ), f"span references insight {span['insight_id']} which does not exist"
         assert sliced == insight.gold.sentence_text, (
             "a span in documents.detail.json does not slice to the sentence its "
             "insight cites — every citation highlight in the UI would be misplaced"
@@ -197,9 +198,7 @@ def test_fragility_scatter_is_consistent_with_the_reported_correlation() -> None
     fragility = BUILT["evals.fragility.json"]
     scatter = fragility["scatter"]
     assert len(scatter) == fragility["n_insights"]
-    recomputed = spearman(
-        [p["vacuity"] for p in scatter], [p["fragility"] for p in scatter]
-    )
+    recomputed = spearman([p["vacuity"] for p in scatter], [p["fragility"] for p in scatter])
     assert abs(recomputed - fragility["correlation"]["spearman"]) < 0.02
 
 
@@ -260,7 +259,7 @@ def test_briefing_transcript_segments_are_ordered_and_mapped() -> None:
     briefing = BUILT["voice.briefing.json"]
     segments = briefing["transcript"]
     assert segments
-    for earlier, later in zip(segments, segments[1:], strict=False):
+    for earlier, later in itertools.pairwise(segments):
         assert earlier["end_ms"] <= later["start_ms"], "transcript segments overlap"
     mapped = [s["insight_id"] for s in segments if s["insight_id"]]
     assert mapped, "no segment maps to an insight — the highlight sync has nothing to drive"

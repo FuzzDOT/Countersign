@@ -31,7 +31,6 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
-    Enum as SAEnum,
     Float,
     ForeignKey,
     Index,
@@ -43,6 +42,9 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
     text,
+)
+from sqlalchemy import (
+    Enum as SAEnum,
 )
 from sqlalchemy.dialects.postgresql import CITEXT, INET, JSONB, UUID
 from sqlalchemy.orm import (
@@ -177,7 +179,7 @@ class UuidPk:
     """
 
     @declared_attr
-    def id(cls) -> Mapped[uuid.UUID]:  # noqa: N805 - declared_attr takes cls
+    def id(cls) -> Mapped[uuid.UUID]:
         return mapped_column(
             UUID(as_uuid=True),
             primary_key=True,
@@ -210,7 +212,7 @@ class OrgScoped(UuidPk):
     """
 
     @declared_attr
-    def org_id(cls) -> Mapped[uuid.UUID]:  # noqa: N805 - declared_attr takes cls
+    def org_id(cls) -> Mapped[uuid.UUID]:
         return mapped_column(
             UUID(as_uuid=True),
             ForeignKey("organizations.id", ondelete="CASCADE"),
@@ -478,7 +480,9 @@ class Insight(OrgScoped, Base):
     __table_args__ = (
         # THE hot path: the feed's default query is this org's items filtered by
         # routing bucket, newest first.
-        Index("ix_insights_org_id_routing_created_at", "org_id", "routing", text("created_at DESC")),
+        Index(
+            "ix_insights_org_id_routing_created_at", "org_id", "routing", text("created_at DESC")
+        ),
         # The cascade gate scans the high-vacuity tail; descending matters.
         Index("ix_insights_org_id_vacuity", "org_id", text("vacuity DESC")),
         Index("ix_insights_document_id", "document_id"),
@@ -636,9 +640,7 @@ class RoutingEvalCase(OrgScoped, Base):
     __table_args__ = (
         Index("ix_routing_eval_cases_org_id_split", "org_id", "split"),
         Index("ix_routing_eval_cases_insight_id", "insight_id"),
-        CheckConstraint(
-            "split IN ('eval','classical_only','nemotron_all')", name="split_known"
-        ),
+        CheckConstraint("split IN ('eval','classical_only','nemotron_all')", name="split_known"),
     )
 
 
@@ -651,9 +653,7 @@ class IngestJob(OrgScoped, Base):
     state: Mapped[JobState] = mapped_column(
         _pg_enum(JobState, "job_state"), nullable=False, server_default=text("'queued'")
     )
-    doc_ids: Mapped[list[uuid.UUID]] = mapped_column(
-        ARRAY(UUID(as_uuid=True)), nullable=False
-    )
+    doc_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)), nullable=False)
     docs_total: Mapped[int] = mapped_column(Integer, nullable=False)
     docs_done: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
     insights_found: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))

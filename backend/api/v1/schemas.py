@@ -1,6 +1,6 @@
 """Every request and response model for /api/v1.
 
-This module is the machine-readable form of 01-BACKEND-BRIEF.md §4–§11. The
+This module is the machine-readable form of 01-BACKEND-BRIEF.md §4—§11. The
 frontend generates its TypeScript from the OpenAPI schema these produce
 (frontend brief §4.1), so a field renamed here is a breaking change and a
 field added as required here breaks their build.
@@ -108,7 +108,7 @@ class AuthResponse(Schema):
 
     user: UserOut
     access_token: str
-    token_type: Literal["bearer"] = "bearer"
+    token_type: Literal["bearer"] = "bearer"  # noqa: S105 - a scheme name, not a secret  # noqa: S105 - a scheme name, not a secret
     expires_in: int = Field(description="Access token lifetime in seconds.")
 
 

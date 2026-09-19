@@ -1,0 +1,859 @@
+{
+  "data": [
+    {
+      "id": "0ac53066-7377-5e34-af0b-d489c0e51e99",
+      "relation": "WIRED_FUNDS_TO",
+      "subject": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+        "canonical": "Pinebrook Freight Co",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "1eda5e4f-9449-5793-93a0-ee0db325cf7c",
+        "document_title": "Ledger export INV-2020",
+        "char_start": 49,
+        "char_end": 133,
+        "sentence_text": "Meridian Supply LLC paid Pinebrook Freight Co $8,700 by wire transfer on 2026-09-08."
+      },
+      "trust": {
+        "confidence": 0.9213,
+        "vacuity": 0.1552,
+        "dissonance": 0.213,
+        "fragility": 0.0
+      },
+      "routing": "flag_for_review",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:41Z"
+    },
+    {
+      "id": "e515fd30-8581-51fc-bfd5-ad479af3ecbb",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+        "canonical": "Pinebrook Freight Co",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "33d721f3-3c99-5d35-a33c-084c59f5f48a",
+        "document_title": "Ledger export REF/16861/B",
+        "char_start": 52,
+        "char_end": 133,
+        "sentence_text": "Invoice REF/16861/B from Pinebrook Freight Co to Halcyon Tooling LLC totals $600."
+      },
+      "trust": {
+        "confidence": 0.99,
+        "vacuity": 0.01,
+        "dissonance": 0.0978,
+        "fragility": 0.13
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:38Z"
+    },
+    {
+      "id": "3172ec0a-d48d-5a91-b832-e707df7a9b21",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+        "canonical": "Pinebrook Freight Co",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "8c3cfba7-8687-56f1-9e45-966f594e4ce0",
+        "document_title": "Note on INV-68457",
+        "char_start": 41,
+        "char_end": 114,
+        "sentence_text": "Meridian Supply LLC invoiced Pinebrook Freight Co $8,100 on Sep 10, 2026."
+      },
+      "trust": {
+        "confidence": 0.99,
+        "vacuity": 0.1132,
+        "dissonance": 0.1224,
+        "fragility": 0.0
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:35Z"
+    },
+    {
+      "id": "c2b43990-559e-5fdb-a4d3-7c5d0bd0b029",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+        "canonical": "Pinebrook Freight Co",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "fb8d0d27-046d-5893-869b-122f2d9e3fec",
+        "document_title": "Note on INV-49753",
+        "char_start": 111,
+        "char_end": 229,
+        "sentence_text": "Invoice INV-49753 from Meridian Supply LLC to Pinebrook Freight was submitted 7 days ahead of the contracted schedule."
+      },
+      "trust": {
+        "confidence": 0.8293,
+        "vacuity": 0.266,
+        "dissonance": 0.2728,
+        "fragility": 0.13
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:32Z"
+    },
+    {
+      "id": "92493cc6-80dc-5c71-9f19-2cf5ffaf4522",
+      "relation": "WIRED_FUNDS_TO",
+      "subject": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+        "canonical": "Pinebrook Freight Co",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "14d490fa-c434-522e-8bdb-3503e31a28b7",
+        "document_title": "GDELT: Northgate Logistics",
+        "char_start": 164,
+        "char_end": 263,
+        "sentence_text": "Payment of $94,236.86 was routed through Pinebrook Freight Co on behalf of Northgate Logistics Inc."
+      },
+      "trust": {
+        "confidence": 0.6897,
+        "vacuity": 0.4943,
+        "dissonance": 0.3873,
+        "fragility": 0.2
+      },
+      "routing": "flag_for_review",
+      "resolved_by": "nemotron",
+      "nemotron": {
+        "run_id": "1ff892ad-8438-5523-963a-1c1fa7f77229",
+        "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
+        "latency_ms": 593
+      },
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:29Z"
+    },
+    {
+      "id": "83447997-5af4-5cf2-b0bb-3ca4a2feadcb",
+      "relation": "WIRED_FUNDS_TO",
+      "subject": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+        "canonical": "Advent Holdings",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "7b198e5c-2f5b-51bc-b558-277fff1455f6",
+        "document_title": "GDELT: Halcyon Tooling",
+        "char_start": 186,
+        "char_end": 253,
+        "sentence_text": "Halcyon Tooling LLC wired $59,000 to Advent Holdings on 2026-08-12."
+      },
+      "trust": {
+        "confidence": 0.9894,
+        "vacuity": 0.1509,
+        "dissonance": 0.1194,
+        "fragility": 0.13
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:26Z"
+    },
+    {
+      "id": "c56659ef-b9a6-5512-9117-eb7f41dfad87",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "ce50d9b4-751d-5f70-a1e6-6daca8fad092",
+        "document_title": "Trade Wire: Halcyon Tooling",
+        "char_start": 139,
+        "char_end": 248,
+        "sentence_text": "$4,400 in receivables recognized by Halcyon Tooling is attributable to services rendered for Meridian Supply."
+      },
+      "trust": {
+        "confidence": 0.6108,
+        "vacuity": 0.7969,
+        "dissonance": 0.216,
+        "fragility": 0.27
+      },
+      "routing": "auto_file",
+      "resolved_by": "nemotron",
+      "nemotron": {
+        "run_id": "9ea7c231-1431-5299-bb3e-93d9a040b8c6",
+        "rationale": "Routine vendor activity with no corroborating risk signal in the two-hop neighbourhood. Filing.",
+        "latency_ms": 1676
+      },
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:23Z"
+    },
+    {
+      "id": "2eb5f3e4-2412-5b8b-94fa-4318dc2fba62",
+      "relation": "WIRED_FUNDS_TO",
+      "subject": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "2789fa10-5ae7-5521-b3e6-f1b31a33fcc3",
+        "document_title": "Trade Wire: Northgate Logistics",
+        "char_start": 73,
+        "char_end": 168,
+        "sentence_text": "A payment of $586.14 was wired to Halcyon Tooling LLC by Northgate Logistics Inc on 2026-09-14."
+      },
+      "trust": {
+        "confidence": 0.8328,
+        "vacuity": 0.3763,
+        "dissonance": 0.3713,
+        "fragility": 0.07
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:20Z"
+    },
+    {
+      "id": "9e6d8b0d-525d-5acb-956b-07d96d7fbb28",
+      "relation": "WIRED_FUNDS_TO",
+      "subject": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "6c2eeac5-0c39-5e7a-a70f-433f457696e0",
+        "document_title": "Trade Wire: Meridian Supply",
+        "char_start": 361,
+        "char_end": 432,
+        "sentence_text": "Meridian Supply LLC wired $5,100 to Halcyon Tooling LLC on Aug 6, 2026."
+      },
+      "trust": {
+        "confidence": 0.9889,
+        "vacuity": 0.0994,
+        "dissonance": 0.2058,
+        "fragility": 0.2
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:17Z"
+    },
+    {
+      "id": "209a223f-506f-5b1b-b944-085f94fb7593",
+      "relation": "SIGNATORY_OF",
+      "subject": {
+        "id": "aed8bdcf-c7bc-5d11-b8f0-cf5e2c1de565",
+        "canonical": "Dara Okonkwo",
+        "entity_type": "PERSON"
+      },
+      "object": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "6c2eeac5-0c39-5e7a-a70f-433f457696e0",
+        "document_title": "Trade Wire: Meridian Supply",
+        "char_start": 246,
+        "char_end": 309,
+        "sentence_text": "Dara Okonkwo is an authorized signatory of Meridian Supply LLC."
+      },
+      "trust": {
+        "confidence": 0.8606,
+        "vacuity": 0.0508,
+        "dissonance": 0.1235,
+        "fragility": 0.0
+      },
+      "routing": "flag_for_review",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:17Z"
+    },
+    {
+      "id": "bbf4ac71-1da8-5ba6-8ed4-78a5156ccde7",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+        "canonical": "Advent Holdings",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "d178e472-af2c-5049-811d-a4700ee41153",
+        "document_title": "Northgate Logistics announcement",
+        "char_start": 134,
+        "char_end": 218,
+        "sentence_text": "Invoice REF/3682/B from Northgate Logistics Inc to Advent Holdings totals $9,080.00."
+      },
+      "trust": {
+        "confidence": 0.9485,
+        "vacuity": 0.01,
+        "dissonance": 0.0,
+        "fragility": 0.0
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:14Z"
+    },
+    {
+      "id": "7e6956c6-8cad-5111-ae81-b36e148f8f1e",
+      "relation": "SIGNATORY_OF",
+      "subject": {
+        "id": "31b02680-a7d2-585e-8279-5d631a39ff69",
+        "canonical": "Miles Vantree",
+        "entity_type": "PERSON"
+      },
+      "object": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "d178e472-af2c-5049-811d-a4700ee41153",
+        "document_title": "Northgate Logistics announcement",
+        "char_start": 58,
+        "char_end": 133,
+        "sentence_text": "Miles Vantree signed on behalf of Meridian Supply LLC on 16 September 2026."
+      },
+      "trust": {
+        "confidence": 0.99,
+        "vacuity": 0.1017,
+        "dissonance": 0.0957,
+        "fragility": 0.0
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:14Z"
+    },
+    {
+      "id": "2866183f-9fb0-52f3-b038-0ca3e7906fcb",
+      "relation": "WIRED_FUNDS_TO",
+      "subject": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "7e56bee7-0f58-516b-9779-00caa21f4a72",
+        "document_title": "Northgate Logistics announcement",
+        "char_start": 271,
+        "char_end": 346,
+        "sentence_text": "Halcyon Tooling LLC wired $865.02 to Meridian Supply LLC on 16 August 2026."
+      },
+      "trust": {
+        "confidence": 0.8948,
+        "vacuity": 0.0647,
+        "dissonance": 0.2031,
+        "fragility": 0.0
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:11Z"
+    },
+    {
+      "id": "67245947-9b8c-5e22-80ff-a3cbb05817a7",
+      "relation": "WIRED_FUNDS_TO",
+      "subject": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "7e56bee7-0f58-516b-9779-00caa21f4a72",
+        "document_title": "Northgate Logistics announcement",
+        "char_start": 58,
+        "char_end": 144,
+        "sentence_text": "Northgate Logistics Inc paid Meridian Supply LLC $5,980.55 by ACH debit on 2026-08-23."
+      },
+      "trust": {
+        "confidence": 0.8674,
+        "vacuity": 0.0592,
+        "dissonance": 0.1403,
+        "fragility": 0.13
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:11Z"
+    },
+    {
+      "id": "f23239f5-e232-515a-93c3-4205d807b396",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "2fa9268c-3b40-54e1-842c-8827a7abfc70",
+        "document_title": "Kestrel Registry announcement",
+        "char_start": 404,
+        "char_end": 484,
+        "sentence_text": "Northgate Logistics Inc invoiced Halcyon Tooling LLC $9,213.47 on 7 August 2026."
+      },
+      "trust": {
+        "confidence": 0.9432,
+        "vacuity": 0.3011,
+        "dissonance": 0.3824,
+        "fragility": 0.07
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:08Z"
+    },
+    {
+      "id": "b6c8b842-450f-54a9-8196-0b44c26ffaf1",
+      "relation": "OWNED_BY",
+      "subject": {
+        "id": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+        "canonical": "Kestrel Registry Ltd",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "2fa9268c-3b40-54e1-842c-8827a7abfc70",
+        "document_title": "Kestrel Registry announcement",
+        "char_start": 106,
+        "char_end": 260,
+        "sentence_text": "The beneficial interest in Kestrel Registry Limited is attributed to Meridian Supply LLC under the look-through provisions cited in the 2026-09-15 filing."
+      },
+      "trust": {
+        "confidence": 0.5628,
+        "vacuity": 0.8229,
+        "dissonance": 0.2681,
+        "fragility": 0.21
+      },
+      "routing": "escalate_now",
+      "resolved_by": "nemotron",
+      "nemotron": {
+        "run_id": "e1e12934-aba2-599b-b67a-7341c2c1fb46",
+        "rationale": "Third-party payment routing combined with a shared registered address across two counterparties is consistent with layering. Escalating.",
+        "latency_ms": 853
+      },
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:08Z"
+    },
+    {
+      "id": "f19474f1-2a8e-5cc8-a145-00f51a13b834",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "7d544d28-e054-5e9f-9a62-b0cc5d499d9e",
+        "document_title": "Re: ACCT-8356-X \u2014 Halcyon Tooling",
+        "char_start": 346,
+        "char_end": 431,
+        "sentence_text": "Northgate Logistics was invoiced $500 by Halcyon Tooling under reference ACCT-8356-X."
+      },
+      "trust": {
+        "confidence": 0.7682,
+        "vacuity": 0.3365,
+        "dissonance": 0.3631,
+        "fragility": 0.2
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:05Z"
+    },
+    {
+      "id": "95e2a601-ab86-5eff-b235-17cb5ca71b1f",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+        "canonical": "Pinebrook Freight Co",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "7d544d28-e054-5e9f-9a62-b0cc5d499d9e",
+        "document_title": "Re: ACCT-8356-X \u2014 Halcyon Tooling",
+        "char_start": 261,
+        "char_end": 345,
+        "sentence_text": "Invoice ACCT-8356-X from Halcyon Tooling LLC to Pinebrook Freight Co totals $843.81."
+      },
+      "trust": {
+        "confidence": 0.9746,
+        "vacuity": 0.1065,
+        "dissonance": 0.1946,
+        "fragility": 0.0
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:05Z"
+    },
+    {
+      "id": "454fd019-3952-5339-886f-9a840015d2c6",
+      "relation": "SIGNATORY_OF",
+      "subject": {
+        "id": "2bd23374-4de2-504c-aea4-f709e7503550",
+        "canonical": "Priya Raghunathan",
+        "entity_type": "PERSON"
+      },
+      "object": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "358738cd-c9d5-5630-a2c3-6f8ae32257de",
+        "document_title": "Re: PO 071554 \u2014 Meridian Supply",
+        "char_start": 342,
+        "char_end": 418,
+        "sentence_text": "Priya Raghunathan signed on behalf of Northgate Logistics Inc on 2026-08-31."
+      },
+      "trust": {
+        "confidence": 0.9552,
+        "vacuity": 0.1136,
+        "dissonance": 0.2264,
+        "fragility": 0.0
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:02Z"
+    },
+    {
+      "id": "2a4e86d0-d264-5390-a274-fd4e638fa43d",
+      "relation": "SIGNATORY_OF",
+      "subject": {
+        "id": "2bd23374-4de2-504c-aea4-f709e7503550",
+        "canonical": "Priya Raghunathan",
+        "entity_type": "PERSON"
+      },
+      "object": {
+        "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+        "canonical": "Pinebrook Freight Co",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "358738cd-c9d5-5630-a2c3-6f8ae32257de",
+        "document_title": "Re: PO 071554 \u2014 Meridian Supply",
+        "char_start": 261,
+        "char_end": 341,
+        "sentence_text": "Priya Raghunathan signed on behalf of Pinebrook Freight Co on 15 September 2026."
+      },
+      "trust": {
+        "confidence": 0.9662,
+        "vacuity": 0.0805,
+        "dissonance": 0.1793,
+        "fragility": 0.0
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:07:02Z"
+    },
+    {
+      "id": "d2030c14-00bf-506a-ad86-7e8171fbe860",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+        "canonical": "Pinebrook Freight Co",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "7a022f58-4bd6-5a7a-907e-4d24e83921d3",
+        "document_title": "Re: ACCT-36542-X \u2014 Northgate Logistics",
+        "char_start": 370,
+        "char_end": 465,
+        "sentence_text": "Pinebrook Freight was invoiced $432.21 by Northgate Logistics Inc under reference ACCT-36542-X."
+      },
+      "trust": {
+        "confidence": 0.8513,
+        "vacuity": 0.27,
+        "dissonance": 0.1849,
+        "fragility": 0.07
+      },
+      "routing": "auto_file",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:06:59Z"
+    },
+    {
+      "id": "e2f8a9d1-734e-59bc-89e0-114a079d152d",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+        "canonical": "Kestrel Registry Ltd",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "7a022f58-4bd6-5a7a-907e-4d24e83921d3",
+        "document_title": "Re: ACCT-36542-X \u2014 Northgate Logistics",
+        "char_start": 179,
+        "char_end": 294,
+        "sentence_text": "$688.21 in receivables recognized by Halcyon Tooling is attributable to services rendered for Kestrel Registry Ltd."
+      },
+      "trust": {
+        "confidence": 0.509,
+        "vacuity": 0.5087,
+        "dissonance": 0.4374,
+        "fragility": 0.2
+      },
+      "routing": "flag_for_review",
+      "resolved_by": "nemotron",
+      "nemotron": {
+        "run_id": "767d33f6-6401-5fec-b169-06219e172a56",
+        "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
+        "latency_ms": 842
+      },
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:06:59Z"
+    },
+    {
+      "id": "6bfd2735-48ab-5383-b560-d87218fd006a",
+      "relation": "INVOICED",
+      "subject": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "1b61d75b-b078-53bc-968e-e95fce28b7f0",
+        "document_title": "Re: ACCT-79327-X \u2014 Northgate Logistics",
+        "char_start": 324,
+        "char_end": 418,
+        "sentence_text": "Meridian Supply LLC was invoiced $700 by Northgate Logistics Inc under reference ACCT-79327-X."
+      },
+      "trust": {
+        "confidence": 0.9091,
+        "vacuity": 0.4538,
+        "dissonance": 0.4226,
+        "fragility": 0.2
+      },
+      "routing": "auto_file",
+      "resolved_by": "nemotron",
+      "nemotron": {
+        "run_id": "ec9c69ed-008c-55fb-9832-5a7e9d1baab3",
+        "rationale": "Routine vendor activity with no corroborating risk signal in the two-hop neighbourhood. Filing.",
+        "latency_ms": 1277
+      },
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:06:56Z"
+    },
+    {
+      "id": "ea173b27-5bc6-5799-adad-041cec5e1e3f",
+      "relation": "WIRED_FUNDS_TO",
+      "subject": {
+        "id": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+        "canonical": "Kestrel Registry Ltd",
+        "entity_type": "ORG"
+      },
+      "object": {
+        "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+        "canonical": "Meridian Supply LLC",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "1b61d75b-b078-53bc-968e-e95fce28b7f0",
+        "document_title": "Re: ACCT-79327-X \u2014 Northgate Logistics",
+        "char_start": 124,
+        "char_end": 272,
+        "sentence_text": "Per the standing instruction referenced above, the $7,341.36 obligation of Kestrel Registry Ltd was discharged by remittance to Meridian Supply LLC."
+      },
+      "trust": {
+        "confidence": 0.5827,
+        "vacuity": 0.6979,
+        "dissonance": 0.28,
+        "fragility": 0.47
+      },
+      "routing": "flag_for_review",
+      "resolved_by": "nemotron",
+      "nemotron": {
+        "run_id": "5665dd78-ef7e-5b7d-918f-18f750ac3e92",
+        "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
+        "latency_ms": 1261
+      },
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:06:56Z"
+    },
+    {
+      "id": "b094271e-2be2-571f-a614-87091a03686f",
+      "relation": "SIGNATORY_OF",
+      "subject": {
+        "id": "aed8bdcf-c7bc-5d11-b8f0-cf5e2c1de565",
+        "canonical": "Dara Okonkwo",
+        "entity_type": "PERSON"
+      },
+      "object": {
+        "id": "e3cbb700-23ff-59aa-9e74-d8922d731310",
+        "canonical": "Advent Holdings",
+        "entity_type": "ORG"
+      },
+      "citation": {
+        "document_id": "a5a60d81-d07c-5e40-adb7-0e859ec134ae",
+        "document_title": "Re: INV-0154 \u2014 Halcyon Tooling",
+        "char_start": 497,
+        "char_end": 559,
+        "sentence_text": "Signing authority for Advent Holdings rests with Dara Okonkwo."
+      },
+      "trust": {
+        "confidence": 0.7058,
+        "vacuity": 0.4064,
+        "dissonance": 0.3851,
+        "fragility": 0.07
+      },
+      "routing": "escalate_now",
+      "resolved_by": "classical",
+      "nemotron": null,
+      "degraded": false,
+      "attention_available": true,
+      "created_at": "2026-09-19T21:06:53Z"
+    }
+  ],
+  "pagination": {
+    "cursor": null,
+    "next_cursor": "eyJ2IjoiMjAyNi0wOS0xOVQyMTowNjowMloiLCJpZCI6IjAwMDAifQ",
+    "has_more": true,
+    "limit": 25
+  }
+}

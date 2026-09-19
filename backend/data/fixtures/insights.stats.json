@@ -1,0 +1,15 @@
+{
+  "total": 61,
+  "by_routing": {
+    "auto_file": 40,
+    "flag_for_review": 13,
+    "escalate_now": 8
+  },
+  "by_resolver": {
+    "classical": 47,
+    "nemotron": 14
+  },
+  "mean_confidence": 0.8381,
+  "high_vacuity_count": 14,
+  "documents_ingested": 34
+}

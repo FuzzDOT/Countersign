@@ -166,8 +166,16 @@ def test_request_ids_are_ulids() -> None:
 
 
 def test_request_ids_sort_chronologically() -> None:
+    """The 48-bit timestamp prefix is what sorts, not the whole id.
+
+    A ULID's low 80 bits are random, so 200 ids minted inside one millisecond
+    are NOT sorted as whole strings — the original form of this test only
+    passed by accident when a run happened to straddle a millisecond boundary.
+    48 bits of timestamp is exactly 10 Crockford base32 characters.
+    """
     ids = [new_request_id() for _ in range(200)]
-    assert ids == sorted(ids) or len({i[:8] for i in ids}) > 1
+    prefixes = [i[:10] for i in ids]
+    assert prefixes == sorted(prefixes), "timestamp prefixes are not monotonic"
 
 
 def test_request_ids_are_unique() -> None:
@@ -239,7 +247,35 @@ def test_every_settings_attribute_access_exists_on_settings() -> None:
                     f"{path.relative_to(backend)}:{node.lineno} -> settings.{node.attr}"
                 )
 
-    assert not offenders, (
-        "these read attributes that do not exist on Settings:\n  "
-        + "\n  ".join(offenders)
+    assert not offenders, "these read attributes that do not exist on Settings:\n  " + "\n  ".join(
+        offenders
     )
+
+
+# ── test environment isolation ───────────────────────────────────────────────
+
+
+def test_suite_runs_in_live_mode_not_mock_mode(settings: Settings) -> None:
+    """The default `settings`/`client` fixtures must be live, never mock.
+
+    `tests/conftest.py` forces this, and the forcing matters: the container
+    inherits the developer's .env, and a local `MOCK_MODE=1` puts every
+    integration test against canned fixtures instead of the database. The
+    failures then look like application bugs rather than configuration bleed,
+    which is exactly what happened.
+    """
+    assert settings.mock_mode is False, (
+        "the test suite is in MOCK_MODE — integration tests would assert "
+        "against fixtures instead of the database"
+    )
+
+
+def test_suite_does_not_inject_random_errors(settings: Settings) -> None:
+    """A non-zero MOCK_ERROR_RATE makes the suite intermittently red.
+
+    Worse than a consistent failure: it produces flakes that get re-run until
+    they pass, which trains everyone to ignore the suite.
+    """
+    assert (
+        settings.mock_error_rate == 0.0
+    ), f"MOCK_ERROR_RATE is {settings.mock_error_rate} — the suite would fail at random"

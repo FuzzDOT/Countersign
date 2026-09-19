@@ -54,6 +54,18 @@ TRAIN_ORGS: tuple[str, ...] = (
     "Crowhurst Adhesives LLC",
     "Deverill Gasket Co",
     "Eastmarch Conveyors Ltd",
+    # Suffix-less, on purpose. Every name above ends in a legal suffix, and a
+    # training pool shaped like that teaches the tagger that "two capitalized
+    # words with no LLC on the end" is a person — which is exactly what
+    # `Advent Holdings` is. Band D is supposed to hold out *names*, not name
+    # *morphology*; without these the held-out pool is testing a confound and
+    # the demo's ownership cycle splits across an ORG node and a PERSON node.
+    "Ferrisway Haulage",
+    "Glasswick Joinery",
+    "Hollintree Aggregates",
+    "Larkmead Provisioning",
+    "Rampton Marine Works",
+    "Selby & Vane Fittings",
 )
 
 # Never in a training split. These are the names the model has genuinely never
@@ -78,6 +90,27 @@ HELDOUT_ORGS: tuple[str, ...] = (
 # handles well, and NOT the genuinely hard cases — we do not claim to solve
 # those, and the alias list in the API shows a judge exactly what got merged.
 ALIASES: dict[str, tuple[str, ...]] = {
+    # ── training pool ────────────────────────────────────────────────────────
+    # The tagger has to see short and suffix-stripped forms *labeled as ORG*
+    # somewhere, or `Meridian` and `Advent` at inference time look like
+    # surnames. These are the training-side counterparts of the held-out
+    # aliases below: same shapes, disjoint strings.
+    "Brightwater Industrial LLC": ("Brightwater Industrial", "Brightwater"),
+    "Calderon Freight Co": ("Calderon Freight", "Calderon"),
+    "Dunmore Fabrication Inc": ("Dunmore Fabrication", "Dunmore"),
+    "Fairhaven Logistics Ltd": ("Fairhaven Logistics", "Fairhaven"),
+    "Granville Tooling Corp": ("Granville Tooling", "Granville"),
+    "Harborline Supply Co": ("Harborline Supply", "Harborline"),
+    "Ironvale Metals LLC": ("Ironvale Metals", "Ironvale"),
+    "Keswick Materials Ltd": ("Keswick Materials", "Keswick"),
+    "Lambourne Distribution LLC": ("Lambourne Distribution", "Lambourne"),
+    "Orrindale Packaging LLC": ("Orrindale Packaging", "Orrindale"),
+    "Rothsay Instruments Inc": ("Rothsay Instruments", "Rothsay"),
+    "Thornbury Coatings Ltd": ("Thornbury Coatings", "Thornbury"),
+    "Ferrisway Haulage": ("Ferrisway",),
+    "Hollintree Aggregates": ("Hollintree",),
+    "Selby & Vane Fittings": ("Selby & Vane",),
+    # ── held-out pool ────────────────────────────────────────────────────────
     "Meridian Supply LLC": ("Meridian Supply", "Meridian Supply, LLC", "Meridian"),
     "Advent Holdings": ("Advent Holdings Ltd", "Advent"),
     "Kestrel Registry Ltd": ("Kestrel Registry", "Kestrel Registry Limited"),
@@ -195,12 +228,22 @@ def assert_pools_disjoint() -> None:
                 "derived from this corpus would be contaminated."
             )
 
-    # An alias of a held-out entity must not appear in the training pool
-    # either; the model would have seen the string under a different name.
-    train_all = {n.casefold() for n in (*TRAIN_ORGS, *TRAIN_PERSONS)}
-    for canonical in HELDOUT_ORGS:
-        for alias in aliases_for(canonical):
-            if alias.casefold() in train_all:
-                raise AssertionError(
-                    f"alias {alias!r} of held-out entity {canonical!r} is in the training pool"
-                )
+    # Aliases have to be disjoint too, in both directions: the model seeing
+    # `Meridian` under a training name is the same contamination as seeing
+    # `Meridian Supply LLC` itself. Checked over the full alias closure rather
+    # than over canonical names alone, because the aliases are where the two
+    # pools are most likely to collide — both contain short single-word forms.
+    train_surfaces = {
+        alias.casefold() for name in (*TRAIN_ORGS, *TRAIN_PERSONS) for alias in aliases_for(name)
+    }
+    heldout_surfaces = {
+        alias.casefold()
+        for name in (*HELDOUT_ORGS, *HELDOUT_PERSONS)
+        for alias in aliases_for(name)
+    }
+    collisions = train_surfaces & heldout_surfaces
+    if collisions:
+        raise AssertionError(
+            f"alias surfaces {sorted(collisions)} appear in both pools — every eval "
+            "number derived from this corpus would be contaminated."
+        )

@@ -22,6 +22,7 @@ The frontend cannot read it and must not try.
 
 from __future__ import annotations
 
+import ipaddress
 import time
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -123,7 +124,19 @@ def _issue_session(
 def _client_ip(request: Request) -> str | None:
     # Deliberately the peer address, not X-Forwarded-For: the header is
     # attacker-controlled and this value is written to an audit column.
-    return request.client.host if request.client else None
+    #
+    # The column is INET, so anything that is not a literal address has to be
+    # dropped rather than handed to Postgres: an ASGI transport is free to put
+    # a non-address there (starlette's TestClient uses the host "testclient",
+    # a unix-socket peer has no address at all), and passing that through
+    # turns every registration into a 500 on a DataError.
+    host = request.client.host if request.client else None
+    if not host:
+        return None
+    try:
+        return str(ipaddress.ip_address(host))
+    except ValueError:
+        return None
 
 
 def _set_refresh_cookie(response: Response, value: str, settings: Settings) -> None:
@@ -375,9 +388,7 @@ def refresh(
         raise Unauthenticated("This account is no longer active.")
 
     token.revoked_at = _now()
-    return _issue_session(
-        db, user, request, response, settings, family_id=token.family_id
-    )
+    return _issue_session(db, user, request, response, settings, family_id=token.family_id)
 
 
 # ── logout ───────────────────────────────────────────────────────────────────

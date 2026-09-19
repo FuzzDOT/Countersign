@@ -19,7 +19,9 @@ from fastapi.routing import APIRoute
 from api.mock import BUILD_STAGE, Contract, contract_of
 
 # Paths the app serves that are not part of the versioned contract.
-EXEMPT_PATHS = frozenset({"/health", "/health/ready", "/openapi.json", "/docs", "/redoc", "/docs/oauth2-redirect"})
+EXEMPT_PATHS = frozenset(
+    {"/health", "/health/ready", "/openapi.json", "/docs", "/redoc", "/docs/oauth2-redirect"}
+)
 
 MAX_STAGE = 10
 
@@ -94,8 +96,8 @@ def test_fixture_backed_routes_name_a_real_file(app: FastAPI) -> None:
     A route whose fixture is missing fails at request time with a 500, which
     would read to a frontend dev as "the backend is broken".
     """
-    from core.config import get_settings
     from api.mock import fixture_path
+    from core.config import get_settings
 
     settings = get_settings()
     missing = [
@@ -133,8 +135,7 @@ def test_no_route_has_a_string_response_model(app: FastAPI) -> None:
     ]
     assert not offenders, (
         "these routes have a string response_model, which means annotation "
-        "inference misfired. Pass `response_model=` explicitly:\n  "
-        + "\n  ".join(offenders)
+        "inference misfired. Pass `response_model=` explicitly:\n  " + "\n  ".join(offenders)
     )
 
 
@@ -161,8 +162,16 @@ def test_every_route_declares_response_model_explicitly(app: FastAPI) -> None:
     )
 
     modules = (
-        ablation, auth, calibration, documents, evals,
-        graph, ingest, insights, routing, voice,
+        ablation,
+        auth,
+        calibration,
+        documents,
+        evals,
+        graph,
+        ingest,
+        insights,
+        routing,
+        voice,
     )
     missing: list[str] = []
     for module in modules:
@@ -178,8 +187,7 @@ def test_every_route_declares_response_model_explicitly(app: FastAPI) -> None:
                 snippet = header.split("\n")[1].strip() if "\n" in header else header
                 missing.append(f"{module.__name__}: @router.{verb}({snippet}")
     assert not missing, (
-        "these route decorators do not pass response_model explicitly:\n  "
-        + "\n  ".join(missing)
+        "these route decorators do not pass response_model explicitly:\n  " + "\n  ".join(missing)
     )
 
 
@@ -187,6 +195,89 @@ def test_no_body_routes_declare_no_response_model(app: FastAPI) -> None:
     """A 204 with a declared body model is an import-time assertion in FastAPI."""
     for route in api_routes(app):
         if route.status_code == 204:
-            assert route.response_model is None, (
-                f"{route.path} returns 204 but declares a response model"
-            )
+            assert (
+                route.response_model is None
+            ), f"{route.path} returns 204 but declares a response model"
+
+
+# ── dependency resolution ────────────────────────────────────────────────────
+
+# Parameter names that are always dependencies or request bodies in this
+# codebase. If FastAPI ever exposes one of these as a query parameter, its
+# annotation failed to resolve and the dependency silently stopped working.
+DEPENDENCY_PARAM_NAMES = frozenset(
+    {"db", "settings", "scope", "user", "principal", "pagination", "payload", "files"}
+)
+
+
+def test_no_route_endpoint_has_unresolved_string_annotations(app: FastAPI) -> None:
+    """The general form of the bug that broke every authenticated endpoint.
+
+    Routers use `from __future__ import annotations`, so annotations are
+    strings until something resolves them. FastAPI resolves them against
+    `endpoint.__globals__` — which, for a handler wrapped by a decorator
+    defined in another module, is the *decorator's* module. It does not raise
+    on failure; it quietly demotes the parameter to an untyped required field,
+    so `db: DbDep` became a mandatory query parameter and every request
+    returned `422 {"db": "Field required"}`.
+
+    `api/mock.py` fixes this by setting `__signature__` to a pre-resolved
+    signature. This asserts it stays fixed: a non-string annotation is proof
+    that resolution already happened.
+    """
+    offenders: list[str] = []
+    for route in api_routes(app):
+        import inspect
+
+        signature = inspect.signature(route.endpoint)
+        unresolved = [
+            name
+            for name, param in signature.parameters.items()
+            if isinstance(param.annotation, str)
+        ]
+        if unresolved:
+            method = sorted(route.methods or {"GET"})[0]
+            offenders.append(f"{method} {route.path}: {', '.join(unresolved)}")
+
+    assert not offenders, (
+        "these route handlers expose unresolved string annotations, so FastAPI "
+        "will treat their dependencies as plain query parameters:\n  " + "\n  ".join(offenders)
+    )
+
+
+def test_dependencies_are_not_exposed_as_query_parameters(app: FastAPI) -> None:
+    """The symptom, asserted directly.
+
+    Checks the shape FastAPI actually built rather than the annotations it
+    started from, so it catches the failure even if the mechanism changes.
+    """
+    offenders: list[str] = []
+    for route in api_routes(app):
+        query_names = {param.name for param in route.dependant.query_params}
+        leaked = query_names & DEPENDENCY_PARAM_NAMES
+        if leaked:
+            method = sorted(route.methods or {"GET"})[0]
+            offenders.append(f"{method} {route.path}: {', '.join(sorted(leaked))}")
+
+    assert not offenders, (
+        "these routes expose a dependency or request body as a query parameter, "
+        "which means the dependency is not being injected:\n  " + "\n  ".join(offenders)
+    )
+
+
+def test_authenticated_routes_actually_have_dependencies(app: FastAPI) -> None:
+    """A route that lost its dependencies would otherwise look fine.
+
+    If annotation resolution breaks, `dependant.dependencies` comes back empty
+    and the endpoint becomes unauthenticated while still returning 422s that
+    look like client errors. Every route outside /auth must carry at least one.
+    """
+    naked = [
+        f"{sorted(route.methods or {'GET'})[0]} {route.path}"
+        for route in api_routes(app)
+        if not route.path.startswith("/api/v1/auth/") and not route.dependant.dependencies
+    ]
+    assert not naked, (
+        "these routes have no dependencies at all — auth and scoping are not "
+        "being applied:\n  " + "\n  ".join(naked)
+    )

@@ -12,7 +12,7 @@ Four scenarios, three of them servable:
   clean_baseline       28 docs, no fraud. Proves we do not cry wolf, and
                        catches a gate threshold tuned too aggressively
   invoice_flood        120 docs, volume and latency stress
-  train_corpus         400 docs, bands A–C only, disjoint name pool, NEVER
+  train_corpus         400 docs, bands A—C only, disjoint name pool, NEVER
                        served through the API
 
 The red herring is worth its line of code. A system that flags everything
@@ -285,7 +285,7 @@ CLEAN_BASELINE = ScenarioSpec(
     generated=(
         # Only INVOICED, WIRED_FUNDS_TO and SIGNATORY_OF: no ownership loops,
         # no shared addresses, nothing a competent analyst would escalate.
-        # Bands still span A–D, because a clean corpus where the model is
+        # Bands still span A—D, because a clean corpus where the model is
         # uniformly certain would not test the gate's false-positive rate on
         # genuinely unfamiliar-looking-but-innocent text.
         GeneratedRelations("INVOICED", Band.A, 14),
@@ -347,7 +347,7 @@ TRAIN_CORPUS = ScenarioSpec(
     persons=names.TRAIN_PERSONS,
     addresses=names.TRAIN_ADDRESSES,
     generated=(
-        # Bands A–C only. Requesting band D here raises in templates.py rather
+        # Bands A—C only. Requesting band D here raises in templates.py rather
         # than silently producing a contaminated training set.
         GeneratedRelations("WIRED_FUNDS_TO", Band.A, 150),
         GeneratedRelations("WIRED_FUNDS_TO", Band.B, 110),
@@ -370,8 +370,7 @@ TRAIN_CORPUS = ScenarioSpec(
 
 
 SCENARIOS: dict[str, ScenarioSpec] = {
-    spec.name: spec
-    for spec in (MERIDIAN_SHELL_RING, CLEAN_BASELINE, INVOICE_FLOOD, TRAIN_CORPUS)
+    spec.name: spec for spec in (MERIDIAN_SHELL_RING, CLEAN_BASELINE, INVOICE_FLOOD, TRAIN_CORPUS)
 }
 
 SERVABLE_SCENARIOS: tuple[str, ...] = tuple(
@@ -383,6 +382,4 @@ def get_scenario(name: str) -> ScenarioSpec:
     try:
         return SCENARIOS[name]
     except KeyError:
-        raise LookupError(
-            f"unknown scenario {name!r}. Available: {sorted(SCENARIOS)}"
-        ) from None
+        raise LookupError(f"unknown scenario {name!r}. Available: {sorted(SCENARIOS)}") from None

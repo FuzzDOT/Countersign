@@ -1,0 +1,264 @@
+{
+  "entity": {
+    "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
+    "canonical": "Meridian Supply LLC",
+    "entity_type": "ORG",
+    "mention_count": 36,
+    "degree": 30,
+    "risk": 0.785,
+    "flags": [
+      "ownership_cycle",
+      "shared_address",
+      "escalated_activity"
+    ],
+    "first_seen": "2026-09-14T09:14:00Z"
+  },
+  "aliases": [
+    "Meridian Supply LLC",
+    "Meridian Supply",
+    "Meridian Supply, LLC",
+    "Meridian"
+  ],
+  "neighbors": [
+    {
+      "entity": {
+        "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+        "canonical": "Pinebrook Freight Co",
+        "entity_type": "ORG",
+        "mention_count": 19,
+        "degree": 16,
+        "risk": 0.3875,
+        "flags": [
+          "shared_address"
+        ]
+      },
+      "relation": "WIRED_FUNDS_TO",
+      "direction": "out",
+      "confidence": 0.9213,
+      "insight_ids": [
+        "0ac53066-7377-5e34-af0b-d489c0e51e99",
+        "c6015353-e98b-5b4d-b7b1-4eb1f1a5902c"
+      ]
+    },
+    {
+      "entity": {
+        "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
+        "canonical": "Pinebrook Freight Co",
+        "entity_type": "ORG",
+        "mention_count": 19,
+        "degree": 16,
+        "risk": 0.3875,
+        "flags": [
+          "shared_address"
+        ]
+      },
+      "relation": "INVOICED",
+      "direction": "out",
+      "confidence": 0.99,
+      "insight_ids": [
+        "3172ec0a-d48d-5a91-b832-e707df7a9b21",
+        "c2b43990-559e-5fdb-a4d3-7c5d0bd0b029"
+      ]
+    },
+    {
+      "entity": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG",
+        "mention_count": 30,
+        "degree": 23,
+        "risk": 0.3761,
+        "flags": [
+          "shared_address"
+        ]
+      },
+      "relation": "INVOICED",
+      "direction": "in",
+      "confidence": 0.6108,
+      "insight_ids": [
+        "c56659ef-b9a6-5512-9117-eb7f41dfad87",
+        "0d517e41-28ff-5757-be6a-25d5825a9f5c",
+        "70794026-5911-52ff-872a-1d4955ab9717"
+      ]
+    },
+    {
+      "entity": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG",
+        "mention_count": 30,
+        "degree": 23,
+        "risk": 0.3761,
+        "flags": [
+          "shared_address"
+        ]
+      },
+      "relation": "WIRED_FUNDS_TO",
+      "direction": "out",
+      "confidence": 0.9889,
+      "insight_ids": [
+        "9e6d8b0d-525d-5acb-956b-07d96d7fbb28",
+        "db1db174-4508-52cb-b853-df03e0d28909"
+      ]
+    },
+    {
+      "entity": {
+        "id": "aed8bdcf-c7bc-5d11-b8f0-cf5e2c1de565",
+        "canonical": "Dara Okonkwo",
+        "entity_type": "PERSON",
+        "mention_count": 3,
+        "degree": 3,
+        "risk": 0.3375,
+        "flags": [
+          "escalated_activity"
+        ]
+      },
+      "relation": "SIGNATORY_OF",
+      "direction": "in",
+      "confidence": 0.8606,
+      "insight_ids": [
+        "209a223f-506f-5b1b-b944-085f94fb7593"
+      ]
+    },
+    {
+      "entity": {
+        "id": "31b02680-a7d2-585e-8279-5d631a39ff69",
+        "canonical": "Miles Vantree",
+        "entity_type": "PERSON",
+        "mention_count": 3,
+        "degree": 3,
+        "risk": 0.0875,
+        "flags": []
+      },
+      "relation": "SIGNATORY_OF",
+      "direction": "in",
+      "confidence": 0.99,
+      "insight_ids": [
+        "7e6956c6-8cad-5111-ae81-b36e148f8f1e"
+      ]
+    },
+    {
+      "entity": {
+        "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
+        "canonical": "Halcyon Tooling LLC",
+        "entity_type": "ORG",
+        "mention_count": 30,
+        "degree": 23,
+        "risk": 0.3761,
+        "flags": [
+          "shared_address"
+        ]
+      },
+      "relation": "WIRED_FUNDS_TO",
+      "direction": "in",
+      "confidence": 0.8948,
+      "insight_ids": [
+        "2866183f-9fb0-52f3-b038-0ca3e7906fcb",
+        "12e89ffe-4ab2-5da3-9b17-838171377285"
+      ]
+    },
+    {
+      "entity": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG",
+        "mention_count": 25,
+        "degree": 18,
+        "risk": 0.3833,
+        "flags": [
+          "escalated_activity"
+        ]
+      },
+      "relation": "WIRED_FUNDS_TO",
+      "direction": "in",
+      "confidence": 0.8674,
+      "insight_ids": [
+        "67245947-9b8c-5e22-80ff-a3cbb05817a7"
+      ]
+    },
+    {
+      "entity": {
+        "id": "5613874e-7fc0-5c71-a928-1afd76485aa4",
+        "canonical": "Kestrel Registry Ltd",
+        "entity_type": "ORG",
+        "mention_count": 20,
+        "degree": 14,
+        "risk": 0.8179,
+        "flags": [
+          "ownership_cycle",
+          "shared_address",
+          "escalated_activity"
+        ]
+      },
+      "relation": "OWNED_BY",
+      "direction": "in",
+      "confidence": 0.5628,
+      "insight_ids": [
+        "b6c8b842-450f-54a9-8196-0b44c26ffaf1"
+      ]
+    },
+    {
+      "entity": {
+        "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
+        "canonical": "Northgate Logistics Inc",
+        "entity_type": "ORG",
+        "mention_count": 25,
+        "degree": 18,
+        "risk": 0.3833,
+        "flags": [
+          "escalated_activity"
+        ]
+      },
+      "relation": "INVOICED",
+      "direction": "in",
+      "confidence": 0.9091,
+      "insight_ids": [
+        "6bfd2735-48ab-5383-b560-d87218fd006a",
+        "4fb19856-4f14-595b-8df4-6ee3fbe9a103"
+      ]
+    }
+  ],
+  "documents": [
+    {
+      "id": "5206d34f-d6b2-59c5-bded-e978531573f8",
+      "title": "INV-4471 Meridian Supply",
+      "mention_count": 4
+    },
+    {
+      "id": "98ec5fd9-4838-53b5-a5f7-8651ee7a3c3a",
+      "title": "PO 004430 Advent Holdings",
+      "mention_count": 1
+    },
+    {
+      "id": "01caa46d-0b4c-5067-aa11-ade5ba9530ec",
+      "title": "AP-88806 Northgate Logistics",
+      "mention_count": 1
+    },
+    {
+      "id": "edb27f8f-e9a2-52f2-b1a0-0942ee8fa1d5",
+      "title": "INV-54971 Kestrel Registry",
+      "mention_count": 2
+    },
+    {
+      "id": "7ac75eec-bcd2-552f-9d78-e18ef1e2aa4b",
+      "title": "ACCT-33544-X Halcyon Tooling",
+      "mention_count": 1
+    },
+    {
+      "id": "7928bbac-43f3-5836-9b59-3ee8c5b8698c",
+      "title": "REF/6905/B Meridian Supply",
+      "mention_count": 2
+    },
+    {
+      "id": "1c714eb9-1f2a-5894-9b1e-2df0fcf999e9",
+      "title": "REF/11551/B Northgate Logistics",
+      "mention_count": 1
+    },
+    {
+      "id": "7f276f43-1dd4-5b40-a86a-263862f38d7b",
+      "title": "REF/79591/B Meridian Supply",
+      "mention_count": 2
+    }
+  ],
+  "insight_count": 30
+}

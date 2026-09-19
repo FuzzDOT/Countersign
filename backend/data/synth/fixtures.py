@@ -40,6 +40,7 @@ from typing import Any
 from core import ids
 from data.synth.generate import generate
 from data.synth.labels import GoldDocument, GoldRelation, Manifest
+from ml.entities.coref import entity_uuid
 
 FIXTURE_SEED = 424242
 GENERATED_AT = datetime(2026, 9, 19, 21, 6, 2, tzinfo=UTC)
@@ -128,7 +129,9 @@ def pearson(xs: list[float], ys: list[float]) -> float:
     dx = [x - mean_x for x in xs]
     dy = [y - mean_y for y in ys]
     denominator = (sum(a * a for a in dx) ** 0.5) * (sum(b * b for b in dy) ** 0.5)
-    return 0.0 if denominator == 0 else sum(a * b for a, b in zip(dx, dy, strict=True)) / denominator
+    return (
+        0.0 if denominator == 0 else sum(a * b for a, b in zip(dx, dy, strict=True)) / denominator
+    )
 
 
 def spearman(xs: list[float], ys: list[float]) -> float:
@@ -163,11 +166,7 @@ def _erf(x: float) -> float:
     x = abs(x)
     t = 1.0 / (1.0 + 0.3275911 * x)
     y = 1.0 - (
-        (
-            ((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736
-        )
-        * t
-        + 0.254829592
+        (((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592
     ) * t * (2.718281828459045 ** (-x * x))
     return sign * y
 
@@ -311,7 +310,7 @@ def _subject_entity(insight: FixtureInsight) -> dict[str, Any]:
     gold = insight.gold
     entity_type = "PERSON" if gold.relation == "SIGNATORY_OF" else "ORG"
     return {
-        "id": str(ids.entity_id(ids.DEMO_ORG_ID, gold.subject_canonical, entity_type)),
+        "id": str(entity_uuid(ids.DEMO_ORG_ID, gold.subject_canonical, entity_type)),
         "canonical": gold.subject_canonical,
         "entity_type": entity_type,
     }
@@ -320,7 +319,7 @@ def _subject_entity(insight: FixtureInsight) -> dict[str, Any]:
 def _object_entity(insight: FixtureInsight) -> dict[str, Any]:
     canonical = insight.gold.object_canonical
     return {
-        "id": str(ids.entity_id(ids.DEMO_ORG_ID, canonical, "ORG")),
+        "id": str(entity_uuid(ids.DEMO_ORG_ID, canonical, "ORG")),
         "canonical": canonical,
         "entity_type": "ORG",
     }
@@ -424,7 +423,7 @@ def _attention_payload(insight: FixtureInsight) -> dict[str, Any]:
     neighbourhood = [
         _subject_entity(insight)["id"],
         _object_entity(insight)["id"],
-        str(ids.entity_id(ids.DEMO_ORG_ID, "Kestrel Registry Ltd", "ORG")),
+        str(entity_uuid(ids.DEMO_ORG_ID, "Kestrel Registry Ltd", "ORG")),
     ]
 
     ablation_id = ids.stable_uuid("ablation_run", str(insight.insight_id))
@@ -466,7 +465,7 @@ class FixtureSet:
 
     def __init__(self, scenario: str = "meridian_shell_ring", seed: int = FIXTURE_SEED) -> None:
         self.manifest: Manifest = generate(scenario)
-        self.rng = random.Random(seed)  # noqa: S311 - fixture data
+        self.rng = random.Random(seed)
         self.insights: list[FixtureInsight] = [
             FixtureInsight(relation, document, self.rng)
             for document in self.manifest.documents
@@ -498,9 +497,7 @@ class FixtureSet:
     def planted_failure(self) -> FixtureInsight:
         matches = [i for i in self.insights if i.gold.is_planted_failure]
         if len(matches) != 1:
-            raise LookupError(
-                f"expected exactly one planted failure case, found {len(matches)}"
-            )
+            raise LookupError(f"expected exactly one planted failure case, found {len(matches)}")
         return matches[0]
 
     # ── auth ─────────────────────────────────────────────────────────────────
@@ -609,9 +606,7 @@ class FixtureSet:
             ],
             "mentions": [
                 {
-                    "entity_id": str(
-                        ids.entity_id(self.manifest.org_id, m.canonical, m.entity_type)
-                    ),
+                    "entity_id": str(entity_uuid(self.manifest.org_id, m.canonical, m.entity_type)),
                     "surface": m.surface,
                     "entity_type": m.entity_type,
                     "char_start": m.char_start,
@@ -768,9 +763,11 @@ class FixtureSet:
     def _graph_node(
         self, canonical: str, degree: dict[str, int], cycle_members: set[str]
     ) -> dict[str, Any]:
-        is_person = canonical in {m.canonical for m in self.manifest.mentions if m.entity_type == "PERSON"}
+        is_person = canonical in {
+            m.canonical for m in self.manifest.mentions if m.entity_type == "PERSON"
+        }
         entity_type = "PERSON" if is_person else "ORG"
-        node_id = str(ids.entity_id(self.manifest.org_id, canonical, entity_type))
+        node_id = str(entity_uuid(self.manifest.org_id, canonical, entity_type))
         mentions = sum(1 for m in self.manifest.mentions if m.canonical == canonical)
         node_degree = degree.get(node_id, 0)
 
@@ -882,9 +879,7 @@ class FixtureSet:
             {
                 "id": str(d.document_id),
                 "title": d.title,
-                "mention_count": sum(
-                    1 for m in d.mentions if m.canonical == "Meridian Supply LLC"
-                ),
+                "mention_count": sum(1 for m in d.mentions if m.canonical == "Meridian Supply LLC"),
             }
             for d in self.manifest.documents
             if any(m.canonical == "Meridian Supply LLC" for m in d.mentions)
@@ -900,8 +895,7 @@ class FixtureSet:
             "insight_count": sum(
                 1
                 for i in self.insights
-                if "Meridian Supply LLC"
-                in (i.gold.subject_canonical, i.gold.object_canonical)
+                if "Meridian Supply LLC" in (i.gold.subject_canonical, i.gold.object_canonical)
             ),
         }
 
@@ -957,9 +951,7 @@ class FixtureSet:
         escalated = sum(1 for i in self.insights if i.is_escalated)
         classical = total - escalated
         upheld = sum(
-            1
-            for i in self.insights
-            if i.is_escalated and i.predicted_routing == i.gold.routing
+            1 for i in self.insights if i.is_escalated and i.predicted_routing == i.gold.routing
         )
         distribution: dict[str, int] = {"auto_file": 0, "flag_for_review": 0, "escalate_now": 0}
         for insight in self.insights:
@@ -1068,9 +1060,7 @@ class FixtureSet:
             rows.append(
                 {
                     "perturbation": name,
-                    "flip_rate": round(
-                        sum(1 for t in trials if t.label_flipped) / len(trials), 4
-                    ),
+                    "flip_rate": round(sum(1 for t in trials if t.label_flipped) / len(trials), 4),
                     "mean_abs_conf_delta": round(
                         sum(abs(t.conf_delta) for t in trials) / len(trials), 4
                     ),
@@ -1092,9 +1082,7 @@ class FixtureSet:
             if not bucket:
                 continue
             trials = [t for i in bucket for t in i.trials]
-            flip_rate = (
-                sum(1 for t in trials if t.label_flipped) / len(trials) if trials else 0.0
-            )
+            flip_rate = sum(1 for t in trials if t.label_flipped) / len(trials) if trials else 0.0
             rows.append(
                 {
                     "vacuity_quartile": index + 1,
@@ -1120,20 +1108,16 @@ class FixtureSet:
         labels = ["auto_file", "flag_for_review", "escalate_now"]
         matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         for insight in self.insights:
-            matrix[labels.index(insight.gold.routing)][
-                labels.index(insight.predicted_routing)
-            ] += 1
+            matrix[labels.index(insight.gold.routing)][labels.index(insight.predicted_routing)] += 1
 
-        per_class = []
+        per_class: list[dict[str, Any]] = []
         for index, label in enumerate(labels):
             true_positive = matrix[index][index]
             predicted = sum(matrix[r][index] for r in range(3))
             actual = sum(matrix[index])
             precision = true_positive / predicted if predicted else 0.0
             recall = true_positive / actual if actual else 0.0
-            f1 = (
-                2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
-            )
+            f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
             per_class.append(
                 {
                     "bucket": label,
@@ -1146,7 +1130,7 @@ class FixtureSet:
 
         total = len(self.insights)
         correct = sum(matrix[i][i] for i in range(3))
-        macro_f1 = sum(c["f1"] for c in per_class) / 3
+        macro_f1 = sum(float(c["f1"]) for c in per_class) / 3
         escalated = sum(1 for i in self.insights if i.is_escalated)
 
         failure = self.planted_failure
@@ -1192,7 +1176,7 @@ class FixtureSet:
     def _calibration_snapshot(
         self, label: str, *, temperature: float, ece: float
     ) -> dict[str, Any]:
-        rng = random.Random(f"calibration:{label}")  # noqa: S311
+        rng = random.Random(f"calibration:{label}")
         bins: list[dict[str, Any]] = []
         remaining = len(self.insights)
         for index in range(10):
@@ -1411,9 +1395,7 @@ def _fragility_interpretation(
     if bottom_rate > 0:
         contrast = f"{top_rate / bottom_rate:.1f}x more often than the bottom quartile"
     else:
-        contrast = (
-            f"at {top_rate:.0%}, against a bottom quartile that did not flip at all"
-        )
+        contrast = f"at {top_rate:.0%}, against a bottom quartile that did not flip at all"
 
     strength = "predictive of" if rho >= 0.4 else "weakly associated with"
     p_text = f"p < {P_VALUE_FLOOR:.0e}" if p_value <= P_VALUE_FLOOR else f"p = {p_value:.1e}"
@@ -1511,16 +1493,21 @@ def main() -> None:
             f"pearson={fragility['correlation']['pearson']} "
             f"p={fragility['correlation']['p_value']:.2e}"
         )
-        print("quartile flip      " + "  ".join(
-            f"Q{row['vacuity_quartile']}={row['flip_rate']:.2f}"
-            for row in fragility["quartile_table"]
-        ))
+        print(
+            "quartile flip      "
+            + "  ".join(
+                f"Q{row['vacuity_quartile']}={row['flip_rate']:.2f}"
+                for row in fragility["quartile_table"]
+            )
+        )
         print(f"routing accuracy   {routing['accuracy']}  macro_f1={routing['macro_f1']}")
         print(f"escalation rate    {summary['volume']['escalation_rate']:.1%}")
         print(f"documented fails   {len(routing['documented_failures'])}")
-        print(f"graph              {len(fixtures.graph_full()['nodes'])} nodes, "
-              f"{len(fixtures.graph_full()['edges'])} edges, "
-              f"{len(fixtures.graph_full()['cycles'])} cycle(s)")
+        print(
+            f"graph              {len(fixtures.graph_full()['nodes'])} nodes, "
+            f"{len(fixtures.graph_full()['edges'])} edges, "
+            f"{len(fixtures.graph_full()['cycles'])} cycle(s)"
+        )
 
 
 if __name__ == "__main__":

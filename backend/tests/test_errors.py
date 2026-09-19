@@ -81,6 +81,21 @@ def test_every_code_is_covered_by_this_file() -> None:
 # ── envelope shape, per code ─────────────────────────────────────────────────
 
 
+class ValidateBody(BaseModel):
+    """Declared at module level on purpose.
+
+    `from __future__ import annotations` makes `payload: ValidateBody` the
+    string "ValidateBody", which FastAPI resolves against this module's
+    globals. Defined inside the fixture function it was unreachable, and
+    FastAPI quietly turned the parameter into an untyped embedded body field —
+    so the request needed `{"payload": {...}}` and every error came back keyed
+    on the parameter name instead of the model's fields.
+    """
+
+    email: str
+    age: int = Field(ge=0)
+
+
 @pytest.fixture
 def error_app() -> FastAPI:
     """An app whose only job is to raise each AppError from a route."""
@@ -88,6 +103,7 @@ def error_app() -> FastAPI:
     register_exception_handlers(test_app)
 
     for code, exc in RAISABLE:
+
         def _make_route(to_raise: AppError = exc) -> Any:
             def _route() -> None:
                 raise to_raise
@@ -96,13 +112,9 @@ def error_app() -> FastAPI:
 
         test_app.add_api_route(f"/raise/{code}", _make_route(), methods=["GET"])
 
-    class Body(BaseModel):
-        email: str
-        age: int = Field(ge=0)
-
     @test_app.post("/validate")
-    def _validate(_body: Body) -> dict[str, bool]:
-        return {"ok": True}
+    def _validate(payload: ValidateBody) -> dict[str, bool]:
+        return {"ok": bool(payload.email)}
 
     @test_app.get("/boom")
     def _boom() -> None:

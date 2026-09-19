@@ -33,7 +33,15 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S", "T20"]
 "scripts/*" = ["T20"]      # scripts are allowed to print
-"data/synth/*" = ["S311"]  # non-crypto random is correct for synthetic data
+# Non-crypto random is correct for synthetic data. `generate.py` and
+# `fixtures.py` are also CLI reporters — `--report`, `--sample` and the
+# fixture summary all print by design, and routing them through structlog
+# would emit JSON at someone inspecting the corpus by hand.
+"data/synth/*" = ["S311", "T201"]
+# `fatal_config_exit` prints to stderr deliberately: it runs before logging
+# is configured and the operator has to read it in `docker logs` without a
+# JSON decoder.
+"core/config.py" = ["T201"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -69,25 +77,30 @@ markers = [
   "ml: requires model weights to be present",
   "integration: requires a live database",
 ]
-# Our own deprecations are errors; third-party ones are not. Left as a bare
-# `error::DeprecationWarning`, importing torch or spaCy fails the entire suite
-# on warnings we cannot fix — and the failure looks like our bug, which costs
-# twenty minutes of the wrong debugging at the wrong hour.
+# Strict on our own deprecations, permissive on everyone else's.
+#
+# This was originally a blanket `error::DeprecationWarning` plus an allowlist
+# of third-party modules, which is unmaintainable: it requires predicting
+# every dependency that will ever emit a deprecation, and a single miss stops
+# the suite from even *collecting*. It failed on `anyio.abc.BlockingPortal`,
+# emitted while importing `fastapi.testclient` — nothing to do with us, and
+# the traceback reads like our bug.
+#
+# Inverted, the policy is the one the original comment described: third-party
+# deprecations are displayed (so they are not invisible) but never fatal,
+# while anything raised from our own packages is an error. Later entries take
+# precedence over earlier ones in pytest, so the per-package rules win.
 filterwarnings = [
-  "error::DeprecationWarning",
-  "ignore::DeprecationWarning:torch.*",
-  "ignore::DeprecationWarning:torch_geometric.*",
-  "ignore::DeprecationWarning:spacy.*",
-  "ignore::DeprecationWarning:thinc.*",
-  "ignore::DeprecationWarning:weasel.*",
-  "ignore::DeprecationWarning:srsly.*",
-  "ignore::DeprecationWarning:nltk.*",
-  "ignore::DeprecationWarning:sklearn.*",
-  "ignore::DeprecationWarning:pydantic.*",
-  "ignore::DeprecationWarning:pkg_resources.*",
-  "ignore::DeprecationWarning:google.*",
-  "ignore::DeprecationWarning:httpx.*",
-  "ignore::DeprecationWarning:elevenlabs.*",
+  "default::DeprecationWarning",
+  "default::PendingDeprecationWarning",
+  "error::DeprecationWarning:api.*",
+  "error::DeprecationWarning:core.*",
+  "error::DeprecationWarning:db.*",
+  "error::DeprecationWarning:data.*",
+  "error::DeprecationWarning:ml.*",
+  "error::DeprecationWarning:workers.*",
+  "error::DeprecationWarning:scripts.*",
+  "error::DeprecationWarning:tests.*",
 ]
 
 [tool.coverage.run]

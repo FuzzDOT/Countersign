@@ -20,6 +20,7 @@ Design notes:
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import hmac
 import secrets
@@ -74,10 +75,11 @@ def verify_password(password: str, password_hash: str) -> tuple[bool, bool]:
 
 def burn_password_cpu() -> None:
     """Spend the same CPU as a real verification against a nonexistent user."""
-    try:
+    with contextlib.suppress(VerifyMismatchError, VerificationError, InvalidHashError):
+        # The verification is *expected* to fail. The point is the CPU it
+        # burns, so that a login for a nonexistent user costs what a real one
+        # does and cannot be distinguished by timing.
         _hasher.verify(_DUMMY_HASH, "countersign-wrong-password")
-    except (VerifyMismatchError, VerificationError, InvalidHashError):
-        pass
 
 
 # ── password policy ──────────────────────────────────────────────────────────

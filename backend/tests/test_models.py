@@ -53,9 +53,9 @@ def test_every_table_has_a_uuid_primary_key() -> None:
         pk_columns = list(table.primary_key.columns)
         assert len(pk_columns) == 1, f"{name} should have a single-column PK"
         assert pk_columns[0].name == "id", f"{name}'s PK is not called id"
-        assert pk_columns[0].server_default is not None, (
-            f"{name}.id must be server-generated so psql inserts get an id too"
-        )
+        assert (
+            pk_columns[0].server_default is not None
+        ), f"{name}.id must be server-generated so psql inserts get an id too"
 
 
 def test_org_scoped_implies_a_primary_key() -> None:
@@ -161,9 +161,9 @@ def test_migration_enum_values_match_models(migration: Any) -> None:
     """A value added to a Python enum but not the migration is a runtime 500."""
     for name, enum_cls in PG_ENUM_TYPES.items():
         assert name in migration._ENUMS, f"migration is missing the {name} type"
-        assert set(migration._ENUMS[name]) == {m.value for m in enum_cls}, (
-            f"{name} values differ between db/models.py and the initial migration"
-        )
+        assert set(migration._ENUMS[name]) == {
+            m.value for m in enum_cls
+        }, f"{name} values differ between db/models.py and the initial migration"
 
 
 def test_migration_drops_every_table_it_creates(migration: Any) -> None:

@@ -63,8 +63,7 @@ def test_every_offset_indexes_into_raw_text(scenario: str) -> None:
             ), f"{document.title}: mention {mention.surface!r} offset is wrong"
         for relation in document.relations:
             assert (
-                document.raw_text[relation.char_start : relation.char_end]
-                == relation.sentence_text
+                document.raw_text[relation.char_start : relation.char_end] == relation.sentence_text
             ), f"{document.title}: citation span for {relation.relation} is wrong"
 
 
@@ -79,9 +78,9 @@ def test_training_corpus_uses_no_held_out_names() -> None:
     manifest = generate("train_corpus")
     held_out = {n.casefold() for n in (*names.HELDOUT_ORGS, *names.HELDOUT_PERSONS)}
     for canonical in manifest.named_entities():
-        assert canonical.casefold() not in held_out, (
-            f"{canonical!r} is a held-out entity but appears in the training corpus"
-        )
+        assert (
+            canonical.casefold() not in held_out
+        ), f"{canonical!r} is a held-out entity but appears in the training corpus"
 
 
 @pytest.mark.parametrize("scenario", SERVABLE_SCENARIOS)
@@ -114,8 +113,7 @@ def test_demo_scenario_contains_the_pinned_sentence() -> None:
     """The sentence the rehearsed script and the mission brief both quote."""
     manifest = generate("meridian_shell_ring")
     expected = (
-        "Payment of $48,200 was routed through Advent Holdings "
-        "on behalf of Meridian Supply LLC."
+        "Payment of $48,200 was routed through Advent Holdings " "on behalf of Meridian Supply LLC."
     )
     matches = [r for r in manifest.relations if r.sentence_text == expected]
     assert len(matches) == 1, "the pinned demo sentence is missing or duplicated"
@@ -156,10 +154,12 @@ def test_planted_failure_has_exculpatory_context_outside_its_citation() -> None:
         "the exculpatory sentence leaked into the citation span — the documented "
         "failure will no longer reproduce"
     )
-    following = document.raw_text[failure.char_end : failure.char_end + len(EXCULPATORY_SENTENCE) + 2]
-    assert EXCULPATORY_SENTENCE in following, (
-        "the exculpatory sentence is not adjacent to the citation span"
-    )
+    following = document.raw_text[
+        failure.char_end : failure.char_end + len(EXCULPATORY_SENTENCE) + 2
+    ]
+    assert (
+        EXCULPATORY_SENTENCE in following
+    ), "the exculpatory sentence is not adjacent to the citation span"
     assert failure.routing == "flag_for_review"
     assert failure.failure_note
 

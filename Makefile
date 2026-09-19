@@ -136,12 +136,26 @@ clean: ## Remove build artifacts and caches
 
 .PHONY: fixtures fixtures-check corpus
 
+# These run inside the container, like every other target. Running them on the
+# host picks up whatever Python is on PATH — Anaconda, typically — with package
+# versions that have nothing to do with requirements.txt. `./backend` is
+# bind-mounted to /app, so files written in the container appear on the host.
 fixtures:  ## Regenerate backend/data/fixtures from the synthetic corpus
-	cd backend && python -m scripts.gen_fixtures
+	$(BE) python -m scripts.gen_fixtures
 
 fixtures-check:  ## Fail if committed fixtures are stale (used by CI)
-	cd backend && python -m scripts.gen_fixtures --check
+	$(BE) python -m scripts.gen_fixtures --check
+
+# ── models ───────────────────────────────────────────────────────────────────
+
+.PHONY: train-tagger offsets
+
+train-tagger:  ## Train the BiLSTM-CRF and write ml/checkpoints/tagger.pt (~60s)
+	$(BE) python -m scripts.train_tagger
+
+offsets:  ## Run the offset-integrity suite on its own (the load-bearing invariant)
+	$(BE) pytest -q tests/test_offsets.py
 
 corpus:  ## Print a summary of every synthetic scenario
-	@cd backend && for s in meridian_shell_ring clean_baseline invoice_flood train_corpus; do \
-		python -m data.synth.generate --scenario $$s --report; echo; done
+	@for s in meridian_shell_ring clean_baseline invoice_flood train_corpus; do \
+		$(BE) python -m data.synth.generate --scenario $$s --report; echo; done

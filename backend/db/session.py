@@ -102,6 +102,6 @@ def check_database() -> bool:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         return True
-    except Exception as exc:  # noqa: BLE001 - health must not propagate
+    except Exception as exc:
         log.warning("database_unreachable", error=str(exc))
         return False

@@ -96,9 +96,9 @@ def _scrub(value: Any, depth: int = 0) -> Any:
             else:
                 out[k] = _scrub(v, depth + 1)
         return out
-    if isinstance(value, (list, tuple, set)):
+    if isinstance(value, list | tuple | set):
         scrubbed = [_scrub(v, depth + 1) for v in value]
-        return type(value)(scrubbed) if isinstance(value, (list, tuple)) else set(scrubbed)
+        return type(value)(scrubbed) if isinstance(value, list | tuple) else set(scrubbed)
     if isinstance(value, str):
         for pattern in _SENSITIVE_VALUE_PATTERNS:
             value = pattern.sub(REDACTED, value)
@@ -110,7 +110,28 @@ def redact_processor(
     _logger: Any, _name: str, event_dict: structlog.types.EventDict
 ) -> structlog.types.EventDict:
     """structlog processor that scrubs credentials from every log event."""
-    return _scrub(event_dict)  # type: ignore[return-value]
+    return _scrub(event_dict)
+
+
+# ── logger naming ────────────────────────────────────────────────────────────
+
+# The module name is bound as `logger_name` rather than `logger`, because
+# `structlog.get_logger(**initial_values)` forwards straight into
+# `wrap_logger(logger, ...)` — so `logger` is a reserved keyword there and
+# passing it raises `TypeError: got multiple values for argument 'logger'`.
+#
+# `logger_name` is structlog's own conventional spelling (ConsoleRenderer looks
+# for both), and this processor normalizes it back to `logger` so the emitted
+# field name is stable for anything grepping the logs.
+LOGGER_NAME_KEY = "logger_name"
+
+
+def _normalize_logger_key(
+    _logger: Any, _name: str, event_dict: structlog.types.EventDict
+) -> structlog.types.EventDict:
+    if LOGGER_NAME_KEY in event_dict:
+        event_dict["logger"] = event_dict.pop(LOGGER_NAME_KEY)
+    return event_dict
 
 
 # ── configuration ────────────────────────────────────────────────────────────
@@ -125,6 +146,9 @@ def configure_logging(level: str = "INFO", json_output: bool | None = None) -> N
     if json_output is None:
         json_output = level != "DEBUG"
 
+    # `_normalize_logger_key` runs first so everything downstream — including
+    # both renderers — sees the field as `logger`.
+    #
     # NOTE: the `structlog.processors.*` variants, not `structlog.stdlib.*`.
     # The logger factory below is `PrintLoggerFactory`, and the stdlib
     # processors assume a stdlib logger — `structlog.stdlib.add_logger_name`
@@ -132,6 +156,7 @@ def configure_logging(level: str = "INFO", json_output: bool | None = None) -> N
     # AttributeError on the first log call. The module name is bound in
     # `get_logger` instead, which is logger-agnostic.
     shared: list[structlog.types.Processor] = [
+        _normalize_logger_key,
         structlog.contextvars.merge_contextvars,
         structlog.processors.add_log_level,
         structlog.processors.TimeStamper(fmt="iso", utc=True),
@@ -152,9 +177,7 @@ def configure_logging(level: str = "INFO", json_output: bool | None = None) -> N
             structlog.processors.format_exc_info,
             renderer,
         ],
-        wrapper_class=structlog.make_filtering_bound_logger(
-            logging.getLevelNamesMapping()[level]
-        ),
+        wrapper_class=structlog.make_filtering_bound_logger(logging.getLevelNamesMapping()[level]),
         logger_factory=structlog.PrintLoggerFactory(file=sys.stdout),
         cache_logger_on_first_use=True,
     )
@@ -167,7 +190,9 @@ def configure_logging(level: str = "INFO", json_output: bool | None = None) -> N
         force=True,
     )
     for noisy in ("uvicorn.access", "uvicorn.error", "multipart", "httpx", "httpcore"):
-        logging.getLogger(noisy).setLevel(max(logging.WARNING, logging.getLevelNamesMapping()[level]))
+        logging.getLogger(noisy).setLevel(
+            max(logging.WARNING, logging.getLevelNamesMapping()[level])
+        )
 
 
 def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
@@ -185,7 +210,17 @@ def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
     module-level loggers pick up the real configuration rather than caching
     structlog's defaults.
     """
-    logger = structlog.get_logger()
+    # `structlog.get_logger(**initial_values)` keeps the lazy proxy and folds
+    # the values in as initial context. Calling `.bind()` on the proxy instead
+    # would MATERIALIZE it against whatever configuration is active at that
+    # moment — which, for the module-level `log = get_logger(__name__)` in
+    # every module, is structlog's defaults, because those lines run at import
+    # time and `configure_logging()` runs later in the lifespan.
+    #
+    # That is not cosmetic: a logger materialized against the defaults has no
+    # `redact_processor`, so secrets would reach the logs in plaintext.
+    #
+    # The key is `logger_name`, not `logger`: see LOGGER_NAME_KEY above.
     if name:
-        logger = logger.bind(logger=name)
-    return logger  # type: ignore[no-any-return]
+        return structlog.get_logger(**{LOGGER_NAME_KEY: name})
+    return structlog.get_logger()

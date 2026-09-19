@@ -34,7 +34,7 @@ REQUEST_ID_HEADER = "X-Request-ID"
 class ErrorCode(StrEnum):
     VALIDATION_FAILED = "VALIDATION_FAILED"
     UNAUTHENTICATED = "UNAUTHENTICATED"
-    TOKEN_EXPIRED = "TOKEN_EXPIRED"
+    TOKEN_EXPIRED = "TOKEN_EXPIRED"  # noqa: S105 - an error code, not a credential  # noqa: S105 - an error code, not a credential
     REFRESH_REUSED = "REFRESH_REUSED"
     FORBIDDEN = "FORBIDDEN"
     ACCOUNT_LOCKED = "ACCOUNT_LOCKED"
@@ -326,7 +326,7 @@ async def rate_limit_handler(_request: Request, exc: Exception) -> JSONResponse:
     if callable(window):
         try:
             retry_after = int(window())
-        except Exception:  # noqa: BLE001 - never fail while reporting a failure
+        except Exception:
             retry_after = 60
     log.info("rate_limited", retry_after_seconds=retry_after)
     return error_response(

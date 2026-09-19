@@ -1,0 +1,178 @@
+{
+  "data": [
+    {
+      "id": "1ff892ad-8438-5523-963a-1c1fa7f77229",
+      "insight_id": "92493cc6-80dc-5c71-9f19-2cf5ffaf4522",
+      "prompt_sha": "093f0a27f21ea385de3078ec1f9101d74a07cb9275edf0605a7639fb60622544",
+      "decision": "flag_for_review",
+      "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
+      "latency_ms": 593,
+      "input_tokens": 443,
+      "output_tokens": 55,
+      "degraded": false,
+      "created_at": "2026-09-19T21:07:29Z"
+    },
+    {
+      "id": "9ea7c231-1431-5299-bb3e-93d9a040b8c6",
+      "insight_id": "c56659ef-b9a6-5512-9117-eb7f41dfad87",
+      "prompt_sha": "8b38cbf0a6b94646b68bd4b46a8523d76ff1c190798c66c5458a07f888153038",
+      "decision": "auto_file",
+      "rationale": "Routine vendor activity with no corroborating risk signal in the two-hop neighbourhood. Filing.",
+      "latency_ms": 1676,
+      "input_tokens": 429,
+      "output_tokens": 49,
+      "degraded": false,
+      "created_at": "2026-09-19T21:07:23Z"
+    },
+    {
+      "id": "e1e12934-aba2-599b-b67a-7341c2c1fb46",
+      "insight_id": "b6c8b842-450f-54a9-8196-0b44c26ffaf1",
+      "prompt_sha": "7e2b5f497d822e0b61087b7a242769cf2d859a6c29bd0b6e485e08f7e54992bf",
+      "decision": "escalate_now",
+      "rationale": "Third-party payment routing combined with a shared registered address across two counterparties is consistent with layering. Escalating.",
+      "latency_ms": 853,
+      "input_tokens": 574,
+      "output_tokens": 74,
+      "degraded": false,
+      "created_at": "2026-09-19T21:07:08Z"
+    },
+    {
+      "id": "767d33f6-6401-5fec-b169-06219e172a56",
+      "insight_id": "e2f8a9d1-734e-59bc-89e0-114a079d152d",
+      "prompt_sha": "113e154107fe9f9da49cd683dfff92e7c8dd4d7c965330afdcb1bce030c7cfe6",
+      "decision": "flag_for_review",
+      "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
+      "latency_ms": 842,
+      "input_tokens": 553,
+      "output_tokens": 65,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:59Z"
+    },
+    {
+      "id": "ec9c69ed-008c-55fb-9832-5a7e9d1baab3",
+      "insight_id": "6bfd2735-48ab-5383-b560-d87218fd006a",
+      "prompt_sha": "cbd2d3571f62defb17361a074e1cae2a1a58629fccdc5c019a42e08499745bf7",
+      "decision": "auto_file",
+      "rationale": "Routine vendor activity with no corroborating risk signal in the two-hop neighbourhood. Filing.",
+      "latency_ms": 1277,
+      "input_tokens": 546,
+      "output_tokens": 62,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:56Z"
+    },
+    {
+      "id": "5665dd78-ef7e-5b7d-918f-18f750ac3e92",
+      "insight_id": "ea173b27-5bc6-5799-adad-041cec5e1e3f",
+      "prompt_sha": "cf6feadc2c02ba3b8038b98bac10d6261a0a14cdb4f364386c2e28ee4d6fde89",
+      "decision": "flag_for_review",
+      "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
+      "latency_ms": 1261,
+      "input_tokens": 546,
+      "output_tokens": 62,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:56Z"
+    },
+    {
+      "id": "784167da-07f6-575f-9805-6de53c6c8b8b",
+      "insight_id": "12e89ffe-4ab2-5da3-9b17-838171377285",
+      "prompt_sha": "ed8393ce6076511cd1753c8e83bfce3e1253e5ba3c3612ae45a1321e301f9c51",
+      "decision": "flag_for_review",
+      "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
+      "latency_ms": 1457,
+      "input_tokens": 539,
+      "output_tokens": 59,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:53Z"
+    },
+    {
+      "id": "8536fe22-cc78-5240-ad35-17cc3eaad07f",
+      "insight_id": "4b9c9795-2941-5b68-80c6-71155be0f026",
+      "prompt_sha": "3b035ee41f926c597cd966d1e03b4ea3fe9fa0745596424c4406f3490cc656f9",
+      "decision": "auto_file",
+      "rationale": "Routine vendor activity with no corroborating risk signal in the two-hop neighbourhood. Filing.",
+      "latency_ms": 774,
+      "input_tokens": 490,
+      "output_tokens": 78,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:32Z"
+    },
+    {
+      "id": "238170f8-97d4-5917-9c53-c2a7be9a61db",
+      "insight_id": "bca80e8f-37ce-5e82-ac95-de4bc1587872",
+      "prompt_sha": "cade6845c035f517bf56e30d52d758eea5853848b9dff08d54aadd8464e11830",
+      "decision": "flag_for_review",
+      "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
+      "latency_ms": 1432,
+      "input_tokens": 483,
+      "output_tokens": 75,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:29Z"
+    },
+    {
+      "id": "2ec9fc7b-7db1-5ca4-8d60-376264dcbe90",
+      "insight_id": "a93a4fc1-c091-5b0d-bdfb-1f16ccc16400",
+      "prompt_sha": "e1533b9e59ecc1403a40025c2527dfb0120695ce7817a03cceccf9105fbe2581",
+      "decision": "auto_file",
+      "rationale": "Routine vendor activity with no corroborating risk signal in the two-hop neighbourhood. Filing.",
+      "latency_ms": 1162,
+      "input_tokens": 476,
+      "output_tokens": 72,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:26Z"
+    },
+    {
+      "id": "cd20bbe1-11fc-5bb6-a87e-77b1d78a74e1",
+      "insight_id": "77abb81f-8a97-51d2-bfe2-7a6c00b25db6",
+      "prompt_sha": "cdf4db169d6bba6d8cd9b9e8c226451681678906fcbb5536b26b65f66772f07e",
+      "decision": "escalate_now",
+      "rationale": "Third-party payment routing combined with a shared registered address across two counterparties is consistent with layering. Escalating.",
+      "latency_ms": 1153,
+      "input_tokens": 455,
+      "output_tokens": 63,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:17Z"
+    },
+    {
+      "id": "aaf69ccf-3ba2-5498-87f9-84407ef9e63c",
+      "insight_id": "dc879653-ebdc-5ec9-9b19-b2fefd37b524",
+      "prompt_sha": "f8319cf619e8eb014b6d6302be7bc104abc83906bb924d43a0b5d5582d401a5a",
+      "decision": "flag_for_review",
+      "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
+      "latency_ms": 1488,
+      "input_tokens": 448,
+      "output_tokens": 60,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:14Z"
+    },
+    {
+      "id": "89e69618-67b6-5740-94d9-feb4e1abf190",
+      "insight_id": "ee8828f9-8f98-5804-a8b5-f684a55a40f7",
+      "prompt_sha": "21e885e2b4747d7785a872f00ee19be6355d81969297cfec6fdf9747b9977937",
+      "decision": "auto_file",
+      "rationale": "Routine vendor activity with no corroborating risk signal in the two-hop neighbourhood. Filing.",
+      "latency_ms": 940,
+      "input_tokens": 441,
+      "output_tokens": 57,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:11Z"
+    },
+    {
+      "id": "520b63a8-7452-570a-8c6f-e10e47002053",
+      "insight_id": "1e393acd-271a-5ffc-a3ca-13098a181f4d",
+      "prompt_sha": "fa1cd22a8db2a4b6c5f3ea78d08fb0ca01bea5123a92cb9c203f03817a847650",
+      "decision": "escalate_now",
+      "rationale": "Third-party payment routing combined with a shared registered address across two counterparties is consistent with layering. Escalating.",
+      "latency_ms": 1304,
+      "input_tokens": 420,
+      "output_tokens": 48,
+      "degraded": false,
+      "created_at": "2026-09-19T21:06:02Z"
+    }
+  ],
+  "pagination": {
+    "cursor": null,
+    "next_cursor": null,
+    "has_more": false,
+    "limit": 25
+  }
+}

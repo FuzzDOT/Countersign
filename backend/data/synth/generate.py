@@ -75,8 +75,9 @@ def _default_seed() -> int:
         from core.config import get_settings
 
         return get_settings().pipeline_seed
-    except Exception:  # noqa: BLE001 - config is optional here by design
+    except Exception:
         return FALLBACK_SEED
+
 
 MONTHS = (
     "January",
@@ -425,31 +426,65 @@ def _write_header(
     for the same reason (Stage 2).
     """
     stamp = received.strftime("%Y-%m-%d")
+
+    # Header values are mentions, not decoration. An invoice's account
+    # reference and its issue date are exactly the entities an analyst looks
+    # at first, the citation reader highlights them, and the tagger is
+    # expected to find them — so they carry gold labels like the organizations
+    # beside them. Labeling the ORG in a header but not the DATE next to it
+    # made the gold set disagree with itself and capped the achievable tagger
+    # F1 (found in Stage 2, fixed here rather than worked around in the eval).
+    def account_mention() -> None:
+        builder.mention(account, "ACCOUNT_REF", account)
+
+    def date_mention() -> None:
+        builder.mention(stamp, "DATE", stamp)
+
     if source == "invoice":
-        builder.literal(f"Invoice {account}\n")
+        builder.literal("Invoice ")
+        account_mention()
+        builder.literal("\n")
         builder.mention(primary_org, "ORG", primary_org)
-        builder.literal(f"\n{address}\nIssued: {stamp}\nBill to: ")
+        builder.literal(f"\n{address}\nIssued: ")
+        date_mention()
+        builder.literal("\nBill to: ")
         builder.mention(counterparty, "ORG", counterparty)
         builder.literal("\n\n")
     elif source == "email":
         builder.literal(
             f"From: accounts@{_slug(primary_org)}.example\n"
             f"To: ap@{_slug(counterparty)}.example\n"
-            f"Date: {stamp}\nSubject: Reference {account}\n\n"
+            "Date: "
         )
+        date_mention()
+        builder.literal("\nSubject: Reference ")
+        account_mention()
+        builder.literal("\n\n")
     elif source == "press_release":
         builder.literal("FOR IMMEDIATE RELEASE\n")
         builder.mention(primary_org, "ORG", primary_org)
-        builder.literal(f"\n{stamp}\n\n")
+        builder.literal("\n")
+        date_mention()
+        builder.literal("\n\n")
     elif source in ("rss", "gdelt"):
         feed = "Trade Wire" if source == "rss" else "GDELT Event Stream"
         builder.literal(f"[{feed}] ")
         builder.mention(primary_org, "ORG", primary_org)
-        builder.literal(f" — filing activity noted {stamp}\n\n")
+        builder.literal(" — filing activity noted ")
+        date_mention()
+        builder.literal("\n\n")
     elif source == "transaction_log":
-        builder.literal(f"LEDGER EXPORT {account}\nPeriod ending {stamp}\n\n")
+        builder.literal("LEDGER EXPORT ")
+        account_mention()
+        builder.literal("\nPeriod ending ")
+        date_mention()
+        builder.literal("\n\n")
     else:
-        builder.literal(f"Working note — {stamp}\nRe: {account}\n\n")
+        builder.literal("Working note — ")
+        date_mention()
+        builder.literal("\nRe: ")
+        account_mention()
+        builder.literal("\n\n")
 
 
 def _pick_template(plan: RelationPlan, spec: ScenarioSpec, rng: random.Random) -> Template:
@@ -512,17 +547,13 @@ def _build_document(
             builder.literal(" " if rng.random() < 0.55 else "\n")
 
         if isinstance(item, Template):
-            builder.sentence(
-                item, _filler_bindings(rng, received=received, doc_account=account)
-            )
+            builder.sentence(item, _filler_bindings(rng, received=received, doc_account=account))
             continue
 
         template = _pick_template(item, spec, rng)
         builder.sentence(
             template,
-            _relation_bindings(
-                item, rng, received=received, doc_account=account, address=address
-            ),
+            _relation_bindings(item, rng, received=received, doc_account=account, address=address),
             routing=item.routing,
             failure_note=item.failure_note,
             with_adjacent_context=item.with_adjacent_context,
@@ -558,7 +589,7 @@ def generate(
     base_seed = seed if seed is not None else _default_seed()
     # Mix the scenario name into the seed so two scenarios built from one base
     # seed are not the same draw.
-    rng = random.Random(f"{base_seed}:{spec.name}")  # noqa: S311 - synthetic data
+    rng = random.Random(f"{base_seed}:{spec.name}")
     resolved_org = org_id or ids.DEMO_ORG_ID
 
     plans: list[RelationPlan] = list(spec.relations)

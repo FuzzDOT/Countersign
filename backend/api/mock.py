@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import asyncio
 import functools
+import inspect
 import json
 import random
 import time
@@ -60,7 +61,7 @@ R = TypeVar("R")
 # variable it would be a tripwire that deployment config could switch off, and
 # the failure mode — a green suite that has quietly stopped checking anything —
 # is exactly what this is here to prevent.
-BUILD_STAGE = 1
+BUILD_STAGE = 2
 
 
 @dataclass(frozen=True, slots=True)
@@ -201,7 +202,7 @@ def contract(
                     await asyncio.sleep(_simulated_latency(settings))
                     _maybe_fail(settings)
                     return load_fixture(fixture, settings)
-                return await fn(*args, **kwargs)  # type: ignore[misc]
+                return await fn(*args, **kwargs)
 
             wrapper: Callable[..., Any] = async_wrapper
         else:
@@ -219,8 +220,29 @@ def contract(
 
             wrapper = sync_wrapper
 
+        # THE important line in this module.
+        #
+        # Every router uses `from __future__ import annotations`, so parameter
+        # annotations are strings. FastAPI resolves them against
+        # `endpoint.__globals__` — and for this wrapper that is *api/mock.py's*
+        # namespace, not the router's, because `functools.wraps` cannot copy
+        # `__globals__` (it is read-only on function objects). `DbDep`,
+        # `ScopeDep` and the request models are not defined here.
+        #
+        # FastAPI does not raise on an unresolvable annotation; it silently
+        # demotes the parameter to an untyped required field. So every
+        # dependency turned into a mandatory query parameter and every request
+        # became `422 {"db": "Field required", ...}` — a failure that looks
+        # nothing like its cause.
+        #
+        # `eval_str=True` resolves the annotations using the *original*
+        # function's globals, and a non-string annotation makes FastAPI skip
+        # ForwardRef evaluation entirely. No try/except: if a router grows an
+        # annotation that cannot be resolved, that must fail at import, loudly,
+        # rather than degrade into a 422 at request time.
+        wrapper.__signature__ = inspect.signature(fn, eval_str=True)  # type: ignore[attr-defined]
         wrapper.__cs_contract__ = meta  # type: ignore[attr-defined]
-        return wrapper  # type: ignore[return-value]
+        return wrapper
 
     return decorate
 

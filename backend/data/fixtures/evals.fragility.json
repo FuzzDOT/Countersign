@@ -1,0 +1,455 @@
+{
+  "n_insights": 61,
+  "n_trials": 305,
+  "perturbations": [
+    "synonym",
+    "rename",
+    "boilerplate",
+    "reorder",
+    "punctuation"
+  ],
+  "correlation": {
+    "spearman": 0.7614,
+    "pearson": 0.7748,
+    "p_value": 1e-12
+  },
+  "scatter": [
+    {
+      "insight_id": "0ac53066-7377-5e34-af0b-d489c0e51e99",
+      "vacuity": 0.1552,
+      "fragility": 0.0,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "e515fd30-8581-51fc-bfd5-ad479af3ecbb",
+      "vacuity": 0.01,
+      "fragility": 0.13,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "3172ec0a-d48d-5a91-b832-e707df7a9b21",
+      "vacuity": 0.1132,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "c2b43990-559e-5fdb-a4d3-7c5d0bd0b029",
+      "vacuity": 0.266,
+      "fragility": 0.13,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "92493cc6-80dc-5c71-9f19-2cf5ffaf4522",
+      "vacuity": 0.4943,
+      "fragility": 0.2,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "83447997-5af4-5cf2-b0bb-3ca4a2feadcb",
+      "vacuity": 0.1509,
+      "fragility": 0.13,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "c56659ef-b9a6-5512-9117-eb7f41dfad87",
+      "vacuity": 0.7969,
+      "fragility": 0.27,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "2eb5f3e4-2412-5b8b-94fa-4318dc2fba62",
+      "vacuity": 0.3763,
+      "fragility": 0.07,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "9e6d8b0d-525d-5acb-956b-07d96d7fbb28",
+      "vacuity": 0.0994,
+      "fragility": 0.2,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "209a223f-506f-5b1b-b944-085f94fb7593",
+      "vacuity": 0.0508,
+      "fragility": 0.0,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "bbf4ac71-1da8-5ba6-8ed4-78a5156ccde7",
+      "vacuity": 0.01,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "7e6956c6-8cad-5111-ae81-b36e148f8f1e",
+      "vacuity": 0.1017,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "2866183f-9fb0-52f3-b038-0ca3e7906fcb",
+      "vacuity": 0.0647,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "67245947-9b8c-5e22-80ff-a3cbb05817a7",
+      "vacuity": 0.0592,
+      "fragility": 0.13,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "f23239f5-e232-515a-93c3-4205d807b396",
+      "vacuity": 0.3011,
+      "fragility": 0.07,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "b6c8b842-450f-54a9-8196-0b44c26ffaf1",
+      "vacuity": 0.8229,
+      "fragility": 0.21,
+      "routing": "escalate_now"
+    },
+    {
+      "insight_id": "f19474f1-2a8e-5cc8-a145-00f51a13b834",
+      "vacuity": 0.3365,
+      "fragility": 0.2,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "95e2a601-ab86-5eff-b235-17cb5ca71b1f",
+      "vacuity": 0.1065,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "454fd019-3952-5339-886f-9a840015d2c6",
+      "vacuity": 0.1136,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "2a4e86d0-d264-5390-a274-fd4e638fa43d",
+      "vacuity": 0.0805,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "d2030c14-00bf-506a-ad86-7e8171fbe860",
+      "vacuity": 0.27,
+      "fragility": 0.07,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "e2f8a9d1-734e-59bc-89e0-114a079d152d",
+      "vacuity": 0.5087,
+      "fragility": 0.2,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "6bfd2735-48ab-5383-b560-d87218fd006a",
+      "vacuity": 0.4538,
+      "fragility": 0.2,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "ea173b27-5bc6-5799-adad-041cec5e1e3f",
+      "vacuity": 0.6979,
+      "fragility": 0.47,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "b094271e-2be2-571f-a614-87091a03686f",
+      "vacuity": 0.4064,
+      "fragility": 0.07,
+      "routing": "escalate_now"
+    },
+    {
+      "insight_id": "12e89ffe-4ab2-5da3-9b17-838171377285",
+      "vacuity": 0.5985,
+      "fragility": 0.27,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "afb0eed2-35a4-5279-ae73-967a9b7648cb",
+      "vacuity": 0.2404,
+      "fragility": 0.07,
+      "routing": "escalate_now"
+    },
+    {
+      "insight_id": "0d517e41-28ff-5757-be6a-25d5825a9f5c",
+      "vacuity": 0.2054,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "4fb19856-4f14-595b-8df4-6ee3fbe9a103",
+      "vacuity": 0.01,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "83a5df8d-c2e5-527d-8c5f-f1e0200626d7",
+      "vacuity": 0.0142,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "223aa80b-b5a6-5228-87f3-c8c8a3dde758",
+      "vacuity": 0.01,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "5ec5a7ad-8c97-5293-9455-70e29fb346c7",
+      "vacuity": 0.01,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "70e80ab9-b430-5044-8616-b2c80b068ddf",
+      "vacuity": 0.0635,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "0bd38c84-a1ee-5e1e-a820-77083f606ea2",
+      "vacuity": 0.3502,
+      "fragility": 0.07,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "b7ef3e9a-b616-5c1a-b61a-c1d1511310e6",
+      "vacuity": 0.2764,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "70794026-5911-52ff-872a-1d4955ab9717",
+      "vacuity": 0.0669,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "f0e48e69-4dd0-5d7a-bd80-ac39945b4c57",
+      "vacuity": 0.1268,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "db1db174-4508-52cb-b853-df03e0d28909",
+      "vacuity": 0.3743,
+      "fragility": 0.2,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "4b9c9795-2941-5b68-80c6-71155be0f026",
+      "vacuity": 0.6897,
+      "fragility": 0.34,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "8c558f78-66c0-56eb-b5af-1dbea25874af",
+      "vacuity": 0.109,
+      "fragility": 0.13,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "4ee2832f-172e-5ea8-8d40-2902ee80fd09",
+      "vacuity": 0.3999,
+      "fragility": 0.07,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "bca80e8f-37ce-5e82-ac95-de4bc1587872",
+      "vacuity": 0.8814,
+      "fragility": 0.34,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "f7d6251d-c1b2-5f07-b00e-0be647f5d8e9",
+      "vacuity": 0.3419,
+      "fragility": 0.07,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "a93a4fc1-c091-5b0d-bdfb-1f16ccc16400",
+      "vacuity": 0.5379,
+      "fragility": 0.4,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "76b86853-c45f-5703-b5e3-60703d63c2fe",
+      "vacuity": 0.1952,
+      "fragility": 0.07,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "01db875f-9064-5406-a75a-5916973fb245",
+      "vacuity": 0.01,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "c6015353-e98b-5b4d-b7b1-4eb1f1a5902c",
+      "vacuity": 0.1587,
+      "fragility": 0.0,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "86f3dd43-c408-55f7-9d0a-8787da87ec53",
+      "vacuity": 0.01,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "77abb81f-8a97-51d2-bfe2-7a6c00b25db6",
+      "vacuity": 0.8728,
+      "fragility": 0.14,
+      "routing": "escalate_now"
+    },
+    {
+      "insight_id": "ad5cb400-00d5-5f4f-a436-baaf91496c09",
+      "vacuity": 0.051,
+      "fragility": 0.0,
+      "routing": "escalate_now"
+    },
+    {
+      "insight_id": "fc3f51d0-7c2d-543e-b73d-ce4c57172fa8",
+      "vacuity": 0.0771,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "dc879653-ebdc-5ec9-9b19-b2fefd37b524",
+      "vacuity": 0.4506,
+      "fragility": 0.27,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "e3ebd174-904c-5594-ae54-3d64aacaae46",
+      "vacuity": 0.01,
+      "fragility": 0.0,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "ee8828f9-8f98-5804-a8b5-f684a55a40f7",
+      "vacuity": 0.5189,
+      "fragility": 0.27,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "af2fd57a-435d-5543-b25f-21fd3d0e7c6b",
+      "vacuity": 0.01,
+      "fragility": 0.13,
+      "routing": "auto_file"
+    },
+    {
+      "insight_id": "bbed1eed-b77d-59b5-8987-6e4064dbec59",
+      "vacuity": 0.2525,
+      "fragility": 0.07,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "1e438066-9ff3-5eea-b522-54efe8b60e07",
+      "vacuity": 0.4456,
+      "fragility": 0.2,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "4ce99269-e7d6-5671-8516-a3c49b5f9f7e",
+      "vacuity": 0.2723,
+      "fragility": 0.07,
+      "routing": "escalate_now"
+    },
+    {
+      "insight_id": "4f7bef48-3fe7-5c65-9b43-a6a0caffd9f6",
+      "vacuity": 0.023,
+      "fragility": 0.0,
+      "routing": "flag_for_review"
+    },
+    {
+      "insight_id": "1e393acd-271a-5ffc-a3ca-13098a181f4d",
+      "vacuity": 0.5957,
+      "fragility": 0.14,
+      "routing": "escalate_now"
+    },
+    {
+      "insight_id": "1fb727b4-2136-55c5-bc2e-ca19f7561047",
+      "vacuity": 0.2683,
+      "fragility": 0.07,
+      "routing": "escalate_now"
+    }
+  ],
+  "by_perturbation": [
+    {
+      "perturbation": "synonym",
+      "flip_rate": 0.0656,
+      "mean_abs_conf_delta": 0.0872,
+      "relation_loss_rate": 0.0492
+    },
+    {
+      "perturbation": "rename",
+      "flip_rate": 0.2623,
+      "mean_abs_conf_delta": 0.146,
+      "relation_loss_rate": 0.0984
+    },
+    {
+      "perturbation": "boilerplate",
+      "flip_rate": 0.0,
+      "mean_abs_conf_delta": 0.034,
+      "relation_loss_rate": 0.0
+    },
+    {
+      "perturbation": "reorder",
+      "flip_rate": 0.0328,
+      "mean_abs_conf_delta": 0.0711,
+      "relation_loss_rate": 0.0
+    },
+    {
+      "perturbation": "punctuation",
+      "flip_rate": 0.0164,
+      "mean_abs_conf_delta": 0.0436,
+      "relation_loss_rate": 0.0
+    }
+  ],
+  "quartile_table": [
+    {
+      "vacuity_quartile": 1,
+      "vacuity_range": [
+        0.01,
+        0.0635
+      ],
+      "mean_fragility": 0.026,
+      "flip_rate": 0.04
+    },
+    {
+      "vacuity_quartile": 2,
+      "vacuity_range": [
+        0.0647,
+        0.1952
+      ],
+      "mean_fragility": 0.0353,
+      "flip_rate": 0.04
+    },
+    {
+      "vacuity_quartile": 3,
+      "vacuity_range": [
+        0.2054,
+        0.3999
+      ],
+      "mean_fragility": 0.082,
+      "flip_rate": 0.04
+    },
+    {
+      "vacuity_quartile": 4,
+      "vacuity_range": [
+        0.4064,
+        0.8814
+      ],
+      "mean_fragility": 0.2494,
+      "flip_rate": 0.175
+    }
+  ],
+  "interpretation": "Insights in the top vacuity quartile flip labels under perturbation 4.4x more often than the bottom quartile. Spearman rho = 0.76 (p < 1e-12). The uncertainty signal is predictive of measured adversarial fragility, which is the claim we set out to test."
+}
