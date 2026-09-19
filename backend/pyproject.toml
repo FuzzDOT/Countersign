@@ -68,7 +68,7 @@ exclude = ["db/migrations/", "tests/", "data/generated/"]
 [[tool.mypy.overrides]]
 module = [
   "torch.*", "torch_geometric.*", "spacy.*", "nltk.*", "sklearn.*",
-  "xgboost.*", "pgvector.*", "slowapi.*", "elevenlabs.*", "faker.*",
+  "scipy.*", "xgboost.*", "pgvector.*", "slowapi.*", "elevenlabs.*", "faker.*",
 ]
 ignore_missing_imports = true
 

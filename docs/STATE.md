@@ -12,11 +12,45 @@
   shared evidential head, classical routing, insight persistence.
 - **Stage 4 complete** — the vacuity gate, threshold tuning against the
   definition of done, the graph assembler (simple cycles, node risk), and the
-  real `insights` / `graph` endpoints. `BUILD_STAGE = 4`.
-- **Next: Stage 5 (PROTECTED BLOCK)** — the fuzzer and the fragility
-  correlation. This is the differentiator.
+  real `insights` / `graph` endpoints.
+- **Stage 5 complete** — the five-family adversarial fuzzer, the fragility
+  score, and `GET /evals/fragility` + the owner-only runner.
+  `BUILD_STAGE = 5`.
+- **Next: Stage 6** — the Nemotron cascade and the routing eval.
 
-**567 tests pass**, 1 skipped; ruff, ruff format and mypy clean.
+**619 tests pass**, 1 skipped; ruff, ruff format and mypy clean.
+
+## Claim 2, measured
+
+`make fuzz` — 34 documents, 60 insights, 300 trials, **16 seconds**.
+
+| | |
+| --- | --- |
+| **Spearman(vacuity, fragility)** | **0.59** (Pearson 0.44, p = 6.9e-07, n = 60) |
+| Top vs bottom vacuity quartile flip rate | **11.0×** (0.147 vs 0.013) |
+| Mean fragility by quartile | 0.007 → 0.027 → 0.040 → 0.136 |
+
+Per family — flip rate / relation loss:
+
+| family | flip | loss | reading |
+| --- | --- | --- | --- |
+| punctuation | 0.183 | 0.150 | the most damaging, and not for the reason expected |
+| rename | 0.083 | 0.083 | structure over memorization, mostly holding |
+| synonym | 0.017 | 0.000 | wording is not what the model keys on |
+| boilerplate | 0.000 | 0.000 | position in the document does not matter |
+| reorder | 0.000 | 0.000 | as predicted: the model reads one sentence |
+
+**The surprise is worth more than the headline.** The plan expected `rename`
+to hurt most. It is `punctuation`, and the mechanism is not the model: a
+stray newline splits the sentence, the two parties land in different graphs,
+and the claim disappears — 15% of those trials lose the relation outright.
+That is a direct cost of the line-aware segmentation added in Stage 3, which
+made citations tight and the pipeline more brittle to OCR noise. Our
+*pipeline* is more fragile than our *model*, and the interpretation string
+says so.
+
+Pearson (0.44) sits well below Spearman (0.59): the relationship is monotonic
+and not linear, which is exactly why Spearman is the headline.
 
 ## Numbers
 
@@ -58,6 +92,25 @@ Spearman −0.05 with vacuity 0.9 everywhere and accuracy 0.15, which is the
 "I know nothing about everything" collapse the head's docstring warns about.
 Settled on 3.0 for the GAT and 1.0 for the rule model, which has 84 features
 and loses 0.21 F1 at 3.0.
+
+## Stage 5 decisions
+
+- **The whole document is perturbed, not just the sentence.** Re-inferring one
+  sentence would be four times faster and would make `reorder` a definitional
+  no-op; running the document puts coreference and segmentation in scope,
+  which is where two of the five families do their damage.
+- **Matching is by entity, not by string.** After a rename the parties have
+  different names, so the runner resolves candidates through the same
+  coreference layer the pipeline uses, inverting the rename map first.
+  Matching on text would score every rename as a total loss.
+- **`names.FUZZ_*` is a third pool**, disjoint from training *and* held-out.
+  Renaming into the held-out pool would sometimes pick a company already in
+  the scenario and score a coreference merge as a relation loss.
+- **Vacuous trials are excluded, not scored as zero.** A family that could not
+  perturb a document has not shown the insight is robust.
+- Perturbed text never touches `documents`, and `fragility_trials` has no
+  offset columns at all. Both are asserted, including a byte-identity check
+  of every stored document after a run.
 
 ## Decisions and findings worth knowing
 

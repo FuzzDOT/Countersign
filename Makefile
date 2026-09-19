@@ -148,7 +148,7 @@ fixtures-check:  ## Fail if committed fixtures are stale (used by CI)
 
 # ── models ───────────────────────────────────────────────────────────────────
 
-.PHONY: train-tagger train-relations train tune-gate vacuity offsets
+.PHONY: train-tagger train-relations train tune-gate vacuity fuzz offsets
 
 train-tagger:  ## Train the BiLSTM-CRF and write ml/checkpoints/tagger.pt (~60s)
 	$(BE) python -m scripts.train_tagger
@@ -163,6 +163,9 @@ tune-gate:  ## Sweep the routing bands and the vacuity gate against the corpus
 
 vacuity:  ## Does vacuity rise with difficulty band? The claim-2 precondition
 	$(BE) python -m scripts.vacuity_report --write
+
+fuzz:  ## Run the adversarial fuzzer and report the fragility correlation
+	$(BE) python -m scripts.run_fuzzer
 
 offsets:  ## Run the offset-integrity suite on its own (the load-bearing invariant)
 	$(BE) pytest -q tests/test_offsets.py

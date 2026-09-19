@@ -134,6 +134,26 @@ ALIASES: dict[str, tuple[str, ...]] = {
     "Halcyon Tooling LLC": ("Halcyon Tooling",),
 }
 
+# Names for the fuzzer's `rename` perturbation. Disjoint from *both* pools:
+# renaming `Meridian Supply LLC` to a company that already appears in the
+# scenario would collide two entities and score a coreference merge as a
+# relation loss. These strings appear nowhere in any corpus.
+FUZZ_ORGS: tuple[str, ...] = (
+    "Ardenmoor Shipping Ltd",
+    "Blythecote Metalworks",
+    "Corvane Logistics Inc",
+    "Drumsallow Bonding Co",
+    "Eskbank Freight Group",
+    "Fennimore Castings LLC",
+    "Gullacre Provisioning",
+    "Hindwell Marine Ltd",
+    "Ivorygate Trading Co",
+    "Jarrowfield Supply Inc",
+    "Kilnbrace Holdings",
+    "Lowmarsh Aggregates Ltd",
+)
+
+
 # ── people ───────────────────────────────────────────────────────────────────
 
 TRAIN_PERSONS: tuple[str, ...] = (
@@ -162,6 +182,15 @@ HELDOUT_PERSONS: tuple[str, ...] = (
     "Teodora Lascu",
     "Ansel Kirkbride",
     "Rosalind Achebe",
+)
+
+FUZZ_PERSONS: tuple[str, ...] = (
+    "Saoirse Ballantyne",
+    "Tomas Wrenshall",
+    "Ingrid Calloway",
+    "Obi Hargreaves",
+    "Lenka Vasiliev",
+    "Marcus Thorndike",
 )
 
 # ── addresses ────────────────────────────────────────────────────────────────
@@ -234,6 +263,8 @@ def assert_pools_disjoint() -> None:
         ("orgs", TRAIN_ORGS, HELDOUT_ORGS),
         ("persons", TRAIN_PERSONS, HELDOUT_PERSONS),
         ("addresses", TRAIN_ADDRESSES, HELDOUT_ADDRESSES),
+        ("fuzz orgs", TRAIN_ORGS + HELDOUT_ORGS, FUZZ_ORGS),
+        ("fuzz persons", TRAIN_PERSONS + HELDOUT_PERSONS, FUZZ_PERSONS),
     )
     for label, train, heldout in pairs:
         overlap = {n.casefold() for n in train} & {n.casefold() for n in heldout}
