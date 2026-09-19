@@ -60,7 +60,26 @@
   --rail-collapsed: 72px;
   --rail-expanded: 224px;
   --sheet-width: 560px;
-  --filter-width: 240px;
+  --filter-width: 240px; 
+  --ink-900: #0D1B2A;
+  --ink-900-rgb: 13 27 42;
+
+  --ink-700: #16293C;
+  --ink-700-rgb: 22 41 60;
+
+  --ink-500: #2C4A64;
+  --ink-500-rgb: 44 74 100;
+
+  --ink-200: #A8BDD0;
+  --ink-200-rgb: 168 189 208;
+
+  --ink-050: #E8EFF5;
+  --ink-050-rgb: 232 239 245;
+
+  /* ... paper, stamp values stay as they are for now ... */
+
+  --verify: #1F9C8B;
+  --verify-rgb: 31 156 139;
 }
 
 /* Reduced motion collapses everything except short opacity crossfades.

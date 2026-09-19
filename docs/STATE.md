@@ -15,10 +15,53 @@
   real `insights` / `graph` endpoints.
 - **Stage 5 complete** — the five-family adversarial fuzzer, the fragility
   score, and `GET /evals/fragility` + the owner-only runner.
-  `BUILD_STAGE = 5`.
-- **Next: Stage 6** — the Nemotron cascade and the routing eval.
+- **Stage 6 complete** — the Nemotron client, the cascade, the audit log and
+  the routing eval. **No live call has been made: `NEMOTRON_API_KEY` is
+  unset**, so the shipped behaviour is the degraded path. `BUILD_STAGE = 6`.
+- **Next: Stage 7** — the ablation engine.
 
-**619 tests pass**, 1 skipped; ruff, ruff format and mypy clean.
+**675 tests pass**, 1 skipped; ruff, ruff format and mypy clean.
+
+## Stage 6: what runs, and what has not been run
+
+Implemented and tested against `httpx.MockTransport` — real client, real
+retry policy, real parsing, faked server:
+
+- 6 s timeout, 2 retries, full-jitter backoff; 4xx not retried, 429/5xx are.
+- Malformed JSON is an upstream failure, exactly like a timeout (brief §14).
+- `asyncio.gather` with a semaphore of 6 (plan §1.9); one failure does not
+  cancel the batch.
+- Responses cached by prompt digest, so a rehearsal replays rather than
+  re-spends — and replays **without a key**, which is the bad-wifi path.
+- Every call logged to `nemotron_runs`, **including the failures**, with the
+  prompt digest rather than the prompt.
+
+**Not verified, and it cannot be from here:** that the hosted endpoint
+accepts our request shape, and how often the model returns parseable JSON.
+Both need a key. `make baseline` exits 2 with an explanation rather than
+writing anything.
+
+With no key the demo tenant runs the degraded path end to end: 11 of 60
+insights gated, all falling back to classical, `degraded: true` on each,
+zero 500s. That is the drill from plan §4 Stage 10, and it is what the
+committed fixtures and tests reflect.
+
+## Stage 6 numbers (classical only — no LLM in the loop)
+
+| what | number |
+| --- | --- |
+| Escalation rate | **18.3%** (11/60), inside the 8–20% band |
+| Routing eval cases | 54 (gold relations the pipeline extracted) |
+| Accuracy / macro-F1 | **0.648** / 0.489 |
+| Per class F1 | auto_file 0.78 · flag_for_review 0.12 · escalate_now 0.57 |
+| Documented failures | 6, the planted one first with its mechanism note |
+
+The accuracy is the classical router's, and it is not good. `flag_for_review`
+precision is 0.08 — the rule over-flags. That number was **not** tuned away:
+the thresholds are fitted to the escalation *rate* the definition of done
+specifies, never to these labels, because fitting a decision threshold to the
+set it is about to be scored against is marking your own homework. Improving
+the rule itself is legitimate and is where the remaining headroom is.
 
 ## Claim 2, measured
 
@@ -92,6 +135,35 @@ Spearman −0.05 with vacuity 0.9 everywhere and accuracy 0.15, which is the
 "I know nothing about everything" collapse the head's docstring warns about.
 Settled on 3.0 for the GAT and 1.0 for the rule model, which has 84 features
 and loses 0.21 F1 at 3.0.
+
+## Stage 6 decisions
+
+- **A degraded call still writes an audit row**, carrying the classical
+  decision it fell back to, the reason and `degraded = true`. A
+  `nemotron_runs` table containing only successes lies by omission.
+- **Escalation counts gated insights, not successful calls.** Otherwise the
+  volume figure would drop to zero whenever the upstream is down, which is
+  exactly when the cascade is doing the most interesting thing.
+- **`GET /routing/summary` is served as well as `GET /routing`.** The brief
+  documents the first, the hour-3 route table published the second and the
+  frontend generated TypeScript from it. One extra line beats a contract
+  change at hour 16.
+- **Classical latency is measured on demand**, not stored: insights are
+  written in a batch and a batch gives a mean, so reporting one under a field
+  called `p95` would be a small lie in a response whose purpose is to be
+  checkable. Twelve re-inferences, cached a minute (`ml/cascade/latency.py`).
+- **The planted failure's note now says what actually happened.** It
+  describes the cascade over-escalating; with no key the classical model
+  under-routes it instead. The note keeps its mechanism and gains an
+  "Observed in this run" sentence, so it does not claim a failure we did not
+  see.
+- **Gold relations the extractor missed are not eval cases.** That is a
+  recall failure the relation eval already reports, and counting it here
+  would mix two mistakes into one confusion matrix.
+- Operational gotcha, found the hard way: `.env` is read into the container
+  environment at `docker compose up`, and the process env wins over the file.
+  A threshold change needs `docker compose up -d backend`, not just an edit —
+  the gate silently ran at the brief's 0.45 for an hour because of this.
 
 ## Stage 5 decisions
 
