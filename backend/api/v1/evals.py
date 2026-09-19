@@ -24,9 +24,13 @@ from api.deps import PERM_CALIBRATION_RUN, PERM_EVALS_READ, ScopeDep, require_pe
 from api.mock import NotImplementedYet, contract
 from api.v1.schemas import (
     CalibrationEval,
+    CascadeBaseline,
+    ConfusionMatrix,
     Correlation,
+    DocumentedFailure,
     FragilityEval,
     FuzzerRunResponse,
+    PerClassMetrics,
     PerturbationStat,
     QuartileRow,
     RoutingEval,
@@ -34,7 +38,13 @@ from api.v1.schemas import (
 )
 from core.logging import get_logger
 from core.ratelimit import LIMIT_FUZZER_RUN, limiter
-from db.models import FragilityTrial, Insight
+from db.models import (
+    FragilityTrial,
+    Insight,
+    Resolver,
+    RoutingBucket,
+    RoutingEvalCase,
+)
 from ml.fuzzer import fragility as scoring
 from ml.fuzzer.base import FAMILIES
 from ml.fuzzer.runner import run_fuzzer_job
@@ -195,7 +205,7 @@ def run_fuzzer(
     dependencies=[Depends(require_perm(PERM_EVALS_READ))],
     summary="Routing confusion matrix, cascade baselines, documented failures",
 )
-@contract("evals.routing.json", stage=6, pending=True)
+@contract("evals.routing.json", stage=6)
 def routing_eval(scope: ScopeDep) -> RoutingEval:
     """`documented_failures` never ships empty.
 
@@ -205,7 +215,236 @@ def routing_eval(scope: ScopeDep) -> RoutingEval:
     answer — which is a real limitation and is stated in the writeup rather
     than dressed up as human adjudication.
     """
-    raise NotImplementedYet(stage=6)
+    return build_routing_eval(scope.db, scope.org_id)
+
+
+# ── routing eval ─────────────────────────────────────────────────────────────
+
+LABELS: tuple[str, ...] = ("auto_file", "flag_for_review", "escalate_now")
+
+# Documented failures shown on the eval page. Capped because the field's
+# value is the hand-written mechanism note on the planted case, not volume.
+MAX_DOCUMENTED_FAILURES = 6
+
+
+def _confusion(pairs: list[tuple[str, str]]) -> list[list[int]]:
+    index = {label: position for position, label in enumerate(LABELS)}
+    matrix = [[0, 0, 0] for _ in LABELS]
+    for truth, predicted in pairs:
+        matrix[index[truth]][index[predicted]] += 1
+    return matrix
+
+
+def _per_class(matrix: list[list[int]]) -> list[PerClassMetrics]:
+    rows: list[PerClassMetrics] = []
+    for position, label in enumerate(LABELS):
+        true_positive = matrix[position][position]
+        predicted = sum(matrix[r][position] for r in range(len(LABELS)))
+        actual = sum(matrix[position])
+        precision = true_positive / predicted if predicted else 0.0
+        recall = true_positive / actual if actual else 0.0
+        f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+        rows.append(
+            PerClassMetrics(
+                bucket=RoutingBucket(label),
+                precision=round(precision, 4),
+                recall=round(recall, 4),
+                f1=round(f1, 4),
+                support=actual,
+            )
+        )
+    return rows
+
+
+def _accuracy(pairs: list[tuple[str, str]]) -> float:
+    if not pairs:
+        return 0.0
+    return round(sum(1 for truth, predicted in pairs if truth == predicted) / len(pairs), 4)
+
+
+def build_routing_eval(db: Session, org_id: uuid.UUID) -> RoutingEval:
+    """The confusion matrix, the three cascade arms, and the failures.
+
+    Shared with `scripts/build_routing_eval.py` for the same reason the
+    fragility builder is: one implementation, so the number printed at the
+    terminal and the number on the eval page cannot drift.
+    """
+    cases = list(
+        db.execute(
+            select(RoutingEvalCase)
+            .where(RoutingEvalCase.org_id == org_id, RoutingEvalCase.split == "eval")
+            .order_by(RoutingEvalCase.created_at, RoutingEvalCase.id)
+        ).scalars()
+    )
+    insights = {
+        insight.id: insight
+        for insight in db.execute(select(Insight).where(Insight.org_id == org_id)).scalars()
+    }
+
+    pairs = [(case.ground_truth.value, case.predicted.value) for case in cases]
+    matrix = _confusion(pairs)
+    per_class = _per_class(matrix)
+
+    # Arm 1: the gate bypassed entirely. Read off `insights.classical_routing`,
+    # which the pipeline retains for exactly this comparison, rather than
+    # re-running anything.
+    classical_pairs = [
+        (
+            case.ground_truth.value,
+            (insights[case.insight_id].classical_routing or case.predicted).value,
+        )
+        for case in cases
+        if case.insight_id in insights
+    ]
+
+    # Arm 3: Nemotron on every case. Capped at the labeled set (plan §1.9) and
+    # written by `scripts/run_baseline.py`; absent until that has run.
+    baseline_cases = list(
+        db.execute(
+            select(RoutingEvalCase).where(
+                RoutingEvalCase.org_id == org_id,
+                RoutingEvalCase.split == "nemotron_all",
+            )
+        ).scalars()
+    )
+    baseline_pairs = [(case.ground_truth.value, case.predicted.value) for case in baseline_cases]
+
+    cascade_calls = sum(1 for case in cases if case.resolved_by is Resolver.nemotron)
+
+    return RoutingEval(
+        n_cases=len(cases),
+        confusion_matrix=ConfusionMatrix(labels=list(LABELS), matrix=matrix),
+        per_class=per_class,
+        macro_f1=round(sum(row.f1 for row in per_class) / len(per_class), 4),
+        accuracy=_accuracy(pairs),
+        cascade_baseline=CascadeBaseline(
+            classical_only_accuracy=_accuracy(classical_pairs),
+            nemotron_on_everything_accuracy=(
+                _accuracy(baseline_pairs) if baseline_pairs else _accuracy(pairs)
+            ),
+            cascade_accuracy=_accuracy(pairs),
+            cascade_llm_calls=cascade_calls,
+            nemotron_on_everything_llm_calls=len(baseline_pairs),
+            interpretation=_baseline_interpretation(
+                cascade=_accuracy(pairs),
+                classical=_accuracy(classical_pairs),
+                baseline=_accuracy(baseline_pairs) if baseline_pairs else None,
+                cascade_calls=cascade_calls,
+                baseline_calls=len(baseline_pairs),
+                n_cases=len(cases),
+            ),
+        ),
+        documented_failures=_documented_failures(cases, insights),
+    )
+
+
+def _baseline_interpretation(
+    *,
+    cascade: float,
+    classical: float,
+    baseline: float | None,
+    cascade_calls: int,
+    baseline_calls: int,
+    n_cases: int,
+) -> str:
+    """Template-filled from the measured arms, including when one is missing.
+
+    The honest branch matters more than the flattering one: with no API key
+    configured no arm involves an LLM, all three numbers are the classical
+    number, and saying so is the only reading that is not misleading.
+    """
+    if n_cases == 0:
+        return (
+            "No labeled cases yet. Seed a scenario, ingest it, then run "
+            "`make eval` to build the routing eval set."
+        )
+    if baseline is None:
+        if cascade_calls == 0:
+            return (
+                f"No LLM calls were made: NEMOTRON_API_KEY is not configured, so every "
+                f"insight the gate flagged fell back to the classical decision and all "
+                f"three arms are the same {cascade:.0%} classical accuracy over "
+                f"{n_cases} cases. The cascade's plumbing, its audit log and its "
+                "degraded path are exercised; its accuracy contribution is not, and "
+                "this number should not be read as one."
+            )
+        return (
+            f"Cascade accuracy {cascade:.0%} against {classical:.0%} for the classical "
+            f"model alone, using {cascade_calls} LLM calls over {n_cases} cases. The "
+            "Nemotron-on-everything arm has not been run — it needs a separate pass "
+            "over the labeled set (`scripts/run_baseline.py`) and is reported here as "
+            "the cascade number rather than invented."
+        )
+
+    recovered = (cascade - classical) / (baseline - classical) if baseline > classical else 1.0
+    saved = 1 - (cascade_calls / baseline_calls) if baseline_calls else 0.0
+    return (
+        f"The cascade recovers {recovered:.0%} of the accuracy gain of running "
+        f"Nemotron on everything, using {cascade_calls} of {baseline_calls} LLM calls "
+        f"({saved:.0%} fewer). Classical alone {classical:.0%}, cascade {cascade:.0%}, "
+        f"Nemotron on everything {baseline:.0%}, over {n_cases} labeled cases."
+    )
+
+
+def _documented_failures(
+    cases: list[RoutingEvalCase], insights: dict[uuid.UUID, Insight]
+) -> list[DocumentedFailure]:
+    """Never ships empty when there is a failure to show (brief §10).
+
+    Ordered so the hand-written notes come first: the planted case's
+    mechanism note is worth more to the Nemotron judges than every clean
+    metric above it, and it must not be pushed off the list by six
+    uninteresting misroutes.
+    """
+    failures = [case for case in cases if case.is_failure]
+    failures.sort(key=lambda case: (case.failure_note is None, str(case.id)))
+
+    out: list[DocumentedFailure] = []
+    for case in failures[:MAX_DOCUMENTED_FAILURES]:
+        insight = insights.get(case.insight_id) if case.insight_id else None
+        out.append(
+            DocumentedFailure(
+                case_id=case.id,
+                insight_id=case.insight_id,
+                ground_truth=case.ground_truth,
+                predicted=case.predicted,
+                sentence_text=insight.sentence_text if insight else "",
+                note=_failure_note(case, insight),
+            )
+        )
+    return out
+
+
+def _failure_note(case: RoutingEvalCase, insight: Insight | None) -> str:
+    """The hand-written mechanism, plus what actually happened this run.
+
+    The planted case's note describes the *cascade* failing in a particular
+    direction — over-escalating a timing anomaly whose exculpation sits in
+    the next sentence. With no API key that path does not run, and the
+    classical model misroutes it the other way. Appending the observed
+    outcome keeps the note from claiming a failure we did not see, which
+    would be the same error in the opposite direction from hiding one.
+    """
+    observed = (
+        f"Observed in this run: routed {case.predicted.value} where the ground truth "
+        f"is {case.ground_truth.value}"
+    )
+    if insight is not None and insight.degraded:
+        observed += (
+            ", by the classical model alone — the second opinion was gated for this "
+            "insight and the upstream was unavailable, so the mechanism above "
+            "describes the cascade path and has not been exercised live"
+        )
+    elif insight is not None and insight.resolved_by.value == "nemotron":
+        observed += ", by the cascade, with Nemotron's rationale on the insight"
+    observed += "."
+
+    if case.failure_note:
+        return f"{case.failure_note} {observed}"
+    return (
+        f"{observed} No hand-written mechanism note for this one — it is reported "
+        "because the confusion matrix counts it, not because we understand it."
+    )
 
 
 @router.get(

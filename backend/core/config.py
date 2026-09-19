@@ -106,6 +106,12 @@ class Settings(BaseSettings):
     # The single citation sentence is the only document-derived text that ever
     # reaches the prompt, and it is truncated to this many characters.
     nemotron_max_citation_chars: int = Field(default=400, ge=80, le=2_000)
+    # Responses are cached by prompt digest. Two reasons, both practical: the
+    # call budget is finite and a rehearsal should not spend it, and a demo
+    # on conference wifi should replay yesterday's decisions rather than
+    # degrade. Disable to force live calls.
+    nemotron_cache_enabled: bool = True
+    nemotron_cache_dir: str = "data/cache/nemotron"
 
     # ── elevenlabs ───────────────────────────────────────────────────────────
     elevenlabs_api_key: str = ""

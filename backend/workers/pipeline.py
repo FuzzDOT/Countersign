@@ -6,8 +6,8 @@ One job, one thread, five stages over §2's `job_state` enum:
   parsing   coreference onto `entities`, mentions persisted with exact offsets
   relating  sentence graphs and the relation model over candidate pairs
   scoring   temperature-scaled evidence -> confidence, vacuity, dissonance
-  routing   whole-corpus graph context, the classical decision, and the
-            insight rows themselves. The Nemotron cascade joins here (Stage 6)
+  routing   whole-corpus graph context, the classical decision, the Nemotron
+            cascade over the insights the gate flags, and the rows themselves
 
 `stage_progress` carries a fraction per stage rather than one overall
 percentage, because "relating 56%" is a useful thing to show a judge watching
@@ -34,6 +34,7 @@ import uuid
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
@@ -48,9 +49,10 @@ from db.models import (
     Insight,
     JobState,
     Mention,
-    Resolver,
+    NemotronRun,
 )
 from db.session import db_session
+from ml.cascade.cascade import Cascade, CascadeCandidate, CascadeOutcome
 from ml.cascade.routing import ClaimContext, GraphContext
 from ml.cascade.routing import score as route_claim
 from ml.entities.coref import EntityResolver
@@ -118,7 +120,13 @@ class IngestPipeline:
         # partway through the loop to drive the progress socket.
         self._persisted_entity_ids: set[uuid.UUID] = set()
         self.resolver = EntityResolver(job.org_id, threshold=self.settings.entity_coref_threshold)
-        self.counts: dict[str, int] = {"mentions": 0, "entities": 0, "insights": 0}
+        self.counts: dict[str, int] = {
+            "mentions": 0,
+            "entities": 0,
+            "insights": 0,
+            "escalated": 0,
+            "degraded": 0,
+        }
 
     # ── the state machine ────────────────────────────────────────────────────
 
@@ -407,7 +415,20 @@ class IngestPipeline:
         context = GraphContext.build(claims)
 
         # Re-ingest and retry run over documents that may already have
-        # insights, exactly as with mentions.
+        # insights, exactly as with mentions. The audit rows go with them:
+        # `nemotron_runs.insight_id` is deliberately FK-less, so orphans
+        # would otherwise accumulate and inflate the cascade's call count on
+        # every re-run.
+        stale = list(
+            self.db.execute(
+                select(Insight.id).where(
+                    Insight.org_id == self.job.org_id,
+                    Insight.document_id.in_([w.document_id for w in self.work]),
+                )
+            ).scalars()
+        )
+        if stale:
+            self.db.execute(delete(NemotronRun).where(NemotronRun.insight_id.in_(stale)))
         self.db.execute(
             delete(Insight).where(
                 Insight.org_id == self.job.org_id,
@@ -415,29 +436,61 @@ class IngestPipeline:
             )
         )
 
+        # Deduplicate before routing, not after: two mention pairs in one
+        # sentence that coreference merged onto the same two entities are one
+        # claim, and escalating it twice would spend two LLM calls on it.
         seen: set[uuid.UUID] = set()
-        total = max(len(pending), 1)
+        candidates: list[CascadeCandidate] = []
+        rows: list[tuple[DocumentWork, DraftInsight, uuid.UUID]] = []
+        classical: dict[uuid.UUID, Any] = {}
+        names = {record.id: record.canonical for record in self.resolver.records()}
 
-        for index, ((work, draft, subject_id, object_id), claim) in enumerate(
-            zip(pending, claims, strict=True), start=1
-        ):
-            decision = route_claim(claim, context, self.settings)
+        for (work, draft, subject_id, object_id), claim in zip(pending, claims, strict=True):
             insight_id = ids.insight_id(
                 work.document_id, draft.char_start, draft.relation, subject_id, object_id
             )
             if insight_id in seen:
-                # Two mention pairs in one sentence that coreference merged
-                # onto the same two entities are one claim.
                 continue
             seen.add(insight_id)
 
+            decision = route_claim(claim, context, self.settings)
+            classical[insight_id] = decision.bucket
+            rows.append((work, draft, insight_id))
+            candidates.append(
+                CascadeCandidate(
+                    insight_id=insight_id,
+                    subject_id=subject_id,
+                    object_id=object_id,
+                    subject_name=names.get(subject_id, draft.subject.surface),
+                    object_name=names.get(object_id, draft.object.surface),
+                    relation=draft.relation,
+                    confidence=draft.confidence,
+                    vacuity=draft.vacuity,
+                    dissonance=draft.dissonance,
+                    citation=draft.sentence_text,
+                    classical=decision,
+                )
+            )
+
+        report = Cascade(self.db, self.job.org_id, self.settings).run(candidates)
+        outcomes: dict[uuid.UUID, CascadeOutcome] = {
+            outcome.insight_id: outcome for outcome in report.outcomes
+        }
+        # The runs have to exist before an insight can reference one.
+        self.db.flush()
+
+        total = max(len(rows), 1)
+        for index, ((work, draft, insight_id), candidate) in enumerate(
+            zip(rows, candidates, strict=True), start=1
+        ):
+            outcome = outcomes[insight_id]
             self.db.add(
                 Insight(
                     id=insight_id,
                     org_id=self.job.org_id,
                     document_id=work.document_id,
-                    subject_id=subject_id,
-                    object_id=object_id,
+                    subject_id=candidate.subject_id,
+                    object_id=candidate.object_id,
                     relation=draft.relation,
                     char_start=draft.char_start,
                     char_end=draft.char_end,
@@ -445,10 +498,13 @@ class IngestPipeline:
                     confidence=draft.confidence,
                     vacuity=draft.vacuity,
                     dissonance=draft.dissonance,
-                    routing=decision.bucket,
-                    resolved_by=Resolver.classical,
-                    classical_routing=decision.bucket,
-                    degraded=False,
+                    routing=outcome.routing,
+                    resolved_by=outcome.resolved_by,
+                    nemotron_run_id=(
+                        outcome.nemotron_run.id if outcome.nemotron_run is not None else None
+                    ),
+                    classical_routing=classical[insight_id],
+                    degraded=outcome.degraded,
                     attention=draft.attention,
                     tokens=draft.tokens,
                     evidence_logits=draft.logits,
@@ -458,6 +514,8 @@ class IngestPipeline:
             self.counts["insights"] += 1
             self._advance(index, total, "routing")
 
+        self.counts["escalated"] = report.calls_attempted
+        self.counts["degraded"] = report.calls_degraded
         self._set_progress("routing", 1.0)
         self.job.insights_found = self.counts["insights"]
         self._commit()

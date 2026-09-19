@@ -148,7 +148,7 @@ fixtures-check:  ## Fail if committed fixtures are stale (used by CI)
 
 # ── models ───────────────────────────────────────────────────────────────────
 
-.PHONY: train-tagger train-relations train tune-gate vacuity fuzz offsets
+.PHONY: train-tagger train-relations train tune-gate vacuity fuzz eval baseline offsets
 
 train-tagger:  ## Train the BiLSTM-CRF and write ml/checkpoints/tagger.pt (~60s)
 	$(BE) python -m scripts.train_tagger
@@ -166,6 +166,12 @@ vacuity:  ## Does vacuity rise with difficulty band? The claim-2 precondition
 
 fuzz:  ## Run the adversarial fuzzer and report the fragility correlation
 	$(BE) python -m scripts.run_fuzzer
+
+eval:  ## Build the routing eval set from the generator's ground truth
+	$(BE) python -m scripts.build_routing_eval
+
+baseline:  ## Run Nemotron on every labeled case (needs NEMOTRON_API_KEY, ~100 calls)
+	$(BE) python -m scripts.run_baseline
 
 offsets:  ## Run the offset-integrity suite on its own (the load-bearing invariant)
 	$(BE) pytest -q tests/test_offsets.py
