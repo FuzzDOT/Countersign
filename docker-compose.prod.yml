@@ -1,0 +1,40 @@
+# Production-ish overlay: built assets, no bind mounts, no reload.
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+#
+# The frontend is built to static files and served by the backend container,
+# so the whole thing is one origin on port 8000. This is what we hand a judge.
+
+services:
+  db:
+    command: >
+      postgres
+      -c max_connections=100
+      -c shared_buffers=512MB
+    ports: []
+
+  backend:
+    build:
+      target: prod
+    environment:
+      ENVIRONMENT: production
+      SERVE_STATIC: "true"
+      STATIC_DIR: /app/static
+    volumes:
+      - frontend_dist:/app/static:ro
+      - hf_cache:/root/.cache/huggingface
+      - torch_cache:/root/.cache/torch
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+
+  frontend:
+    build:
+      target: build
+    command: ["sh", "-c", "npm run build && cp -r /app/dist/. /out/ && echo 'frontend build copied to volume' && sleep infinity"]
+    environment:
+      VITE_API_BASE_URL: /api/v1
+    volumes:
+      - frontend_dist:/out
+    ports: []
+
+volumes:
+  frontend_dist:

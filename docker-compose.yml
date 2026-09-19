@@ -1,0 +1,99 @@
+# COUNTERSIGN — local development stack
+#
+#   make up        bring everything up
+#   make logs      follow all logs
+#   make down      stop
+#   make nuke      stop and delete the volume (fresh DB)
+#
+# Backend  → http://localhost:8000      (docs at /api/v1/docs)
+# Frontend → http://localhost:5173
+# Postgres → localhost:5432
+
+name: countersign
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: cs-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-countersign}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-countersign}
+      POSTGRES_DB: ${POSTGRES_DB:-countersign}
+      # Speed over durability. This is a dev/demo database, never production.
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command: >
+      postgres
+      -c fsync=off
+      -c synchronous_commit=off
+      -c full_page_writes=off
+      -c max_connections=100
+      -c shared_buffers=256MB
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-countersign} -d ${POSTGRES_DB:-countersign}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: cs-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-countersign}:${POSTGRES_PASSWORD:-countersign}@db:5432/${POSTGRES_DB:-countersign}
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      # Live reload: source is mounted, deps live in the image.
+      - ./backend:/app
+      - backend_venv:/app/.venv
+      - hf_cache:/root/.cache/huggingface
+      - torch_cache:/root/.cache/torch
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health', timeout=2).status==200 else 1)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: cs-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
+      # Required for hot reload to work through a bind mount on some hosts.
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
+  backend_venv:
+  frontend_node_modules:
+  hf_cache:
+  torch_cache:

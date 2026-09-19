@@ -1,0 +1,80 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Self-hosted fonts. No render-blocking Google Fonts request — the hero must
+   paint immediately. Drop subsetted woff2 files into /public/fonts/. */
+@layer base {
+  @font-face {
+    font-family: 'Instrument Sans';
+    src: url('/fonts/InstrumentSans-Variable.woff2') format('woff2-variations');
+    font-weight: 400 700;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Literata';
+    src: url('/fonts/Literata-Variable.woff2') format('woff2-variations');
+    font-weight: 400 600;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-ink-900 font-sans text-body text-ink-50 antialiased;
+    margin: 0;
+  }
+
+  /* Visible focus everywhere. Never `outline: none` without a replacement. */
+  :focus-visible {
+    outline: 2px solid var(--verify);
+    outline-offset: 2px;
+  }
+
+  /* Tabular figures for anything numeric so meters and tables don't jitter
+     when a value animates. */
+  .nums,
+  table,
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--verify) 35%, transparent);
+  }
+}
+
+@layer components {
+  /* The evidence surface. Applied by <PaperSurface>. No border radius —
+     that's part of why it reads as paper. */
+  .paper-surface {
+    @apply bg-paper font-reader text-paper-text;
+    border-radius: 0;
+  }
+
+  /* Inline panels separate by border + elevation, never by shadow.
+     Uniform rounded cards with identical soft shadows is the SaaS-kit look. */
+  .panel {
+    @apply rounded-panel border border-ink-500/40 bg-ink-700;
+  }
+
+  .hairline {
+    @apply border-ink-500/40;
+  }
+}

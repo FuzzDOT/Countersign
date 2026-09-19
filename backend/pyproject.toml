@@ -1,0 +1,75 @@
+[project]
+name = "countersign"
+version = "0.1.0"
+description = "Uncertainty-gated financial risk extraction with cited, non-generated insights"
+requires-python = ">=3.11"
+
+# ── ruff: linter + formatter ─────────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = ["db/migrations/versions", ".venv", "data/generated"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W",    # pycodestyle
+  "F",         # pyflakes
+  "I",         # isort
+  "B",         # bugbear
+  "C4",        # comprehensions
+  "UP",        # pyupgrade
+  "ASYNC",     # async correctness
+  "S",         # bandit (security)
+  "T20",       # no print statements
+  "SIM",       # simplify
+  "RUF",
+]
+ignore = [
+  "E501",    # line length is the formatter's job
+  "B008",    # FastAPI Depends() in defaults is the documented pattern
+  "S101",    # asserts are fine in tests
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "T20"]
+"scripts/*" = ["T20"]      # scripts are allowed to print
+"data/synth/*" = ["S311"]  # non-crypto random is correct for synthetic data
+
+[tool.ruff.format]
+quote-style = "double"
+
+# ── mypy ─────────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.11"
+plugins = ["pydantic.mypy"]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+exclude = ["db/migrations/", "tests/", "data/generated/"]
+
+# Third-party packages without stubs. Add here rather than sprinkling
+# `# type: ignore` through the codebase.
+[[tool.mypy.overrides]]
+module = [
+  "torch.*", "torch_geometric.*", "spacy.*", "nltk.*", "sklearn.*",
+  "xgboost.*", "pgvector.*", "slowapi.*", "elevenlabs.*", "faker.*",
+]
+ignore_missing_imports = true
+
+# ── pytest ───────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+  "slow: takes more than a few seconds (fuzzer, training)",
+  "ml: requires model weights to be present",
+  "integration: requires a live database",
+]
+filterwarnings = ["error::DeprecationWarning"]
+
+[tool.coverage.run]
+omit = ["tests/*", "db/migrations/*", "data/synth/*"]
