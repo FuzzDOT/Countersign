@@ -10,29 +10,43 @@ import type { Config } from 'tailwindcss';
  *  - verify means interactive/confirmed and nothing else
  *  - confidence and vacuity are never encoded in colour
  */
+/**
+ * A theme colour that reads a CSS custom property AND supports Tailwind's
+ * opacity modifier (`border-ink-500/40`, `bg-ink-700/60`). A bare `var(--x)`
+ * string cannot be parsed by Tailwind 3, so the `/40` utilities would silently
+ * not exist; `color-mix` gives the same result while the token stays the single
+ * source of truth.
+ */
+const token =
+  (name: string) =>
+  ({ opacityValue }: { opacityValue?: string | undefined }) =>
+    opacityValue === undefined
+      ? `var(--${name})`
+      : `color-mix(in srgb, var(--${name}) ${Number(opacityValue) * 100}%, transparent)`;
+
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
         ink: {
-          900: 'var(--ink-900)',
-          700: 'var(--ink-700)',
-          500: 'var(--ink-500)',
-          200: 'var(--ink-200)',
-          50: 'var(--ink-050)',
+          900: token('ink-900'),
+          700: token('ink-700'),
+          500: token('ink-500'),
+          200: token('ink-200'),
+          50: token('ink-050'),
         },
         paper: {
-          DEFAULT: 'var(--paper)',
-          text: 'var(--paper-text)',
-          rule: 'var(--paper-rule)',
+          DEFAULT: token('paper'),
+          text: token('paper-text'),
+          rule: token('paper-rule'),
         },
         stamp: {
-          red: 'var(--stamp-red)',
-          amber: 'var(--stamp-amber)',
-          slate: 'var(--stamp-slate)',
+          red: token('stamp-red'),
+          amber: token('stamp-amber'),
+          slate: token('stamp-slate'),
         },
-        verify: 'var(--verify)',
+        verify: token('verify'),
       },
       fontFamily: {
         sans: ['Instrument Sans', 'system-ui', 'sans-serif'],

@@ -10,12 +10,12 @@ export function RailNav({ escalateCount }: { escalateCount?: number | undefined 
 {  const { expanded, toggle } = useRailState();
 
   const items: RailItem[] = [
-    { label: "Feed", path: "/feed", badge: escalateCount },
-    { label: "Graph", path: "/graph" },
-    { label: "Evidence", path: "/evidence" },
-    { label: "Voice", path: "/voice" },
-    { label: "Ingest", path: "/ingest" },
-    { label: "Settings", path: "/settings" },
+    { label: "Feed", path: "/app/feed", badge: escalateCount },
+    { label: "Graph", path: "/app/graph" },
+    { label: "Evidence", path: "/app/evidence" },
+    { label: "Voice", path: "/app/voice" },
+    { label: "Ingest", path: "/app/ingest" },
+    { label: "Settings", path: "/app/settings" },
   ];
 
   return (
