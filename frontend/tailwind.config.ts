@@ -14,26 +14,26 @@ export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
-      colors: {
-        ink: {
-          900: 'var(--ink-900)',
-          700: 'var(--ink-700)',
-          500: 'var(--ink-500)',
-          200: 'var(--ink-200)',
-          50: 'var(--ink-050)',
-        },
-        paper: {
-          DEFAULT: 'var(--paper)',
-          text: 'var(--paper-text)',
-          rule: 'var(--paper-rule)',
-        },
-        stamp: {
-          red: 'var(--stamp-red)',
-          amber: 'var(--stamp-amber)',
-          slate: 'var(--stamp-slate)',
-        },
-        verify: 'var(--verify)',
-      },
+   colors: {
+  ink: {
+    900: 'rgb(var(--ink-900-rgb) / <alpha-value>)',
+    700: 'rgb(var(--ink-700-rgb) / <alpha-value>)',
+    500: 'rgb(var(--ink-500-rgb) / <alpha-value>)',
+    200: 'rgb(var(--ink-200-rgb) / <alpha-value>)',
+    50: 'rgb(var(--ink-050-rgb) / <alpha-value>)',
+  },
+  paper: {
+    DEFAULT: 'var(--paper)',
+    text: 'var(--paper-text)',
+    rule: 'var(--paper-rule)',
+  },
+  stamp: {
+    red: 'var(--stamp-red)',
+    amber: 'var(--stamp-amber)',
+    slate: 'var(--stamp-slate)',
+  },
+  verify: 'rgb(var(--verify-rgb) / <alpha-value>)',
+},
       fontFamily: {
         sans: ['Instrument Sans', 'system-ui', 'sans-serif'],
         reader: ['Literata', 'Georgia', 'serif'],
