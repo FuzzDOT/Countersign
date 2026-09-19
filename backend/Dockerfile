@@ -47,6 +47,11 @@ FROM deps AS dev
 RUN pip install -r requirements-dev.txt
 # spaCy model is a runtime download; bake it in so first boot is fast.
 RUN python -m spacy download en_core_web_sm
+# WordNet, for the adversarial fuzzer's synonym family. nltk.download() at
+# runtime is a network call, and the fuzzer dying at hour 12 inside a container
+# with no internet is an avoidable disaster. ~10 MB baked in.
+RUN python -m nltk.downloader -d /usr/share/nltk_data wordnet omw-1.4
+ENV NLTK_DATA=/usr/share/nltk_data
 
 COPY . .
 
@@ -58,6 +63,8 @@ CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload
 FROM deps AS prod
 
 RUN python -m spacy download en_core_web_sm
+RUN python -m nltk.downloader -d /usr/share/nltk_data wordnet omw-1.4
+ENV NLTK_DATA=/usr/share/nltk_data
 
 # Non-root. Do this before COPY so ownership is right in one layer.
 RUN groupadd --gid 10001 app \
@@ -66,7 +73,7 @@ RUN groupadd --gid 10001 app \
 COPY --chown=app:app . .
 
 # Writable dirs the app needs at runtime.
-RUN mkdir -p /app/data/audio /app/data/cache /app/static \
+RUN mkdir -p /app/data/audio /app/data/cache/parses /app/static \
  && chown -R app:app /app/data /app/static
 
 USER app

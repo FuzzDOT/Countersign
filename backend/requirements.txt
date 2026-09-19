@@ -2,6 +2,11 @@
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 pydantic==2.10.4
+# Required by `EmailStr` in api/v1/schemas.py. Pydantic does NOT pull this in
+# by default — it imports lazily at model-build time, so a missing install
+# fails at import of the router rather than at request time. Equivalent to
+# pydantic[email]; pinned separately so the version is visible.
+email-validator==2.2.0
 pydantic-settings==2.7.0
 python-multipart==0.0.20
 httpx==0.28.1

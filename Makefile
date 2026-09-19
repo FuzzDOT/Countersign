@@ -23,7 +23,7 @@ init: ## First-time setup: copy .env, build images, migrate
 	$(COMPOSE) build
 	$(COMPOSE) up -d db
 	@echo "waiting for postgres..."
-	@until $(COMPOSE) exec -T db pg_isready -q; do sleep 1; done
+	@until $(COMPOSE) exec -T db pg_isready -q -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"; do sleep 1; done
 	$(COMPOSE) up -d
 	@sleep 3
 	-$(MAKE) migrate
@@ -131,3 +131,17 @@ clean: ## Remove build artifacts and caches
 	find . -type d -name .ruff_cache -prune -exec rm -rf {} + 2>/dev/null || true
 	find . -type d -name .mypy_cache -prune -exec rm -rf {} + 2>/dev/null || true
 	rm -rf frontend/dist frontend/.vite
+
+# ── synthetic data and fixtures ──────────────────────────────────────────────
+
+.PHONY: fixtures fixtures-check corpus
+
+fixtures:  ## Regenerate backend/data/fixtures from the synthetic corpus
+	cd backend && python -m scripts.gen_fixtures
+
+fixtures-check:  ## Fail if committed fixtures are stale (used by CI)
+	cd backend && python -m scripts.gen_fixtures --check
+
+corpus:  ## Print a summary of every synthetic scenario
+	@cd backend && for s in meridian_shell_ring clean_baseline invoice_flood train_corpus; do \
+		python -m data.synth.generate --scenario $$s --report; echo; done

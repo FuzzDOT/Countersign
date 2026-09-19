@@ -69,7 +69,26 @@ markers = [
   "ml: requires model weights to be present",
   "integration: requires a live database",
 ]
-filterwarnings = ["error::DeprecationWarning"]
+# Our own deprecations are errors; third-party ones are not. Left as a bare
+# `error::DeprecationWarning`, importing torch or spaCy fails the entire suite
+# on warnings we cannot fix — and the failure looks like our bug, which costs
+# twenty minutes of the wrong debugging at the wrong hour.
+filterwarnings = [
+  "error::DeprecationWarning",
+  "ignore::DeprecationWarning:torch.*",
+  "ignore::DeprecationWarning:torch_geometric.*",
+  "ignore::DeprecationWarning:spacy.*",
+  "ignore::DeprecationWarning:thinc.*",
+  "ignore::DeprecationWarning:weasel.*",
+  "ignore::DeprecationWarning:srsly.*",
+  "ignore::DeprecationWarning:nltk.*",
+  "ignore::DeprecationWarning:sklearn.*",
+  "ignore::DeprecationWarning:pydantic.*",
+  "ignore::DeprecationWarning:pkg_resources.*",
+  "ignore::DeprecationWarning:google.*",
+  "ignore::DeprecationWarning:httpx.*",
+  "ignore::DeprecationWarning:elevenlabs.*",
+]
 
 [tool.coverage.run]
 omit = ["tests/*", "db/migrations/*", "data/synth/*"]
