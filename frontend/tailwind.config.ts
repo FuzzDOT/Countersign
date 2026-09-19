@@ -10,10 +10,46 @@ import type { Config } from 'tailwindcss';
  *  - verify means interactive/confirmed and nothing else
  *  - confidence and vacuity are never encoded in colour
  */
+/**
+ * A theme colour that reads a CSS custom property AND supports Tailwind's
+ * opacity modifier (`border-ink-500/40`, `bg-ink-700/60`). A bare `var(--x)`
+ * string cannot be parsed by Tailwind 3, so the `/40` utilities would silently
+ * not exist; `color-mix` gives the same result while the token stays the single
+ * source of truth.
+ */
+const token =
+  (name: string) =>
+  ({ opacityValue }: { opacityValue?: string | undefined }) =>
+    opacityValue === undefined
+      ? `var(--${name})`
+      : `color-mix(in srgb, var(--${name}) ${Number(opacityValue) * 100}%, transparent)`;
+
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
+<<<<<<< HEAD
+      colors: {
+        ink: {
+          900: token('ink-900'),
+          700: token('ink-700'),
+          500: token('ink-500'),
+          200: token('ink-200'),
+          50: token('ink-050'),
+        },
+        paper: {
+          DEFAULT: token('paper'),
+          text: token('paper-text'),
+          rule: token('paper-rule'),
+        },
+        stamp: {
+          red: token('stamp-red'),
+          amber: token('stamp-amber'),
+          slate: token('stamp-slate'),
+        },
+        verify: token('verify'),
+      },
+=======
    colors: {
   ink: {
     900: 'rgb(var(--ink-900-rgb) / <alpha-value>)',
@@ -34,6 +70,7 @@ export default {
   },
   verify: 'rgb(var(--verify-rgb) / <alpha-value>)',
 },
+>>>>>>> 04ef22a88f7d0a831b4ff1c0a31ca02ef46387d5
       fontFamily: {
         sans: ['Instrument Sans', 'system-ui', 'sans-serif'],
         reader: ['Literata', 'Georgia', 'serif'],

@@ -1,20 +1,7 @@
-import { useState, useEffect } from "react";
+import { useInsightStats } from "../api/queries";
 
-export function useFeedStats() {
-  const [escalateCount, setEscalateCount] = useState<number | undefined>();
-
-  useEffect(() => {
-    let alive = true;
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/insights/stats`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (alive) setEscalateCount(data?.by_routing?.escalate_now);
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  return escalateCount;
+/** Escalated count for the rail badge. Reads the shared, authenticated query so it shares the feed's cache. */
+export function useFeedStats(): number | undefined {
+  const { data } = useInsightStats();
+  return data?.by_routing.escalate_now;
 }
