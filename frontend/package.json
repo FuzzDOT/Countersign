@@ -22,19 +22,19 @@
     "analyze": "vite build && npx vite-bundle-visualizer"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
     "@tanstack/react-query": "^5.62.0",
     "@tanstack/react-virtual": "^3.11.0",
-    "framer-motion": "^11.15.0",
+    "clsx": "^2.1.1",
     "d3-force": "^3.0.0",
     "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
     "d3-zoom": "^3.0.0",
+    "framer-motion": "^11.15.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
     "recharts": "^2.14.1",
-    "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
@@ -47,6 +47,7 @@
     "@types/d3-selection": "^3.0.11",
     "@types/d3-shape": "^3.1.6",
     "@types/d3-zoom": "^3.0.8",
+    "@types/node": "^26.6.2",
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
