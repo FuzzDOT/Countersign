@@ -120,6 +120,16 @@ class Settings(BaseSettings):
     # ── pipeline tuning ──────────────────────────────────────────────────────
     relation_model: RelationBackend = RelationBackend.gat
     vacuity_gate_threshold: float = Field(default=0.45, ge=0.0, le=1.0)
+    # Classical routing bands over the composite risk score in
+    # ml/cascade/routing.py. Tuned in Stage 4 against the definition of
+    # done's 8-20% escalation rate rather than guessed, and kept in config so
+    # hour 16 can retune without a code change.
+    routing_flag_threshold: float = Field(default=0.35, ge=0.0, le=1.0)
+    routing_escalate_threshold: float = Field(default=0.60, ge=0.0, le=1.0)
+    # Attention edges persisted per insight. The ablation panel renders the
+    # top handful; storing all ~150 arcs of a long sentence would triple the
+    # insights table for a tail nobody reads.
+    attention_edges_stored: int = Field(default=24, ge=1, le=256)
     ablation_load_bearing_delta: float = Field(default=0.10, ge=0.0, le=1.0)
     entity_coref_threshold: float = Field(default=0.86, ge=0.0, le=1.0)
     checkpoint_dir: str = "ml/checkpoints"

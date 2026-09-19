@@ -59,8 +59,8 @@
   },
   "documented_failures": [
     {
-      "case_id": "0b943eb9-0eb1-532c-af2b-6f9d34b096a7",
-      "insight_id": "1fb727b4-2136-55c5-bc2e-ca19f7561047",
+      "case_id": "ab903b88-e814-5384-9763-7b92a30cd1af",
+      "insight_id": "771ae0af-979e-576a-a009-0f16f845694f",
       "ground_truth": "flag_for_review",
       "predicted": "escalate_now",
       "sentence_text": "Invoice INV-4471 from Meridian Supply LLC to Northgate Logistics Inc was submitted 14 days ahead of the contracted schedule.",

@@ -66,6 +66,17 @@ TRAIN_ORGS: tuple[str, ...] = (
     "Larkmead Provisioning",
     "Rampton Marine Works",
     "Selby & Vane Fittings",
+    # The held-out pool spells its suffixes out — `Kestrel Registry Limited`,
+    # `Tessellate Print Group`. With only abbreviated suffixes above, `Limited`
+    # was a token the tagger had never seen at the end of a company name, so
+    # it read `Kestrel Registry Limited` as a person and truncated the span.
+    # Same principle as the suffix-less names: hold out the *names*, not the
+    # morphology.
+    "Marlowe Castings Limited",
+    "Prentiss Timber Group",
+    "Oakhurst Crate Company",
+    "Vellacott Print Partners",
+    "Ilbury Freight Corporation",
 )
 
 # Never in a training split. These are the names the model has genuinely never
@@ -110,6 +121,10 @@ ALIASES: dict[str, tuple[str, ...]] = {
     "Ferrisway Haulage": ("Ferrisway",),
     "Hollintree Aggregates": ("Hollintree",),
     "Selby & Vane Fittings": ("Selby & Vane",),
+    "Marlowe Castings Limited": ("Marlowe Castings", "Marlowe Castings Ltd", "Marlowe"),
+    "Prentiss Timber Group": ("Prentiss Timber", "Prentiss"),
+    "Oakhurst Crate Company": ("Oakhurst Crate Co", "Oakhurst"),
+    "Ilbury Freight Corporation": ("Ilbury Freight Corp", "Ilbury Freight"),
     # ── held-out pool ────────────────────────────────────────────────────────
     "Meridian Supply LLC": ("Meridian Supply", "Meridian Supply, LLC", "Meridian"),
     "Advent Holdings": ("Advent Holdings Ltd", "Advent"),

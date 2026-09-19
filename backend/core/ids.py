@@ -61,8 +61,23 @@ def document_id(org_id: uuid.UUID, scenario: str, index: int) -> uuid.UUID:
     return stable_uuid("document", str(org_id), scenario, index)
 
 
-def insight_id(document: uuid.UUID, char_start: int, relation: str) -> uuid.UUID:
-    """Keyed on the citation span, so an insight's id is a function of where in
-    the document it came from. Re-extracting the same span yields the same id.
+def insight_id(
+    document: uuid.UUID,
+    char_start: int,
+    relation: str,
+    subject: uuid.UUID,
+    object_: uuid.UUID,
+) -> uuid.UUID:
+    """Keyed on the citation span and the pair it relates.
+
+    Re-extracting the same claim from the same sentence yields the same id,
+    which is what keeps the prerecorded briefing's `insight_id` values valid
+    across `make nuke` (plan §1.11).
+
+    The two entity ids are part of the key because one sentence can assert
+    the same relation about two different pairs — "A and B both wired funds
+    to C" is one sentence and two insights, and keying on the span alone
+    would collapse them into one row whose citation is right and whose
+    subject is a coin flip.
     """
-    return stable_uuid("insight", str(document), char_start, relation)
+    return stable_uuid("insight", str(document), char_start, relation, str(subject), str(object_))

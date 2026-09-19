@@ -148,10 +148,15 @@ fixtures-check:  ## Fail if committed fixtures are stale (used by CI)
 
 # ── models ───────────────────────────────────────────────────────────────────
 
-.PHONY: train-tagger offsets
+.PHONY: train-tagger train-relations train offsets
 
 train-tagger:  ## Train the BiLSTM-CRF and write ml/checkpoints/tagger.pt (~60s)
 	$(BE) python -m scripts.train_tagger
+
+train-relations:  ## Train the GAT and the rule fallback, and apply the hour-9 gate (~2.5min)
+	$(BE) python -m scripts.train_relations
+
+train: train-tagger train-relations  ## Retrain everything from the deterministic corpus
 
 offsets:  ## Run the offset-integrity suite on its own (the load-bearing invariant)
 	$(BE) pytest -q tests/test_offsets.py

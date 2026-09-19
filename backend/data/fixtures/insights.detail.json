@@ -1,5 +1,5 @@
 {
-  "id": "1e393acd-271a-5ffc-a3ca-13098a181f4d",
+  "id": "96847b0b-29b4-54fe-a72e-e93ac8d29fe2",
   "relation": "WIRED_FUNDS_TO",
   "subject": {
     "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
@@ -27,7 +27,7 @@
   "routing": "escalate_now",
   "resolved_by": "nemotron",
   "nemotron": {
-    "run_id": "520b63a8-7452-570a-8c6f-e10e47002053",
+    "run_id": "45820a35-9f12-5657-a700-3fbdc459d657",
     "rationale": "Third-party payment routing combined with a shared registered address across two counterparties is consistent with layering. Escalating.",
     "latency_ms": 1304
   },
@@ -47,7 +47,7 @@
       "edge_id": "e_1",
       "src_token": "$48,200",
       "dst_token": "routed",
-      "weight": 0.3195,
+      "weight": 0.333,
       "src_idx": 2,
       "dst_idx": 4
     },
@@ -55,7 +55,7 @@
       "edge_id": "e_2",
       "src_token": "routed",
       "dst_token": "through",
-      "weight": 0.2254,
+      "weight": 0.2609,
       "src_idx": 4,
       "dst_idx": 5
     },
@@ -63,7 +63,7 @@
       "edge_id": "e_3",
       "src_token": "through",
       "dst_token": "Advent",
-      "weight": 0.1287,
+      "weight": 0.1976,
       "src_idx": 5,
       "dst_idx": 6
     },
@@ -71,7 +71,7 @@
       "edge_id": "e_4",
       "src_token": "Advent",
       "dst_token": "Holdings",
-      "weight": 0.04,
+      "weight": 0.1134,
       "src_idx": 6,
       "dst_idx": 7
     }
@@ -102,7 +102,7 @@
   },
   "ablation_history": [
     {
-      "id": "3fde1577-b55a-52fc-a4fe-7931f09ef2ad",
+      "id": "c5015456-67b1-5e17-af18-3219b26e2fa3",
       "masked_edges": [
         "e_0"
       ],

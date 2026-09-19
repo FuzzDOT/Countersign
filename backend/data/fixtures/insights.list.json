@@ -1,7 +1,7 @@
 {
   "data": [
     {
-      "id": "0ac53066-7377-5e34-af0b-d489c0e51e99",
+      "id": "ed3af33c-1d23-5b1b-adce-0eb9cc2c6e0a",
       "relation": "WIRED_FUNDS_TO",
       "subject": {
         "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
@@ -34,7 +34,7 @@
       "created_at": "2026-09-19T21:07:41Z"
     },
     {
-      "id": "e515fd30-8581-51fc-bfd5-ad479af3ecbb",
+      "id": "7825a51f-94bc-5812-9443-01a0908a6811",
       "relation": "INVOICED",
       "subject": {
         "id": "ed4199d5-f113-5507-89e5-3dba9cf68584",
@@ -67,7 +67,7 @@
       "created_at": "2026-09-19T21:07:38Z"
     },
     {
-      "id": "3172ec0a-d48d-5a91-b832-e707df7a9b21",
+      "id": "b96e5a7c-a368-5e3e-82b2-a5acef7340aa",
       "relation": "INVOICED",
       "subject": {
         "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
@@ -100,7 +100,7 @@
       "created_at": "2026-09-19T21:07:35Z"
     },
     {
-      "id": "c2b43990-559e-5fdb-a4d3-7c5d0bd0b029",
+      "id": "80f26c67-3fc0-5155-97b1-3f5e91201f5d",
       "relation": "INVOICED",
       "subject": {
         "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
@@ -133,7 +133,7 @@
       "created_at": "2026-09-19T21:07:32Z"
     },
     {
-      "id": "92493cc6-80dc-5c71-9f19-2cf5ffaf4522",
+      "id": "30a6ed88-0b67-5013-b829-9a40d84e38ef",
       "relation": "WIRED_FUNDS_TO",
       "subject": {
         "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
@@ -161,7 +161,7 @@
       "routing": "flag_for_review",
       "resolved_by": "nemotron",
       "nemotron": {
-        "run_id": "1ff892ad-8438-5523-963a-1c1fa7f77229",
+        "run_id": "8bbc4663-6fa6-5f46-9c64-ecf035447a2e",
         "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
         "latency_ms": 593
       },
@@ -170,7 +170,7 @@
       "created_at": "2026-09-19T21:07:29Z"
     },
     {
-      "id": "83447997-5af4-5cf2-b0bb-3ca4a2feadcb",
+      "id": "146b940f-6c69-5dca-8acd-a12337b1d598",
       "relation": "WIRED_FUNDS_TO",
       "subject": {
         "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
@@ -203,7 +203,7 @@
       "created_at": "2026-09-19T21:07:26Z"
     },
     {
-      "id": "c56659ef-b9a6-5512-9117-eb7f41dfad87",
+      "id": "48d33802-33d1-5c19-930e-366840bef1e7",
       "relation": "INVOICED",
       "subject": {
         "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
@@ -231,7 +231,7 @@
       "routing": "auto_file",
       "resolved_by": "nemotron",
       "nemotron": {
-        "run_id": "9ea7c231-1431-5299-bb3e-93d9a040b8c6",
+        "run_id": "332d7412-f81f-5c19-95e7-266d5e42ecb3",
         "rationale": "Routine vendor activity with no corroborating risk signal in the two-hop neighbourhood. Filing.",
         "latency_ms": 1676
       },
@@ -240,7 +240,7 @@
       "created_at": "2026-09-19T21:07:23Z"
     },
     {
-      "id": "2eb5f3e4-2412-5b8b-94fa-4318dc2fba62",
+      "id": "42aa5238-a587-594a-a0d2-f0ffe51689b9",
       "relation": "WIRED_FUNDS_TO",
       "subject": {
         "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
@@ -273,7 +273,7 @@
       "created_at": "2026-09-19T21:07:20Z"
     },
     {
-      "id": "9e6d8b0d-525d-5acb-956b-07d96d7fbb28",
+      "id": "b6fe4542-02ba-5762-840b-4007cae0049f",
       "relation": "WIRED_FUNDS_TO",
       "subject": {
         "id": "4125b3f5-b3d6-5360-b853-18b68f026b3b",
@@ -306,7 +306,7 @@
       "created_at": "2026-09-19T21:07:17Z"
     },
     {
-      "id": "209a223f-506f-5b1b-b944-085f94fb7593",
+      "id": "22517d2e-c5cb-59a4-9b09-3c86e1503068",
       "relation": "SIGNATORY_OF",
       "subject": {
         "id": "aed8bdcf-c7bc-5d11-b8f0-cf5e2c1de565",
@@ -339,7 +339,7 @@
       "created_at": "2026-09-19T21:07:17Z"
     },
     {
-      "id": "bbf4ac71-1da8-5ba6-8ed4-78a5156ccde7",
+      "id": "e206164e-e170-5aa3-bc8c-6b342ddc2032",
       "relation": "INVOICED",
       "subject": {
         "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
@@ -372,7 +372,7 @@
       "created_at": "2026-09-19T21:07:14Z"
     },
     {
-      "id": "7e6956c6-8cad-5111-ae81-b36e148f8f1e",
+      "id": "ff135f75-93a4-55cc-a4ab-e9ffe54e010b",
       "relation": "SIGNATORY_OF",
       "subject": {
         "id": "31b02680-a7d2-585e-8279-5d631a39ff69",
@@ -405,7 +405,7 @@
       "created_at": "2026-09-19T21:07:14Z"
     },
     {
-      "id": "2866183f-9fb0-52f3-b038-0ca3e7906fcb",
+      "id": "74ef899a-e5f2-593d-bf03-ee3919f706ad",
       "relation": "WIRED_FUNDS_TO",
       "subject": {
         "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
@@ -438,7 +438,7 @@
       "created_at": "2026-09-19T21:07:11Z"
     },
     {
-      "id": "67245947-9b8c-5e22-80ff-a3cbb05817a7",
+      "id": "680496c9-c3e1-5ca0-85be-5352cabba815",
       "relation": "WIRED_FUNDS_TO",
       "subject": {
         "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
@@ -471,7 +471,7 @@
       "created_at": "2026-09-19T21:07:11Z"
     },
     {
-      "id": "f23239f5-e232-515a-93c3-4205d807b396",
+      "id": "1af5dbc6-6827-543a-8c1b-f3310e3fe997",
       "relation": "INVOICED",
       "subject": {
         "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
@@ -504,7 +504,7 @@
       "created_at": "2026-09-19T21:07:08Z"
     },
     {
-      "id": "b6c8b842-450f-54a9-8196-0b44c26ffaf1",
+      "id": "8c3519ac-5b27-5f6e-9d4e-c62f039460a4",
       "relation": "OWNED_BY",
       "subject": {
         "id": "5613874e-7fc0-5c71-a928-1afd76485aa4",
@@ -532,7 +532,7 @@
       "routing": "escalate_now",
       "resolved_by": "nemotron",
       "nemotron": {
-        "run_id": "e1e12934-aba2-599b-b67a-7341c2c1fb46",
+        "run_id": "29dc9a01-dca7-587f-9a0c-881aeb817d7f",
         "rationale": "Third-party payment routing combined with a shared registered address across two counterparties is consistent with layering. Escalating.",
         "latency_ms": 853
       },
@@ -541,7 +541,7 @@
       "created_at": "2026-09-19T21:07:08Z"
     },
     {
-      "id": "f19474f1-2a8e-5cc8-a145-00f51a13b834",
+      "id": "ef2b7ebe-5395-5729-86af-210c5f2b6309",
       "relation": "INVOICED",
       "subject": {
         "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
@@ -574,7 +574,7 @@
       "created_at": "2026-09-19T21:07:05Z"
     },
     {
-      "id": "95e2a601-ab86-5eff-b235-17cb5ca71b1f",
+      "id": "38380593-1ea9-5fd3-a991-bb99c1a50c63",
       "relation": "INVOICED",
       "subject": {
         "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
@@ -607,7 +607,7 @@
       "created_at": "2026-09-19T21:07:05Z"
     },
     {
-      "id": "454fd019-3952-5339-886f-9a840015d2c6",
+      "id": "220534b4-d117-5fa6-8390-7b1d95450e9a",
       "relation": "SIGNATORY_OF",
       "subject": {
         "id": "2bd23374-4de2-504c-aea4-f709e7503550",
@@ -640,7 +640,7 @@
       "created_at": "2026-09-19T21:07:02Z"
     },
     {
-      "id": "2a4e86d0-d264-5390-a274-fd4e638fa43d",
+      "id": "3bb41c75-5722-581d-8aa3-91b469c1ac35",
       "relation": "SIGNATORY_OF",
       "subject": {
         "id": "2bd23374-4de2-504c-aea4-f709e7503550",
@@ -673,7 +673,7 @@
       "created_at": "2026-09-19T21:07:02Z"
     },
     {
-      "id": "d2030c14-00bf-506a-ad86-7e8171fbe860",
+      "id": "df668564-1d81-5dee-ae49-8a984a29f008",
       "relation": "INVOICED",
       "subject": {
         "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
@@ -706,7 +706,7 @@
       "created_at": "2026-09-19T21:06:59Z"
     },
     {
-      "id": "e2f8a9d1-734e-59bc-89e0-114a079d152d",
+      "id": "22502967-d66b-5117-91f0-82982251e96e",
       "relation": "INVOICED",
       "subject": {
         "id": "3b8146ef-1f70-5b5b-b1d6-454eecfba747",
@@ -734,7 +734,7 @@
       "routing": "flag_for_review",
       "resolved_by": "nemotron",
       "nemotron": {
-        "run_id": "767d33f6-6401-5fec-b169-06219e172a56",
+        "run_id": "60bf9954-bf95-5e58-9ad3-a16ba58baf51",
         "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
         "latency_ms": 842
       },
@@ -743,7 +743,7 @@
       "created_at": "2026-09-19T21:06:59Z"
     },
     {
-      "id": "6bfd2735-48ab-5383-b560-d87218fd006a",
+      "id": "35cf566d-1b1e-5060-a940-6538a09b20b9",
       "relation": "INVOICED",
       "subject": {
         "id": "f8e860cf-6a9a-5915-a399-a4ac2f618c87",
@@ -771,7 +771,7 @@
       "routing": "auto_file",
       "resolved_by": "nemotron",
       "nemotron": {
-        "run_id": "ec9c69ed-008c-55fb-9832-5a7e9d1baab3",
+        "run_id": "db9eeba8-45ea-5f82-af9d-5e95389cdfee",
         "rationale": "Routine vendor activity with no corroborating risk signal in the two-hop neighbourhood. Filing.",
         "latency_ms": 1277
       },
@@ -780,7 +780,7 @@
       "created_at": "2026-09-19T21:06:56Z"
     },
     {
-      "id": "ea173b27-5bc6-5799-adad-041cec5e1e3f",
+      "id": "2d43f647-19de-526e-afa4-bb179b08ab1b",
       "relation": "WIRED_FUNDS_TO",
       "subject": {
         "id": "5613874e-7fc0-5c71-a928-1afd76485aa4",
@@ -808,7 +808,7 @@
       "routing": "flag_for_review",
       "resolved_by": "nemotron",
       "nemotron": {
-        "run_id": "5665dd78-ef7e-5b7d-918f-18f750ac3e92",
+        "run_id": "b366f270-1be7-553e-8d79-9b77b9cb1397",
         "rationale": "The relation is supported by a single source sentence and the counterparty has one prior flag. Worth a human look, not an immediate escalation.",
         "latency_ms": 1261
       },
@@ -817,7 +817,7 @@
       "created_at": "2026-09-19T21:06:56Z"
     },
     {
-      "id": "b094271e-2be2-571f-a614-87091a03686f",
+      "id": "65b10829-b5b3-5088-8777-db77c1d3969e",
       "relation": "SIGNATORY_OF",
       "subject": {
         "id": "aed8bdcf-c7bc-5d11-b8f0-cf5e2c1de565",

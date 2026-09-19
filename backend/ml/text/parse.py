@@ -35,6 +35,13 @@ log = get_logger(__name__)
 
 SPACY_MODEL = "en_core_web_sm"
 
+# Bumped whenever `TokenizedDoc`'s serialized shape or segmentation changes.
+# It is part of the cache key, so an old entry is a miss rather than a
+# silently wrong parse.
+#   v2  added `Token.lemma` for the rule-based relation extractor
+#   v3  added line-aware sentence boundaries (see `_line_boundaries`)
+CACHE_FORMAT = "v3"
+
 # spaCy's own NER is disabled: entity spans come from our BiLSTM-CRF, and
 # running a second tagger we then ignore is pure latency. The parser and the
 # POS tagger stay — the sentence graph in Stage 3 is built from dependency
@@ -53,6 +60,12 @@ def get_nlp() -> Any:
     Cached rather than loaded at import: `python -m data.synth.generate` and
     the fixture generator both import this package transitively and neither
     needs a 40 MB model resident.
+
+    The pipeline is left alone. Line-aware sentence segmentation happens in
+    `ml.text.tokenize.build_tokenized_doc`, *after* the parse — constraining
+    the parser with `is_sent_start` instead was tried and made it worse: a
+    header line with no verb gives every token its own tree root, so
+    `Meridian Supply LLC` came back as three sentences.
     """
     import spacy
 
@@ -70,7 +83,7 @@ def _cache_namespace() -> str:
     disagree with what the tagger was trained on.
     """
     nlp = get_nlp()
-    return f"{SPACY_MODEL}-{nlp.meta.get('version', '0')}-{'+'.join(DISABLED_PIPES)}"
+    return f"{SPACY_MODEL}-{nlp.meta.get('version', '0')}-{'+'.join(DISABLED_PIPES)}-{CACHE_FORMAT}"
 
 
 def content_sha(text: str) -> str:
