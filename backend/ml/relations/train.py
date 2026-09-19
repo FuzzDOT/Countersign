@@ -45,6 +45,9 @@ DEV_SPLIT_AT = 340
 
 NO_RELATION_INDEX = RELATION_INDEX[NO_RELATION]
 
+# Default final KL weight per model. See `RelationTrainConfig.kl_weight`.
+KL_BY_MODEL: dict[str, float] = {"gat": 3.0, "rules": 1.0}
+
 
 @dataclass(slots=True)
 class RelationTrainConfig:
@@ -54,6 +57,23 @@ class RelationTrainConfig:
     weight_decay: float = 1e-5
     grad_clip: float = 5.0
     annealing_epochs: int = 10
+    # Final strength of the KL-to-uniform term. Swept against
+    # `scripts/vacuity_report.py`, because the question is not "does the loss
+    # go down" but "does vacuity separate band D from bands A-C" — the only
+    # thing Stage 5 can correlate against. Measured:
+    #
+    #   KL 1.0  Spearman(band, vacuity) 0.345, relation F1 0.889
+    #   KL 3.0  Spearman 0.386,                relation F1 0.896
+    #   KL 8.0  Spearman -0.05, F1 collapses — vacuity 0.9 everywhere and
+    #           accuracy 0.15. This is the "I know nothing about everything"
+    #           failure the annealing comment in head.py warns about, and it
+    #           is worth having seen once.
+    #
+    # Per model, because they have very different capacity: the rule
+    # extractor has 84 hand-crafted features and a 3.0 regularizer costs it
+    # 0.21 F1, while the GAT has 175k parameters and gains from it. Setting
+    # `kl_weight` explicitly overrides both.
+    kl_weight: float | None = None
     seed: int = 20260919
     limit_documents: int | None = None
     model: dict[str, Any] = field(default_factory=dict)
@@ -268,6 +288,12 @@ def evaluate_end_to_end(model: nn.Module, scenario: str, *, seed: int) -> dict[s
 # ── training ─────────────────────────────────────────────────────────────────
 
 
+def kl_weight_for(name: str, config: RelationTrainConfig) -> float:
+    if config.kl_weight is not None:
+        return config.kl_weight
+    return KL_BY_MODEL.get(name, 1.0)
+
+
 def fit(
     model: nn.Module,
     train: list[RelationExample],
@@ -291,6 +317,7 @@ def fit(
         **{name: round(float(weights[index]), 3) for index, name in enumerate(RELATIONS)},
     )
 
+    kl_weight = kl_weight_for(getattr(model, "name", "?"), config)
     order = list(range(len(train)))
     history: list[dict[str, float]] = []
 
@@ -319,6 +346,7 @@ def fit(
                 torch.tensor(targets, dtype=torch.long),
                 epoch=epoch - 1,
                 annealing_epochs=config.annealing_epochs,
+                max_lambda=kl_weight,
                 class_weights=weights,
             )
             loss.backward()
@@ -400,6 +428,7 @@ def train(
         "heldout_scenario": HELDOUT_SCENARIO,
         "seed": config.seed,
         "epochs": config.epochs,
+        "kl_weight": config.kl_weight or "per-model (see KL_BY_MODEL)",
         "train_sentences": len(train_examples),
         "dev_sentences": len(dev_examples),
         "heldout_sentences": len(heldout_examples),
@@ -430,6 +459,7 @@ def train(
         elapsed = time.monotonic() - started
 
         entry: dict[str, Any] = {
+            "kl_weight": kl_weight_for(name, config),
             "parameters": sum(p.numel() for p in model.parameters()),
             "train_seconds": round(elapsed, 1),
             "loss_history": history,

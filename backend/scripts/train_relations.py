@@ -31,6 +31,13 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument(
+        "--kl",
+        type=float,
+        default=None,
+        help="Final KL weight, overriding the per-model default. Higher makes vacuity rise more readily; check "
+        "the effect with `python -m scripts.vacuity_report`.",
+    )
+    parser.add_argument(
         "--model",
         choices=("gat", "rules", "both"),
         default="both",
@@ -48,6 +55,7 @@ def main() -> int:
         learning_rate=args.lr,
         seed=args.seed if args.seed is not None else settings.pipeline_seed,
         limit_documents=args.limit,
+        kl_weight=args.kl,
     )
 
     report = train(

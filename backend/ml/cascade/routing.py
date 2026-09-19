@@ -8,7 +8,7 @@ answer. So it is a scoring rule that can be read aloud, not a model:
          + 0.30 if both parties sit inside an ownership or funds cycle
          + 0.15 if the pair also shares a registered address
          + 0.15 if one person signs for both parties
-         + 0.10 if the pair is linked by more than one kind of relation
+         + 0.10 if the pair is linked by three or more kinds of relation
     risk *= 0.5 + 0.5 * confidence
 
 The multiplier is the important line. A claim the model is unsure about is
@@ -57,10 +57,23 @@ CYCLE_BONUS = 0.30
 # through intermediaries. Both are structural findings no single triple can
 # see, and in the demo corpus the funds loop is the one that closes: the
 # third ownership edge is a band-D construction the model has never seen.
-CYCLIC_RELATIONS: tuple[str, ...] = ("OWNED_BY", "WIRED_FUNDS_TO")
+# Minimum loop length that counts, per relation.
+#
+# Two companies that own each other is an anomaly however you look at it. Two
+# companies that pay each other is Tuesday — `clean_baseline` is four trading
+# partners with no fraud in it, and counting reciprocal payments as a cycle
+# put 42% of that corpus into the review queue. Money returning to its origin
+# *through an intermediary* is the thing worth flagging, so funds loops need
+# three hops.
+CYCLIC_RELATIONS: dict[str, int] = {"OWNED_BY": 2, "WIRED_FUNDS_TO": 3}
 SHARED_ADDRESS_BONUS = 0.15
 COMMON_SIGNATORY_BONUS = 0.15
 MULTI_RELATION_BONUS = 0.10
+
+# Two companies that invoice each other and also pay each other is ordinary
+# trade — in a four-company corpus it describes almost every active pair.
+# Three distinct kinds of link between the same two parties is notable.
+MULTI_RELATION_KINDS = 3
 
 # Named so the response and the voice layer can quote the reason rather than
 # the number. Template-filled, never generated (brief §8).
@@ -69,7 +82,7 @@ REASON_TEXT: dict[str, str] = {
     "funds_cycle": "funds move in a loop that returns to its origin",
     "shared_address": "the pair also shares a registered address",
     "common_signatory": "one person signs for both parties",
-    "multi_relation": "the pair is linked by more than one kind of relation",
+    "multi_relation": "the pair is linked by three or more kinds of relation",
     "low_confidence": "the extraction is weakly supported",
 }
 
@@ -130,10 +143,11 @@ class GraphContext:
                         (claim.subject_id, claim.object_id)
                         for claim in claims
                         if claim.relation == relation
-                    ]
+                    ],
+                    min_length=minimum,
                 )
             )
-            for relation in CYCLIC_RELATIONS
+            for relation, minimum in CYCLIC_RELATIONS.items()
         }
         shared = {
             frozenset((claim.subject_id, claim.object_id))
@@ -197,7 +211,7 @@ def score(
         risk += COMMON_SIGNATORY_BONUS
         reasons.append("common_signatory")
 
-    if context.relation_kinds.get(pair, 0) > 1:
+    if context.relation_kinds.get(pair, 0) >= MULTI_RELATION_KINDS:
         risk += MULTI_RELATION_BONUS
         reasons.append("multi_relation")
 

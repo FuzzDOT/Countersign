@@ -345,6 +345,7 @@ def keyset_page(
     sort_value: Callable[[Any], str],
     parse_sort_value: Callable[[str], Any],
     descending: bool = True,
+    value_of: Callable[[Any], Any] | None = None,
 ) -> Page:
     """Fetch one keyset page, ordered by `(sort_column, id_column)`.
 
@@ -380,9 +381,10 @@ def keyset_page(
         last = rows[-1]
         # The sort value is read off the row through the column's own key,
         # so a caller cannot pass a formatter and a column that disagree.
-        next_cursor = Cursor(
-            sort_value=sort_value(getattr(last, sort_column.key)), record_id=last.id
-        ).encode()
+        # `value_of` overrides that for a sort over an expression rather than
+        # a plain column — `coalesce(fragility, 0)` has no `.key`.
+        raw = value_of(last) if value_of is not None else getattr(last, sort_column.key)
+        next_cursor = Cursor(sort_value=sort_value(raw), record_id=last.id).encode()
 
     return Page(
         rows=rows,

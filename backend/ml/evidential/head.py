@@ -67,9 +67,15 @@ def evidential_loss(
     *,
     epoch: int = 0,
     annealing_epochs: int = 10,
+    max_lambda: float = 1.0,
     class_weights: Tensor | None = None,
 ) -> Tensor:
     """Mean loss over the batch.
+
+    `max_lambda` scales the regularizer's final strength. Above 1 the model
+    pays more for evidence it cannot justify, which is the lever on how
+    readily vacuity rises — see `scripts/vacuity_report.py`, which is the
+    measurement that decides whether the setting is earning its keep.
 
     `class_weights` exists because candidate generation produces far more
     NO_RELATION pairs than anything else — every co-occurring entity pair in
@@ -91,7 +97,7 @@ def evidential_loss(
     wrong = one_hot + (1.0 - one_hot) * a
     regularizer = kl_to_uniform(wrong)
 
-    lam = min(1.0, max(epoch, 0) / max(annealing_epochs, 1))
+    lam = max_lambda * min(1.0, max(epoch, 0) / max(annealing_epochs, 1))
     per_example = expected_ce + lam * regularizer
 
     if class_weights is not None:

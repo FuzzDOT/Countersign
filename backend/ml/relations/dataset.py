@@ -42,8 +42,13 @@ class RelationExample:
     pairs: list[CandidatePair]
     labels: list[int]
     lemmas: tuple[str, ...]
-    # Kept for the eval report, not used in training.
+    # Kept for the eval report, not used in training. `bands` is parallel to
+    # `pairs`: the difficulty band of the gold relation each pair carries, or
+    # "" for a negative. It is what lets the vacuity report ask the question
+    # the whole project rests on — does the model get less certain as the
+    # construction gets harder?
     sentence_text: str = ""
+    bands: tuple[str, ...] = ()
 
     def __len__(self) -> int:
         return len(self.pairs)
@@ -70,10 +75,11 @@ def examples_for_document(
             continue
 
         truth = _gold_relations(gold, span.char_start, span.char_end)
-        labels = [
-            RELATION_INDEX[truth.get((pair.subject_key, pair.object_key), NO_RELATION)]
-            for pair in pairs
+        found = [
+            truth.get((pair.subject_key, pair.object_key), (NO_RELATION, "")) for pair in pairs
         ]
+        labels = [RELATION_INDEX[relation] for relation, _ in found]
+        bands = tuple(band for _, band in found)
         out.append(
             RelationExample(
                 graph=build_sentence_graph(
@@ -83,6 +89,7 @@ def examples_for_document(
                 labels=labels,
                 lemmas=tuple(token.lemma for token in unit.tokens),
                 sentence_text=doc.text[span.char_start : span.char_end],
+                bands=bands,
             )
         )
 
@@ -148,15 +155,18 @@ def _pairs_from(mentions: list[_GoldMention], offset: int) -> list[CandidatePair
 
 def _gold_relations(
     gold: GoldDocument, char_start: int, char_end: int
-) -> dict[tuple[str, str], str]:
-    """Gold triples whose citation sentence is this one.
+) -> dict[tuple[str, str], tuple[str, str]]:
+    """Gold `(relation, band)` for the triples stated in this sentence.
 
     Containment rather than equality: spaCy sometimes merges two generated
     sentences into one segment, and requiring an exact span match would drop
     the label for every relation in the merged pair.
     """
     return {
-        (relation.subject_canonical, relation.object_canonical): relation.relation
+        (relation.subject_canonical, relation.object_canonical): (
+            relation.relation,
+            str(relation.band),
+        )
         for relation in gold.relations
         if char_start <= relation.char_start and relation.char_end <= char_end
     }
