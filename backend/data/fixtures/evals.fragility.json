@@ -15,367 +15,367 @@
   },
   "scatter": [
     {
-      "insight_id": "0ac53066-7377-5e34-af0b-d489c0e51e99",
+      "insight_id": "ed3af33c-1d23-5b1b-adce-0eb9cc2c6e0a",
       "vacuity": 0.1552,
       "fragility": 0.0,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "e515fd30-8581-51fc-bfd5-ad479af3ecbb",
+      "insight_id": "7825a51f-94bc-5812-9443-01a0908a6811",
       "vacuity": 0.01,
       "fragility": 0.13,
       "routing": "auto_file"
     },
     {
-      "insight_id": "3172ec0a-d48d-5a91-b832-e707df7a9b21",
+      "insight_id": "b96e5a7c-a368-5e3e-82b2-a5acef7340aa",
       "vacuity": 0.1132,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "c2b43990-559e-5fdb-a4d3-7c5d0bd0b029",
+      "insight_id": "80f26c67-3fc0-5155-97b1-3f5e91201f5d",
       "vacuity": 0.266,
       "fragility": 0.13,
       "routing": "auto_file"
     },
     {
-      "insight_id": "92493cc6-80dc-5c71-9f19-2cf5ffaf4522",
+      "insight_id": "30a6ed88-0b67-5013-b829-9a40d84e38ef",
       "vacuity": 0.4943,
       "fragility": 0.2,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "83447997-5af4-5cf2-b0bb-3ca4a2feadcb",
+      "insight_id": "146b940f-6c69-5dca-8acd-a12337b1d598",
       "vacuity": 0.1509,
       "fragility": 0.13,
       "routing": "auto_file"
     },
     {
-      "insight_id": "c56659ef-b9a6-5512-9117-eb7f41dfad87",
+      "insight_id": "48d33802-33d1-5c19-930e-366840bef1e7",
       "vacuity": 0.7969,
       "fragility": 0.27,
       "routing": "auto_file"
     },
     {
-      "insight_id": "2eb5f3e4-2412-5b8b-94fa-4318dc2fba62",
+      "insight_id": "42aa5238-a587-594a-a0d2-f0ffe51689b9",
       "vacuity": 0.3763,
       "fragility": 0.07,
       "routing": "auto_file"
     },
     {
-      "insight_id": "9e6d8b0d-525d-5acb-956b-07d96d7fbb28",
+      "insight_id": "b6fe4542-02ba-5762-840b-4007cae0049f",
       "vacuity": 0.0994,
       "fragility": 0.2,
       "routing": "auto_file"
     },
     {
-      "insight_id": "209a223f-506f-5b1b-b944-085f94fb7593",
+      "insight_id": "22517d2e-c5cb-59a4-9b09-3c86e1503068",
       "vacuity": 0.0508,
       "fragility": 0.0,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "bbf4ac71-1da8-5ba6-8ed4-78a5156ccde7",
+      "insight_id": "e206164e-e170-5aa3-bc8c-6b342ddc2032",
       "vacuity": 0.01,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "7e6956c6-8cad-5111-ae81-b36e148f8f1e",
+      "insight_id": "ff135f75-93a4-55cc-a4ab-e9ffe54e010b",
       "vacuity": 0.1017,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "2866183f-9fb0-52f3-b038-0ca3e7906fcb",
+      "insight_id": "74ef899a-e5f2-593d-bf03-ee3919f706ad",
       "vacuity": 0.0647,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "67245947-9b8c-5e22-80ff-a3cbb05817a7",
+      "insight_id": "680496c9-c3e1-5ca0-85be-5352cabba815",
       "vacuity": 0.0592,
       "fragility": 0.13,
       "routing": "auto_file"
     },
     {
-      "insight_id": "f23239f5-e232-515a-93c3-4205d807b396",
+      "insight_id": "1af5dbc6-6827-543a-8c1b-f3310e3fe997",
       "vacuity": 0.3011,
       "fragility": 0.07,
       "routing": "auto_file"
     },
     {
-      "insight_id": "b6c8b842-450f-54a9-8196-0b44c26ffaf1",
+      "insight_id": "8c3519ac-5b27-5f6e-9d4e-c62f039460a4",
       "vacuity": 0.8229,
       "fragility": 0.21,
       "routing": "escalate_now"
     },
     {
-      "insight_id": "f19474f1-2a8e-5cc8-a145-00f51a13b834",
+      "insight_id": "ef2b7ebe-5395-5729-86af-210c5f2b6309",
       "vacuity": 0.3365,
       "fragility": 0.2,
       "routing": "auto_file"
     },
     {
-      "insight_id": "95e2a601-ab86-5eff-b235-17cb5ca71b1f",
+      "insight_id": "38380593-1ea9-5fd3-a991-bb99c1a50c63",
       "vacuity": 0.1065,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "454fd019-3952-5339-886f-9a840015d2c6",
+      "insight_id": "220534b4-d117-5fa6-8390-7b1d95450e9a",
       "vacuity": 0.1136,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "2a4e86d0-d264-5390-a274-fd4e638fa43d",
+      "insight_id": "3bb41c75-5722-581d-8aa3-91b469c1ac35",
       "vacuity": 0.0805,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "d2030c14-00bf-506a-ad86-7e8171fbe860",
+      "insight_id": "df668564-1d81-5dee-ae49-8a984a29f008",
       "vacuity": 0.27,
       "fragility": 0.07,
       "routing": "auto_file"
     },
     {
-      "insight_id": "e2f8a9d1-734e-59bc-89e0-114a079d152d",
+      "insight_id": "22502967-d66b-5117-91f0-82982251e96e",
       "vacuity": 0.5087,
       "fragility": 0.2,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "6bfd2735-48ab-5383-b560-d87218fd006a",
+      "insight_id": "35cf566d-1b1e-5060-a940-6538a09b20b9",
       "vacuity": 0.4538,
       "fragility": 0.2,
       "routing": "auto_file"
     },
     {
-      "insight_id": "ea173b27-5bc6-5799-adad-041cec5e1e3f",
+      "insight_id": "2d43f647-19de-526e-afa4-bb179b08ab1b",
       "vacuity": 0.6979,
       "fragility": 0.47,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "b094271e-2be2-571f-a614-87091a03686f",
+      "insight_id": "65b10829-b5b3-5088-8777-db77c1d3969e",
       "vacuity": 0.4064,
       "fragility": 0.07,
       "routing": "escalate_now"
     },
     {
-      "insight_id": "12e89ffe-4ab2-5da3-9b17-838171377285",
+      "insight_id": "b3e0b32d-d7eb-5608-b712-272e2b516b8f",
       "vacuity": 0.5985,
       "fragility": 0.27,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "afb0eed2-35a4-5279-ae73-967a9b7648cb",
+      "insight_id": "95c8c63e-cfcb-5e42-aa18-188cd9872811",
       "vacuity": 0.2404,
       "fragility": 0.07,
       "routing": "escalate_now"
     },
     {
-      "insight_id": "0d517e41-28ff-5757-be6a-25d5825a9f5c",
+      "insight_id": "e0210469-477e-5430-b5a4-a707d78f264f",
       "vacuity": 0.2054,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "4fb19856-4f14-595b-8df4-6ee3fbe9a103",
+      "insight_id": "64118527-bd5e-51bf-83e7-b331d5436ed0",
       "vacuity": 0.01,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "83a5df8d-c2e5-527d-8c5f-f1e0200626d7",
+      "insight_id": "607b539f-1943-5a1c-b85c-2763d4ad9e5f",
       "vacuity": 0.0142,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "223aa80b-b5a6-5228-87f3-c8c8a3dde758",
+      "insight_id": "cef78a0b-11a7-5b69-a44f-f9845f979b89",
       "vacuity": 0.01,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "5ec5a7ad-8c97-5293-9455-70e29fb346c7",
+      "insight_id": "efd3d831-eb76-5871-aa9f-eb9860011072",
       "vacuity": 0.01,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "70e80ab9-b430-5044-8616-b2c80b068ddf",
+      "insight_id": "0aa817f5-feb6-5980-a605-7f429f5ca21d",
       "vacuity": 0.0635,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "0bd38c84-a1ee-5e1e-a820-77083f606ea2",
+      "insight_id": "18636527-aba5-5262-93b1-5febcf257d1c",
       "vacuity": 0.3502,
       "fragility": 0.07,
       "routing": "auto_file"
     },
     {
-      "insight_id": "b7ef3e9a-b616-5c1a-b61a-c1d1511310e6",
+      "insight_id": "4a648773-7d19-548c-97db-552fd2c6d075",
       "vacuity": 0.2764,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "70794026-5911-52ff-872a-1d4955ab9717",
+      "insight_id": "35e17571-ef14-514a-8d52-5823cb1be7d2",
       "vacuity": 0.0669,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "f0e48e69-4dd0-5d7a-bd80-ac39945b4c57",
+      "insight_id": "7469f821-3f83-5d46-9eed-41e1257f086d",
       "vacuity": 0.1268,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "db1db174-4508-52cb-b853-df03e0d28909",
+      "insight_id": "9fafef5b-f7df-573a-85b0-c653f98ed71b",
       "vacuity": 0.3743,
       "fragility": 0.2,
       "routing": "auto_file"
     },
     {
-      "insight_id": "4b9c9795-2941-5b68-80c6-71155be0f026",
+      "insight_id": "601a530e-85c2-57b5-9aa1-e8371c969a7b",
       "vacuity": 0.6897,
       "fragility": 0.34,
       "routing": "auto_file"
     },
     {
-      "insight_id": "8c558f78-66c0-56eb-b5af-1dbea25874af",
+      "insight_id": "9b0197da-53c2-5e26-b088-7f2c9f47a22b",
       "vacuity": 0.109,
       "fragility": 0.13,
       "routing": "auto_file"
     },
     {
-      "insight_id": "4ee2832f-172e-5ea8-8d40-2902ee80fd09",
+      "insight_id": "f5b8af9e-2df3-530c-9b4b-5153fe772f8a",
       "vacuity": 0.3999,
       "fragility": 0.07,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "bca80e8f-37ce-5e82-ac95-de4bc1587872",
+      "insight_id": "fa32be90-8e58-546f-a585-855de67ba131",
       "vacuity": 0.8814,
       "fragility": 0.34,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "f7d6251d-c1b2-5f07-b00e-0be647f5d8e9",
+      "insight_id": "ec86a102-27d6-583e-b6dd-f19f3349d4ce",
       "vacuity": 0.3419,
       "fragility": 0.07,
       "routing": "auto_file"
     },
     {
-      "insight_id": "a93a4fc1-c091-5b0d-bdfb-1f16ccc16400",
+      "insight_id": "bdff129d-2364-56ee-b725-e5a2ed0f9979",
       "vacuity": 0.5379,
       "fragility": 0.4,
       "routing": "auto_file"
     },
     {
-      "insight_id": "76b86853-c45f-5703-b5e3-60703d63c2fe",
+      "insight_id": "b7332bb0-83f1-5894-9a00-4e4c3d66aac4",
       "vacuity": 0.1952,
       "fragility": 0.07,
       "routing": "auto_file"
     },
     {
-      "insight_id": "01db875f-9064-5406-a75a-5916973fb245",
+      "insight_id": "d567e5fc-66f0-5f8f-8e65-5e69cb14894f",
       "vacuity": 0.01,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "c6015353-e98b-5b4d-b7b1-4eb1f1a5902c",
+      "insight_id": "5e392dba-9534-55ad-b76d-6fb4dc0a0b4a",
       "vacuity": 0.1587,
       "fragility": 0.0,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "86f3dd43-c408-55f7-9d0a-8787da87ec53",
+      "insight_id": "a628fe68-fe5f-5a94-9778-43c800f8b16b",
       "vacuity": 0.01,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "77abb81f-8a97-51d2-bfe2-7a6c00b25db6",
+      "insight_id": "966b1aff-4112-5adf-86e2-f490ce2c2352",
       "vacuity": 0.8728,
       "fragility": 0.14,
       "routing": "escalate_now"
     },
     {
-      "insight_id": "ad5cb400-00d5-5f4f-a436-baaf91496c09",
+      "insight_id": "a964eeb7-cb1c-59cb-bf36-2b39a873972c",
       "vacuity": 0.051,
       "fragility": 0.0,
       "routing": "escalate_now"
     },
     {
-      "insight_id": "fc3f51d0-7c2d-543e-b73d-ce4c57172fa8",
+      "insight_id": "a6156d9a-07f2-53fe-b172-646a02db1255",
       "vacuity": 0.0771,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "dc879653-ebdc-5ec9-9b19-b2fefd37b524",
+      "insight_id": "1cd6ba60-40dc-5c84-861e-66ef6d313ef2",
       "vacuity": 0.4506,
       "fragility": 0.27,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "e3ebd174-904c-5594-ae54-3d64aacaae46",
+      "insight_id": "26e773d2-41f5-5ab5-a420-dc115d0bd93f",
       "vacuity": 0.01,
       "fragility": 0.0,
       "routing": "auto_file"
     },
     {
-      "insight_id": "ee8828f9-8f98-5804-a8b5-f684a55a40f7",
+      "insight_id": "f000d0b7-ac13-5418-bd8a-15444e6c3aab",
       "vacuity": 0.5189,
       "fragility": 0.27,
       "routing": "auto_file"
     },
     {
-      "insight_id": "af2fd57a-435d-5543-b25f-21fd3d0e7c6b",
+      "insight_id": "8c9998d5-b8da-5f3b-bdef-789cd908859a",
       "vacuity": 0.01,
       "fragility": 0.13,
       "routing": "auto_file"
     },
     {
-      "insight_id": "bbed1eed-b77d-59b5-8987-6e4064dbec59",
+      "insight_id": "b9e64ce6-733f-56e7-88e1-e8aa90a28255",
       "vacuity": 0.2525,
       "fragility": 0.07,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "1e438066-9ff3-5eea-b522-54efe8b60e07",
+      "insight_id": "c2bcf75b-bd91-55b7-8961-bdd5ab730418",
       "vacuity": 0.4456,
       "fragility": 0.2,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "4ce99269-e7d6-5671-8516-a3c49b5f9f7e",
+      "insight_id": "5e2dc3c3-7d64-5b77-b08f-20cedd750813",
       "vacuity": 0.2723,
       "fragility": 0.07,
       "routing": "escalate_now"
     },
     {
-      "insight_id": "4f7bef48-3fe7-5c65-9b43-a6a0caffd9f6",
+      "insight_id": "462b5d84-9a87-5e85-bf6a-6ccf8ad0c328",
       "vacuity": 0.023,
       "fragility": 0.0,
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "1e393acd-271a-5ffc-a3ca-13098a181f4d",
+      "insight_id": "96847b0b-29b4-54fe-a72e-e93ac8d29fe2",
       "vacuity": 0.5957,
       "fragility": 0.14,
       "routing": "escalate_now"
     },
     {
-      "insight_id": "1fb727b4-2136-55c5-bc2e-ca19f7561047",
+      "insight_id": "771ae0af-979e-576a-a009-0f16f845694f",
       "vacuity": 0.2683,
       "fragility": 0.07,
       "routing": "escalate_now"

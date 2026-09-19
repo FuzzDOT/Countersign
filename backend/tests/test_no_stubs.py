@@ -25,6 +25,13 @@ EXEMPT_PATHS = frozenset(
 
 MAX_STAGE = 10
 
+# Stages that deliberately own no HTTP route. Stage 3 is the relation model
+# and the evidential head: it changes what an insight *contains*, and the
+# endpoints that serve insights belong to stage 4. Listing it here keeps
+# `test_landed_stage_has_routes` a real tripwire for an unwired router
+# instead of something that has to be switched off.
+ROUTELESS_STAGES = frozenset({3})
+
 
 def api_routes(app: FastAPI) -> list[APIRoute]:
     return [
@@ -85,6 +92,8 @@ def test_implemented_routes_are_not_marked_pending(app: FastAPI) -> None:
 def test_landed_stage_has_routes(app: FastAPI, stage: int) -> None:
     """A landed stage that owns no routes usually means a router was not wired
     into api/v1/__init__.py — which fails silently otherwise."""
+    if stage in ROUTELESS_STAGES:
+        pytest.skip(f"stage {stage} owns no HTTP route by design")
     owned = [path for _, path, meta in contracts(app) if meta.stage == stage]
     assert owned, f"stage {stage} is marked landed but owns no routes"
 

@@ -254,7 +254,14 @@ class FixtureInsight:
     def __init__(self, gold: GoldRelation, document: GoldDocument, rng: random.Random) -> None:
         self.gold = gold
         self.document = document
-        self.insight_id = ids.insight_id(document.document_id, gold.char_start, gold.relation)
+        subject_type = "PERSON" if gold.relation == "SIGNATORY_OF" else "ORG"
+        self.insight_id = ids.insight_id(
+            document.document_id,
+            gold.char_start,
+            gold.relation,
+            entity_uuid(ids.DEMO_ORG_ID, gold.subject_canonical, subject_type),
+            entity_uuid(ids.DEMO_ORG_ID, gold.object_canonical, "ORG"),
+        )
 
         conf_mean, vac_mean = BAND_TRUST[str(gold.band)]
         self.confidence = _clamp(rng.gauss(conf_mean, 0.055), 0.05, 0.99)

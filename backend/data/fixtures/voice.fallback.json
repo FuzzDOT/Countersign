@@ -15,27 +15,27 @@
       "start_ms": 3100,
       "end_ms": 10729,
       "text": "First: Advent Holdings routed a payment through Kestrel Registry Ltd. Confidence 89 percent. Escalated.",
-      "insight_id": "afb0eed2-35a4-5279-ae73-967a9b7648cb"
+      "insight_id": "95c8c63e-cfcb-5e42-aa18-188cd9872811"
     },
     {
       "segment_id": "s2",
       "start_ms": 10729,
       "end_ms": 17395,
       "text": "Second: Meridian Supply LLC is owned by Advent Holdings. Confidence 88 percent. Escalated.",
-      "insight_id": "ad5cb400-00d5-5f4f-a436-baaf91496c09"
+      "insight_id": "a964eeb7-cb1c-59cb-bf36-2b39a873972c"
     },
     {
       "segment_id": "s3",
       "start_ms": 17395,
       "end_ms": 23765,
       "text": "Third: Advent Holdings invoiced Meridian Supply LLC. Confidence 81 percent. Escalated.",
-      "insight_id": "4ce99269-e7d6-5671-8516-a3c49b5f9f7e"
+      "insight_id": "5e2dc3c3-7d64-5b77-b08f-20cedd750813"
     }
   ],
   "insight_ids": [
-    "afb0eed2-35a4-5279-ae73-967a9b7648cb",
-    "ad5cb400-00d5-5f4f-a436-baaf91496c09",
-    "4ce99269-e7d6-5671-8516-a3c49b5f9f7e"
+    "95c8c63e-cfcb-5e42-aa18-188cd9872811",
+    "a964eeb7-cb1c-59cb-bf36-2b39a873972c",
+    "5e2dc3c3-7d64-5b77-b08f-20cedd750813"
   ],
   "generated_at": "2026-09-19T21:06:02Z",
   "is_fallback": true

@@ -66,6 +66,17 @@ TRAIN_ORGS: tuple[str, ...] = (
     "Larkmead Provisioning",
     "Rampton Marine Works",
     "Selby & Vane Fittings",
+    # The held-out pool spells its suffixes out — `Kestrel Registry Limited`,
+    # `Tessellate Print Group`. With only abbreviated suffixes above, `Limited`
+    # was a token the tagger had never seen at the end of a company name, so
+    # it read `Kestrel Registry Limited` as a person and truncated the span.
+    # Same principle as the suffix-less names: hold out the *names*, not the
+    # morphology.
+    "Marlowe Castings Limited",
+    "Prentiss Timber Group",
+    "Oakhurst Crate Company",
+    "Vellacott Print Partners",
+    "Ilbury Freight Corporation",
 )
 
 # Never in a training split. These are the names the model has genuinely never
@@ -110,6 +121,10 @@ ALIASES: dict[str, tuple[str, ...]] = {
     "Ferrisway Haulage": ("Ferrisway",),
     "Hollintree Aggregates": ("Hollintree",),
     "Selby & Vane Fittings": ("Selby & Vane",),
+    "Marlowe Castings Limited": ("Marlowe Castings", "Marlowe Castings Ltd", "Marlowe"),
+    "Prentiss Timber Group": ("Prentiss Timber", "Prentiss"),
+    "Oakhurst Crate Company": ("Oakhurst Crate Co", "Oakhurst"),
+    "Ilbury Freight Corporation": ("Ilbury Freight Corp", "Ilbury Freight"),
     # ── held-out pool ────────────────────────────────────────────────────────
     "Meridian Supply LLC": ("Meridian Supply", "Meridian Supply, LLC", "Meridian"),
     "Advent Holdings": ("Advent Holdings Ltd", "Advent"),
@@ -118,6 +133,26 @@ ALIASES: dict[str, tuple[str, ...]] = {
     "Pinebrook Freight Co": ("Pinebrook Freight",),
     "Halcyon Tooling LLC": ("Halcyon Tooling",),
 }
+
+# Names for the fuzzer's `rename` perturbation. Disjoint from *both* pools:
+# renaming `Meridian Supply LLC` to a company that already appears in the
+# scenario would collide two entities and score a coreference merge as a
+# relation loss. These strings appear nowhere in any corpus.
+FUZZ_ORGS: tuple[str, ...] = (
+    "Ardenmoor Shipping Ltd",
+    "Blythecote Metalworks",
+    "Corvane Logistics Inc",
+    "Drumsallow Bonding Co",
+    "Eskbank Freight Group",
+    "Fennimore Castings LLC",
+    "Gullacre Provisioning",
+    "Hindwell Marine Ltd",
+    "Ivorygate Trading Co",
+    "Jarrowfield Supply Inc",
+    "Kilnbrace Holdings",
+    "Lowmarsh Aggregates Ltd",
+)
+
 
 # ── people ───────────────────────────────────────────────────────────────────
 
@@ -147,6 +182,15 @@ HELDOUT_PERSONS: tuple[str, ...] = (
     "Teodora Lascu",
     "Ansel Kirkbride",
     "Rosalind Achebe",
+)
+
+FUZZ_PERSONS: tuple[str, ...] = (
+    "Saoirse Ballantyne",
+    "Tomas Wrenshall",
+    "Ingrid Calloway",
+    "Obi Hargreaves",
+    "Lenka Vasiliev",
+    "Marcus Thorndike",
 )
 
 # ── addresses ────────────────────────────────────────────────────────────────
@@ -219,6 +263,8 @@ def assert_pools_disjoint() -> None:
         ("orgs", TRAIN_ORGS, HELDOUT_ORGS),
         ("persons", TRAIN_PERSONS, HELDOUT_PERSONS),
         ("addresses", TRAIN_ADDRESSES, HELDOUT_ADDRESSES),
+        ("fuzz orgs", TRAIN_ORGS + HELDOUT_ORGS, FUZZ_ORGS),
+        ("fuzz persons", TRAIN_PERSONS + HELDOUT_PERSONS, FUZZ_PERSONS),
     )
     for label, train, heldout in pairs:
         overlap = {n.casefold() for n in train} & {n.casefold() for n in heldout}

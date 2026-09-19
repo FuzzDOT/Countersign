@@ -61,7 +61,7 @@ R = TypeVar("R")
 # variable it would be a tripwire that deployment config could switch off, and
 # the failure mode — a green suite that has quietly stopped checking anything —
 # is exactly what this is here to prevent.
-BUILD_STAGE = 2
+BUILD_STAGE = 6
 
 
 @dataclass(frozen=True, slots=True)

@@ -37,6 +37,17 @@ log = get_logger(__name__)
 
 CHECKPOINT_NAME = "tagger.pt"
 
+# Entity types that name a party. A company or a person is capitalized in
+# English, and the tagger's residual errors on unseen text are almost all
+# lowercase common nouns promoted to ORG — `remittance`, `attributable`. Each
+# one becomes a node in the graph and a candidate in every pair in its
+# sentence, so the cost of keeping them is paid twice.
+#
+# Applied here rather than inside the model, and deliberately *not* applied
+# in `ml/tagger/train.py`'s evaluation: the reported F1 should measure the
+# model, not the model plus a filter.
+NAMED_TYPES = frozenset({"ORG", "PERSON"})
+
 # Sentences per forward pass. Bounded because a 120-document scenario has
 # ~900 sentences and one batch of those is a 900 x 60 x 512 hidden tensor.
 INFER_BATCH_SIZE = 64
@@ -146,6 +157,7 @@ class EntityTagger:
             mention
             for position, encoding in enumerate(encodings)
             for mention in self._mentions_of(doc, encoding, position)
+            if is_plausible(mention)
         )
         tagging = DocumentTagging(doc=doc, sentences=tuple(encodings), mentions=mentions)
         # Cheap, and it is the assertion that keeps every citation in the demo
@@ -212,6 +224,23 @@ class EntityTagger:
 
 _TAGGER: EntityTagger | None = None
 _LOAD_LOCK = threading.Lock()
+
+
+def is_plausible(mention: TaggedMention) -> bool:
+    """Reject a named-entity span that cannot be a name.
+
+    One rule: a party's surface has to contain a capitalized token. It costs
+    nothing on real names — every company and person in the corpus is
+    capitalized, including the held-out pool — and it removes the tagger's
+    characteristic out-of-distribution error, which is to promote an unseen
+    lowercase noun to ORG.
+
+    Value types are left alone. `$48,200` and `2026-09-14` are not
+    capitalized and are not supposed to be.
+    """
+    if mention.entity_type not in NAMED_TYPES:
+        return True
+    return any(character.isupper() for character in mention.surface)
 
 
 def checkpoint_path(settings: Settings | None = None) -> Path:

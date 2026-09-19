@@ -1,0 +1,41 @@
+{
+  "per_band": {
+    "A": {
+      "n": 207,
+      "mean_vacuity": 0.1149,
+      "median_vacuity": 0.075,
+      "p90_vacuity": 0.1442,
+      "mean_confidence": 0.9042,
+      "accuracy": 0.9758
+    },
+    "B": {
+      "n": 118,
+      "mean_vacuity": 0.1269,
+      "median_vacuity": 0.0943,
+      "p90_vacuity": 0.162,
+      "mean_confidence": 0.8942,
+      "accuracy": 0.9746
+    },
+    "C": {
+      "n": 59,
+      "mean_vacuity": 0.1081,
+      "median_vacuity": 0.0967,
+      "p90_vacuity": 0.1496,
+      "mean_confidence": 0.9099,
+      "accuracy": 1.0
+    },
+    "D": {
+      "n": 33,
+      "mean_vacuity": 0.2543,
+      "median_vacuity": 0.1434,
+      "p90_vacuity": 0.4327,
+      "mean_confidence": 0.7879,
+      "accuracy": 0.0606
+    }
+  },
+  "n_pairs": 417,
+  "spearman_band_vs_vacuity": 0.3864,
+  "monotonic": false,
+  "separation_a_to_d": 0.1394,
+  "note": "Scored over every gold-aligned candidate pair in the three servable scenarios, not over extracted insights: band-D relations are the ones the model misses, so measuring over insights alone measures the band-D examples that happened to be easy."
+}

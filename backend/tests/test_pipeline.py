@@ -248,3 +248,255 @@ def test_documents_from_another_org_are_never_loaded(db_session, tenant, setting
     outcome = IngestPipeline(db_session, job, settings).run()
     assert outcome.documents == 0
     assert other_org != tenant["org_id"]
+
+
+# ── insights (Stage 3) ───────────────────────────────────────────────────────
+
+
+def test_the_demo_scenario_produces_insights(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    from db.models import Insight
+
+    rows = (
+        db_session.execute(select(Insight).where(Insight.org_id == ingested["org_id"]))
+        .scalars()
+        .all()
+    )
+    assert len(rows) >= 40
+    assert ingested["outcome"].insights == len(rows)
+
+
+def test_every_citation_round_trips_through_postgres(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    """Plan §3: the one assertion that keeps every citation in the demo
+    honest, checked after a full write-read cycle."""
+    from db.models import Insight
+
+    rows = db_session.execute(
+        select(Insight, Document.raw_text)
+        .join(Document, Document.id == Insight.document_id)
+        .where(Insight.org_id == ingested["org_id"])
+    ).all()
+
+    assert rows
+    for insight, raw_text in rows:
+        assert raw_text[insight.char_start : insight.char_end] == insight.sentence_text
+
+
+def test_at_least_eighty_percent_of_documents_yield_a_relation(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    """The Stage 3 exit criterion from plan §4."""
+    from db.models import Insight
+
+    with_relation = db_session.execute(
+        select(func.count(func.distinct(Insight.document_id))).where(
+            Insight.org_id == ingested["org_id"]
+        )
+    ).scalar_one()
+    assert with_relation / 34 >= 0.80
+
+
+def test_trust_scores_are_populated_and_bounded(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    from db.models import Insight
+
+    rows = (
+        db_session.execute(select(Insight).where(Insight.org_id == ingested["org_id"]))
+        .scalars()
+        .all()
+    )
+    for insight in rows:
+        for value in (insight.confidence, insight.vacuity, insight.dissonance):
+            assert 0.0 <= value <= 1.0
+        assert insight.fragility is None, "fragility is Stage 5's job, not ingest's"
+
+
+def test_vacuity_has_real_variance(db_session, ingested) -> None:
+    """Plan §4 Stage 4: "if it doesn't, stop and fix it here" — Stage 5 has
+    nothing to correlate against a constant."""
+    import statistics
+
+    from db.models import Insight
+
+    values = list(
+        db_session.execute(
+            select(Insight.vacuity).where(Insight.org_id == ingested["org_id"])
+        ).scalars()
+    )
+    assert statistics.pstdev(values) > 0.05
+    assert max(values) - min(values) > 0.5
+
+
+def test_attention_and_tokens_are_index_parallel(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    """Brief §6: an edge's `src_idx`/`dst_idx` index into `tokens`, which is
+    how the ablation panel overlays the sentence."""
+    from db.models import Insight
+
+    rows = (
+        db_session.execute(select(Insight).where(Insight.org_id == ingested["org_id"]))
+        .scalars()
+        .all()
+    )
+
+    checked = 0
+    for insight in rows:
+        if not insight.attention:
+            continue
+        checked += 1
+        for edge in insight.attention:
+            assert 0 <= edge["src_idx"] < len(insight.tokens)
+            assert 0 <= edge["dst_idx"] < len(insight.tokens)
+            assert edge["src_token"] == insight.tokens[edge["src_idx"]]
+            assert edge["dst_token"] == insight.tokens[edge["dst_idx"]]
+            assert 0.0 <= edge["weight"] <= 1.0
+    assert checked, "no insight carried attention"
+
+
+def test_evidence_logits_are_retained_for_recalibration(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    """Stage 9 refits temperature on these rather than re-running inference
+    over the corpus."""
+    from db.models import Insight
+    from ml.relations.interface import N_RELATIONS
+
+    rows = (
+        db_session.execute(
+            select(Insight.evidence_logits).where(Insight.org_id == ingested["org_id"])
+        )
+        .scalars()
+        .all()
+    )
+    assert all(logits is not None and len(logits) == N_RELATIONS for logits in rows)
+
+
+def test_one_sentence_never_asserts_a_relation_in_both_directions(  # type: ignore[no-untyped-def]
+    db_session, ingested
+) -> None:
+    """Both cannot be true, and keeping both put a spurious two-node loop in
+    the ownership graph — the one visual the demo turns on."""
+    from db.models import Insight
+
+    rows = (
+        db_session.execute(select(Insight).where(Insight.org_id == ingested["org_id"]))
+        .scalars()
+        .all()
+    )
+
+    seen: set[tuple] = set()
+    for insight in rows:
+        key = (
+            insight.document_id,
+            insight.char_start,
+            insight.relation,
+            frozenset((insight.subject_id, insight.object_id)),
+        )
+        assert key not in seen, f"contradictory pair kept for {insight.relation}"
+        seen.add(key)
+
+
+def test_no_insight_relates_an_entity_to_itself(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    from db.models import Insight
+
+    rows = (
+        db_session.execute(
+            select(Insight).where(
+                Insight.org_id == ingested["org_id"],
+                Insight.subject_id == Insight.object_id,
+            )
+        )
+        .scalars()
+        .all()
+    )
+    assert rows == []
+
+
+def test_insight_ids_are_stable_across_a_reingest(db_session, ingested, settings) -> None:  # type: ignore[no-untyped-def]
+    """The prerecorded briefing's `insight_id` values have to survive a
+    reseed (plan §1.11)."""
+    from db.models import Insight
+
+    before = set(
+        db_session.execute(select(Insight.id).where(Insight.org_id == ingested["org_id"])).scalars()
+    )
+    job = db_session.get(IngestJob, ingested["job"].id)
+    IngestPipeline(db_session, job, settings).run()
+    after = set(
+        db_session.execute(select(Insight.id).where(Insight.org_id == ingested["org_id"])).scalars()
+    )
+    assert before == after
+
+
+def test_the_ownership_chain_is_recovered(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    """Two of the scenario's three ownership edges.
+
+    The third — `Kestrel Registry Limited` -> `Meridian Supply LLC` — is a
+    band-D construction held out of the training split on purpose, and the
+    model misses it. That is the design working, not a bug to paper over:
+    band D exists so there is something the model has genuinely never seen.
+    The funds graph closes the loop that ownership does not.
+    """
+    from db.models import Entity, Insight
+
+    names = {
+        entity.id: entity.canonical
+        for entity in db_session.execute(
+            select(Entity).where(Entity.org_id == ingested["org_id"])
+        ).scalars()
+    }
+    ownership = {
+        (names[i.subject_id], names[i.object_id])
+        for i in db_session.execute(
+            select(Insight).where(
+                Insight.org_id == ingested["org_id"], Insight.relation == "OWNED_BY"
+            )
+        ).scalars()
+    }
+    assert ("Meridian Supply LLC", "Advent Holdings") in ownership
+    assert ("Advent Holdings", "Kestrel Registry Ltd") in ownership
+
+
+def test_the_funds_graph_contains_a_cycle_through_the_ring(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    """Money leaving a company and returning through intermediaries is
+    layering, and it is what the demo's graph panel shows."""
+    from db.models import Entity, Insight
+    from ml.graph.cycles import cycles
+
+    names = {
+        entity.id: entity.canonical
+        for entity in db_session.execute(
+            select(Entity).where(Entity.org_id == ingested["org_id"])
+        ).scalars()
+    }
+    edges = [
+        (i.subject_id, i.object_id)
+        for i in db_session.execute(
+            select(Insight).where(
+                Insight.org_id == ingested["org_id"],
+                Insight.relation == "WIRED_FUNDS_TO",
+            )
+        ).scalars()
+    ]
+    found = [{names[node] for node in component} for component in cycles(edges)]
+    assert any(
+        {"Meridian Supply LLC", "Advent Holdings", "Kestrel Registry Ltd"} <= members
+        for members in found
+    ), f"no funds cycle through the ring; found {found}"
+
+
+def test_routing_buckets_are_all_represented(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    """A feed that is all one colour is a broken gate, not a clean corpus."""
+    from db.models import Insight
+
+    buckets = set(
+        db_session.execute(
+            select(Insight.routing).where(Insight.org_id == ingested["org_id"])
+        ).scalars()
+    )
+    assert len(buckets) == 3
+
+
+def test_document_detail_exposes_the_citation_spans(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+    """`spans` is what the citation reader highlights."""
+    from db.models import Insight
+
+    rows = (
+        db_session.execute(select(Insight).where(Insight.org_id == ingested["org_id"]))
+        .scalars()
+        .all()
+    )
+    assert {i.document_id for i in rows}

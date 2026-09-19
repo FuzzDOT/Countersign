@@ -6,6 +6,7 @@ like a product surface rather than a development convenience.
 
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
 from core import ids
@@ -90,18 +91,45 @@ def test_development_config_reports_no_production_problems() -> None:
     assert Settings(environment="development", mock_mode=True).check_production_safety() == []
 
 
-def test_pending_route_is_a_501_in_live_mode(client: TestClient, auth_header) -> None:  # type: ignore[no-untyped-def]
+def test_pending_route_is_a_501_in_live_mode(  # type: ignore[no-untyped-def]
+    app, client: TestClient, auth_header
+) -> None:
     """Live mode must fail honestly rather than serve fixture data.
 
     A pending endpoint returning plausible-looking mock data outside MOCK_MODE
     is how a demo ends up showing numbers nobody computed.
+
+    The route is chosen from the live route table rather than named here.
+    Hardcoding one meant this test silently stopped testing anything the
+    moment that stage landed — it did, when `/evals/fragility` was
+    implemented in Stage 5 and this started asserting that a working
+    endpoint was broken.
     """
-    response = client.get("/api/v1/evals/fragility", headers=auth_header())
-    # 403 if the analyst role lacks evals:read, 501 if permitted but unbuilt.
-    assert response.status_code in (403, 501)
+    from fastapi.routing import APIRoute
+
+    from api.mock import contract_of
+
+    pending = [
+        route
+        for route in app.routes
+        if isinstance(route, APIRoute)
+        and "GET" in (route.methods or ())
+        and "{" not in route.path
+        and (meta := contract_of(route.endpoint)) is not None
+        and meta.pending
+    ]
+    if not pending:
+        pytest.skip("every route is implemented — nothing left to be pending")
+
+    route = pending[0]
+    stage = contract_of(route.endpoint).stage  # type: ignore[union-attr]
+
+    response = client.get(route.path, headers=auth_header())
+    # 403 if the analyst role lacks the permission, 501 if permitted but unbuilt.
+    assert response.status_code in (403, 501), route.path
     if response.status_code == 501:
         body = response.json()["error"]
-        assert body["details"]["stage"] == 5
+        assert body["details"]["stage"] == stage
         assert "MOCK_MODE" in body["details"]["hint"]
 
 

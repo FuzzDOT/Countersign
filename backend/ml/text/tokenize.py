@@ -43,6 +43,11 @@ class Token:
     head_idx: int
     # Index of the sentence in `TokenizedDoc.sentences` this token belongs to.
     sent_idx: int
+    # Lowercased lemma. Stage 3's rule-based relation extractor keys its
+    # verb patterns on this, and computing it here rather than there keeps
+    # spaCy's output in one place — a lemmatizer run downstream would be a
+    # second tokenization of text that already has authoritative offsets.
+    lemma: str = ""
 
     @property
     def is_alpha(self) -> bool:
@@ -57,6 +62,7 @@ class Token:
             "d": self.dep,
             "h": self.head_idx,
             "n": self.sent_idx,
+            "l": self.lemma,
         }
 
     @classmethod
@@ -69,6 +75,7 @@ class Token:
             dep=payload["d"],
             head_idx=payload["h"],
             sent_idx=payload["n"],
+            lemma=payload.get("l", ""),
         )
 
 
@@ -208,6 +215,100 @@ class TokenizedDoc:
         )
 
 
+# ── line-aware segmentation ──────────────────────────────────────────────────
+#
+# Invoice and email headers have no terminal punctuation, so spaCy glues the
+# whole header onto the first body sentence. That is not a cosmetic problem:
+# `insights.sentence_text` is the citation a judge reads, and a 200-character
+# "sentence" that is four header lines plus one claim is a bad citation. It
+# also dilutes the sentence graph — measured on `meridian_shell_ring`, the
+# band-A ownership edge that closes the demo's three-hop cycle came out
+# NO_RELATION, and the header's address produced a spurious
+# SHARES_ADDRESS_WITH between two companies that merely appeared on the same
+# invoice.
+#
+# The split happens here, after the parse, rather than by constraining the
+# parser with `is_sent_start`. Constraining it was tried: a header line with
+# no verb gives every token its own tree root, and `Meridian Supply LLC` came
+# back as three sentences.
+
+# Words that end a line mid-sentence often enough that a break after them is
+# more likely to be a wrapped line than a new segment.
+CONTINUATION_WORDS = frozenset(
+    {
+        "and",
+        "or",
+        "but",
+        "of",
+        "to",
+        "for",
+        "with",
+        "by",
+        "from",
+        "in",
+        "on",
+        "at",
+        "the",
+        "a",
+        "an",
+        "as",
+        "that",
+        "which",
+        "than",
+        "per",
+    }
+)
+
+# Characters a genuinely new line tends to open with.
+SEGMENT_OPENERS = "([{$\u201c\"'"
+
+
+def _crosses_line(previous: Any) -> bool:
+    return "\n" in previous.whitespace_ or "\n" in previous.text
+
+
+def _opens_segment(previous: Any, token: Any) -> bool:
+    """Whether a line break between two tokens starts a new segment.
+
+    Conservative on both sides. A wrapped line almost always breaks after a
+    function word or a comma; a header line almost always opens with a
+    capital, a digit or a currency symbol. A PDF that wraps mid-sentence
+    before a proper noun will still be split — accepted, and the citation is
+    still byte-exact either way.
+    """
+    text = token.text
+    if not text or text.isspace():
+        return False
+    if previous.text.casefold() in CONTINUATION_WORDS:
+        return False
+    if previous.text.endswith((",", "-", "/")):
+        return False
+    return text[0].isupper() or text[0].isdigit() or text[0] in SEGMENT_OPENERS
+
+
+def _token_groups(spacy_doc: Any) -> list[list[int]]:
+    """spaCy's sentences, subdivided at line boundaries."""
+    groups: list[list[int]] = []
+    current: list[int] = []
+
+    for sent in spacy_doc.sents:
+        for index in range(sent.start, sent.end):
+            if (
+                current
+                and index > sent.start
+                and _crosses_line(spacy_doc[index - 1])
+                and _opens_segment(spacy_doc[index - 1], spacy_doc[index])
+            ):
+                groups.append(current)
+                current = []
+            current.append(index)
+        if current:
+            groups.append(current)
+            current = []
+
+    return groups
+
+
 def build_tokenized_doc(text: str, spacy_doc: Any) -> TokenizedDoc:
     """Convert a spaCy Doc into our frozen representation.
 
@@ -218,12 +319,28 @@ def build_tokenized_doc(text: str, spacy_doc: Any) -> TokenizedDoc:
     sentence_bounds: list[tuple[int, int, int, int]] = []
     sent_of_token: list[int] = [0] * len(spacy_doc)
 
-    for sent_index, sent in enumerate(spacy_doc.sents):
-        first = sent.start
-        last = sent.end - 1
-        sentence_bounds.append((sent.start_char, sent.end_char, first, last))
-        for token_index in range(sent.start, sent.end):
-            sent_of_token[token_index] = sent_index
+    for group in _token_groups(spacy_doc):
+        content = [index for index in group if not spacy_doc[index].text.isspace()]
+        if not content:
+            # A group of nothing but newlines is not a sentence. Its tokens
+            # join the previous one so that every token still points at a
+            # sentence that exists.
+            if sentence_bounds:
+                for index in group:
+                    sent_of_token[index] = len(sentence_bounds) - 1
+            continue
+
+        first, last = content[0], content[-1]
+        sentence_bounds.append(
+            (
+                spacy_doc[first].idx,
+                spacy_doc[last].idx + len(spacy_doc[last].text),
+                first,
+                last,
+            )
+        )
+        for index in group:
+            sent_of_token[index] = len(sentence_bounds) - 1
 
     if not sentence_bounds and len(spacy_doc):
         # A document spaCy declines to segment still needs one sentence, or
@@ -239,6 +356,7 @@ def build_tokenized_doc(text: str, spacy_doc: Any) -> TokenizedDoc:
             dep=token.dep_,
             head_idx=ROOT_HEAD if token.head.i == token.i else token.head.i,
             sent_idx=sent_of_token[token.i],
+            lemma=token.lemma_.casefold(),
         )
         for token in spacy_doc
     )

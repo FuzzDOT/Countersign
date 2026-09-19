@@ -6,7 +6,7 @@
   "raw_text": "Invoice INV-4471\nMeridian Supply LLC\n17 Calder Wharf, Unit 3B, Pittsburgh PA 15222\nIssued: 2026-09-14\nBill to: Advent Holdings\n\nInvoice INV-4471 from Meridian Supply LLC to Northgate Logistics Inc was submitted 14 days ahead of the contracted schedule. The contract permits early submission when the delivery milestone completes ahead of schedule, and the milestone record for this period confirms that it did.\nPayment of $48,200 was routed through Advent Holdings on behalf of Meridian Supply LLC.\nPlease quote reference INV-4471 on all correspondence.\nRecords for this period were reviewed on 2026-07-31 and retained for audit. Settlement method for this period is ACH debit, effective 2026-09-06.\nMeridian Supply LLC and Advent Holdings are both registered at 17 Calder Wharf, Unit 3B, Pittsburgh PA 15222. Questions about this document should be directed to accounts payable.\n",
   "spans": [
     {
-      "insight_id": "4f7bef48-3fe7-5c65-9b43-a6a0caffd9f6",
+      "insight_id": "462b5d84-9a87-5e85-bf6a-6ccf8ad0c328",
       "char_start": 700,
       "char_end": 809,
       "relation": "SHARES_ADDRESS_WITH",
@@ -14,7 +14,7 @@
       "routing": "flag_for_review"
     },
     {
-      "insight_id": "1e393acd-271a-5ffc-a3ca-13098a181f4d",
+      "insight_id": "96847b0b-29b4-54fe-a72e-e93ac8d29fe2",
       "char_start": 411,
       "char_end": 498,
       "relation": "WIRED_FUNDS_TO",
@@ -22,7 +22,7 @@
       "routing": "escalate_now"
     },
     {
-      "insight_id": "1fb727b4-2136-55c5-bc2e-ca19f7561047",
+      "insight_id": "771ae0af-979e-576a-a009-0f16f845694f",
       "char_start": 128,
       "char_end": 252,
       "relation": "INVOICED",

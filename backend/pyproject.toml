@@ -24,6 +24,11 @@ select = [
   "SIM",       # simplify
   "RUF",
 ]
+# Mathematical notation, in docstrings that describe mathematics. `α_k` reads
+# as the Dirichlet parameter it is; `a_k` reads as a variable name. The
+# confusable check is there to catch homoglyph typos, not to ban notation.
+allowed-confusables = ["α", "−", "–", "‖", "τ", "λ", "Σ", "×"]
+
 ignore = [
   "E501",    # line length is the formatter's job
   "B008",    # FastAPI Depends() in defaults is the documented pattern
@@ -63,7 +68,7 @@ exclude = ["db/migrations/", "tests/", "data/generated/"]
 [[tool.mypy.overrides]]
 module = [
   "torch.*", "torch_geometric.*", "spacy.*", "nltk.*", "sklearn.*",
-  "xgboost.*", "pgvector.*", "slowapi.*", "elevenlabs.*", "faker.*",
+  "scipy.*", "xgboost.*", "pgvector.*", "slowapi.*", "elevenlabs.*", "faker.*",
 ]
 ignore_missing_imports = true
 

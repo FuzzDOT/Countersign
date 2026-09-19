@@ -266,6 +266,31 @@ class EntityResolver:
         self.decisions.append(MergeDecision(surface, record.id, "new", 0.0))
         return record
 
+    def lookup(self, surface: str, entity_type: str) -> EntityRecord | None:
+        """Resolve without recording. Read-only.
+
+        `resolve` counts the mention, which is right during ingest and wrong
+        everywhere else. The fuzzer asks "which entity is this surface?"
+        hundreds of times per run over text that is never persisted, and
+        letting those calls inflate `mention_count` would corrupt the graph's
+        node sizes with data that does not exist.
+        """
+        namespace = id_namespace(entity_type)
+        key = entity_key(surface, entity_type)
+
+        existing = self._by_key.get((namespace, key))
+        if existing is not None:
+            return existing
+        if namespace != NAMED_NAMESPACE:
+            return None
+
+        shortened = self._prefix_match(key)
+        if shortened is not None:
+            return shortened
+
+        match, score = self._nearest(key)
+        return match if match is not None and score >= self.threshold else None
+
     def _prefix_match(self, key: str) -> EntityRecord | None:
         """Whole-token prefix containment, in either direction.
 
