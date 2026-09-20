@@ -208,7 +208,7 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
           <p className="nums text-h1 text-ink-50">{formatScore(confidence)}</p>
           <Meter value={confidence} label="Confidence after ablation" width={140} className="mt-1" />
           {result ? (
-            <p className="mt-1 text-body-sm text-ink-200">was {formatScore(insight.trust.confidence)}</p>
+            <p className="mt-1 text-body-sm text-ink-200">was {formatScore(result.before.confidence)}</p>
           ) : null}
         </div>
         <div>
@@ -216,7 +216,7 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
           <p className="nums text-h1 text-ink-50">{formatScore(vacuity)}</p>
           <Meter value={vacuity} label="Vacuity after ablation" width={140} className="mt-1" />
           {result ? (
-            <p className="mt-1 text-body-sm text-ink-200">was {formatScore(insight.trust.vacuity)}</p>
+            <p className="mt-1 text-body-sm text-ink-200">was {formatScore(result.before.vacuity)}</p>
           ) : null}
         </div>
       </div>
