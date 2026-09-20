@@ -123,6 +123,20 @@ class MeResponse(Schema):
     permissions: list[str]
 
 
+class MemberOut(Schema):
+    """A row in the settings members table.
+
+    Deliberately not `UserOut`: that one carries `org_id`, which is the same
+    value for every row here and is already known from `/auth/me`. `created_at`
+    is what the table actually needs, to show joining order.
+    """
+
+    id: uuid.UUID
+    email: str
+    role: UserRole
+    created_at: datetime
+
+
 # ── documents (§5) ───────────────────────────────────────────────────────────
 
 

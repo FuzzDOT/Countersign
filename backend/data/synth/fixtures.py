@@ -529,6 +529,27 @@ class FixtureSet:
             ],
         }
 
+    def org_members(self) -> list[dict[str, Any]]:
+        """Oldest first, matching the route's `order_by(created_at, id)`.
+
+        Two rows, not one: a members table that only ever renders the caller
+        is a layout nobody checks, and the seed creates a second org owner.
+        """
+        return [
+            {
+                "id": str(ids.DEMO_OWNER_ID),
+                "email": ids.DEMO_OWNER_EMAIL,
+                "role": "owner",
+                "created_at": GENERATED_AT.isoformat(),
+            },
+            {
+                "id": str(ids.CONTROL_OWNER_ID),
+                "email": ids.CONTROL_OWNER_EMAIL,
+                "role": "analyst",
+                "created_at": (GENERATED_AT + timedelta(minutes=4)).isoformat(),
+            },
+        ]
+
     # ── documents ────────────────────────────────────────────────────────────
 
     def documents_upload(self) -> dict[str, Any]:
@@ -1442,6 +1463,7 @@ def build_all(scenario: str = "meridian_shell_ring") -> dict[str, Any]:
     fixtures = FixtureSet(scenario)
     payloads: dict[str, Any] = {
         "auth.me.json": fixtures.auth_me(),
+        "org.members.json": fixtures.org_members(),
         "documents.upload.json": fixtures.documents_upload(),
         "documents.seed.json": fixtures.documents_seed(),
         "documents.list.json": fixtures.documents_list(),

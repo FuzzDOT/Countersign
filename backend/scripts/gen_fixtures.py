@@ -45,6 +45,7 @@ from api.v1.schemas import (
     InsightOut,
     InsightStats,
     JobOut,
+    MemberOut,
     MeResponse,
     NemotronRunOut,
     Paginated,
@@ -64,6 +65,7 @@ log = get_logger(__name__)
 # the thing we want reviewed.
 FIXTURE_MODELS: dict[str, Any] = {
     "auth.me.json": MeResponse,
+    "org.members.json": list[MemberOut],
     "documents.upload.json": UploadResponse,
     "documents.seed.json": UploadResponse,
     "documents.list.json": Paginated[DocumentSummary],

@@ -33,6 +33,7 @@ from api.v1 import (
     graph,
     ingest,
     insights,
+    org,
     routing,
     voice,
     ws,
@@ -52,6 +53,7 @@ api_router.include_router(routing.router)
 api_router.include_router(evals.router)
 api_router.include_router(calibration.router)
 api_router.include_router(voice.router)
+api_router.include_router(org.router)
 api_router.include_router(ws.router)
 
 __all__ = ["api_router"]

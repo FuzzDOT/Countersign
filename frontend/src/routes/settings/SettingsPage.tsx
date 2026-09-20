@@ -1,26 +1,21 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "../../auth/useAuth";
-import { request } from "../../api/client";
-import { Button } from "../../components/primitives/Button";
-import { Input } from "../../components/primitives/Input";
-import { Badge } from "../../components/primitives/Badge";
-import { Skeleton } from "../../components/primitives/Skeleton";
-import { ErrorState } from "../../components/primitives/ErrorState";
-import { EmptyState } from "../../components/primitives/EmptyState";
-
-type Member = {
-  id: string;
-  email: string;
-  role: "owner" | "analyst" | "viewer";
-};
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../auth/useAuth';
+import { api } from '../../api/endpoints';
+import type { MemberOut } from '../../api/types';
+import { Button } from '../../components/primitives/Button';
+import { Input } from '../../components/primitives/Input';
+import { Badge } from '../../components/primitives/Badge';
+import { Skeleton } from '../../components/primitives/Skeleton';
+import { ErrorState } from '../../components/primitives/ErrorState';
+import { EmptyState } from '../../components/primitives/EmptyState';
 
 export default function SettingsPage() {
   const { me, can } = useAuth();
-  const [members, setMembers] = useState<Member[] | null>(null);
+  const [members, setMembers] = useState<MemberOut[] | null>(null);
   const [membersError, setMembersError] = useState<unknown>(null);
   const [membersLoading, setMembersLoading] = useState(true);
 
-  const canManageUsers = can("users:manage");
+  const canManageUsers = can('users:manage');
 
   useEffect(() => {
     if (!canManageUsers) {
@@ -29,7 +24,8 @@ export default function SettingsPage() {
     }
     let alive = true;
     setMembersLoading(true);
-    request<Member[]>("/org/members")
+    api.org
+      .members()
       .then((data) => {
         if (alive) setMembers(data);
       })
@@ -45,17 +41,17 @@ export default function SettingsPage() {
   }, [canManageUsers]);
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-10 flex flex-col gap-10">
+    <div className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-10">
       <div>
         <h1 className="text-display-2 text-ink-50">Settings</h1>
-        <p className="text-body-sm text-ink-200 mt-1">Profile, organization, and members.</p>
+        <p className="mt-1 text-body-sm text-ink-200">Profile, organization, and members.</p>
       </div>
 
       {/* Profile */}
       <section className="flex flex-col gap-4">
         <h2 className="text-h2 text-ink-50">Profile</h2>
-        <div className="panel p-6 flex flex-col gap-4">
-          <Input label="Email" value={me?.email ?? ""} disabled readOnly />
+        <div className="panel flex flex-col gap-4 p-6">
+          <Input label="Email" value={me?.email ?? ''} disabled readOnly />
           <p className="text-body-sm text-ink-200">
             Password changes and email updates are not available in this build.
           </p>
@@ -65,8 +61,8 @@ export default function SettingsPage() {
       {/* Organization */}
       <section className="flex flex-col gap-4">
         <h2 className="text-h2 text-ink-50">Organization</h2>
-        <div className="panel p-6 flex flex-col gap-4">
-          <Input label="Organization name" value={me?.org_name ?? ""} disabled readOnly />
+        <div className="panel flex flex-col gap-4 p-6">
+          <Input label="Organization name" value={me?.org_name ?? ''} disabled readOnly />
         </div>
       </section>
 
@@ -80,9 +76,9 @@ export default function SettingsPage() {
             </Button>
           </div>
 
-          <div className="panel p-0 overflow-hidden">
+          <div className="panel overflow-hidden p-0">
             {membersLoading && (
-              <div className="p-6 flex flex-col gap-3">
+              <div className="flex flex-col gap-3 p-6">
                 <Skeleton className="h-10" />
                 <Skeleton className="h-10" />
                 <Skeleton className="h-10" />
