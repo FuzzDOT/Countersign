@@ -130,7 +130,11 @@ export function buildSegments(
       .map((r) => r.index);
 
     const previous = segments[segments.length - 1];
-    if (previous && sameList(previous.spanIds, spanIds) && sameList(previous.mentionIdx, mentionIdx)) {
+    if (
+      previous &&
+      sameList(previous.spanIds, spanIds) &&
+      sameList(previous.mentionIdx, mentionIdx)
+    ) {
       previous.end = end;
       previous.text = text.slice(previous.start, end);
       continue;

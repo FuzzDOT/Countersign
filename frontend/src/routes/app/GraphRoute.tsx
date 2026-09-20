@@ -50,7 +50,8 @@ export default function GraphRoute() {
   const query = useGraph(apiFilters, can('graph:read'));
 
   const setFilters = useCallback(
-    (next: GraphFilters) => setParams((current) => writeGraphFilters(current, next), { replace: true }),
+    (next: GraphFilters) =>
+      setParams((current) => writeGraphFilters(current, next), { replace: true }),
     [setParams],
   );
   const setMode = (value: 'graph' | 'table') =>
@@ -64,7 +65,10 @@ export default function GraphRoute() {
       { replace: true },
     );
 
-  const nodeHref = useCallback((id: string) => `/app/graph/${id}${location.search}`, [location.search]);
+  const nodeHref = useCallback(
+    (id: string) => `/app/graph/${id}${location.search}`,
+    [location.search],
+  );
   const selectNode = useCallback((id: string) => navigate(nodeHref(id)), [navigate, nodeHref]);
   const closeEntity = useCallback(
     () => navigate({ pathname: '/app/graph', search: location.search }),
@@ -87,12 +91,18 @@ export default function GraphRoute() {
     const members = new Set(cycle.node_ids);
     return {
       nodes: data.nodes.filter((n) => members.has(n.id)),
-      edges: data.edges.filter((e) => members.has(e.source) && members.has(e.target) && e.relation === cycle.relation),
+      edges: data.edges.filter(
+        (e) => members.has(e.source) && members.has(e.target) && e.relation === cycle.relation,
+      ),
     };
   }, [data, filters.cycle]);
 
   if (!can('graph:read')) {
-    return <EmptyState title="You do not have access to the graph">Ask an owner to grant graph access.</EmptyState>;
+    return (
+      <EmptyState title="You do not have access to the graph">
+        Ask an owner to grant graph access.
+      </EmptyState>
+    );
   }
 
   const rootName = filters.rootEntityId
@@ -112,21 +122,29 @@ export default function GraphRoute() {
             </p>
           ) : null}
         </div>
-        <SegmentedControl ariaLabel="Graph view" options={VIEW_OPTIONS} value={mode} onChange={setMode} />
+        <SegmentedControl
+          ariaLabel="Graph view"
+          options={VIEW_OPTIONS}
+          value={mode}
+          onChange={setMode}
+        />
       </header>
 
       {data?.truncated ? (
         <div className="px-5 pt-3">
           <Banner>
-            Showing {data.nodes.length} entities. The view is capped at {filters.limitNodes}, so some entities and
-            relations are hidden.{' '}
+            Showing {data.nodes.length} entities. The view is capped at {filters.limitNodes}, so
+            some entities and relations are hidden.{' '}
             {canRaise ? (
               <Button
                 size="sm"
                 variant="secondary"
                 className="ml-2"
                 onClick={() =>
-                  setFilters({ ...filters, limitNodes: Math.min(filters.limitNodes * 2, MAX_LIMIT_NODES) })
+                  setFilters({
+                    ...filters,
+                    limitNodes: Math.min(filters.limitNodes * 2, MAX_LIMIT_NODES),
+                  })
                 }
               >
                 Show up to {Math.min(filters.limitNodes * 2, MAX_LIMIT_NODES)}
@@ -153,7 +171,11 @@ export default function GraphRoute() {
 
         <div className="relative min-h-[420px] min-w-0 flex-1 xl:min-h-0 xl:overflow-y-auto">
           {query.isError && !data ? (
-            <ErrorState error={query.error} onRetry={() => void query.refetch()} title="The graph did not load" />
+            <ErrorState
+              error={query.error}
+              onRetry={() => void query.refetch()}
+              title="The graph did not load"
+            />
           ) : !scoped ? (
             <Skeleton className="h-full min-h-[420px] w-full" />
           ) : scoped.nodes.length === 0 ? (
@@ -161,13 +183,18 @@ export default function GraphRoute() {
               title="No entities match"
               action={
                 count > 0 ? (
-                  <Button variant="secondary" onClick={() => setFilters({ ...EMPTY_GRAPH_FILTERS })}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setFilters({ ...EMPTY_GRAPH_FILTERS })}
+                  >
                     Clear all filters
                   </Button>
                 ) : undefined
               }
             >
-              {count > 0 ? 'Loosen a filter to see more of the graph.' : 'Ingest some documents to build the graph.'}
+              {count > 0
+                ? 'Loosen a filter to see more of the graph.'
+                : 'Ingest some documents to build the graph.'}
             </EmptyState>
           ) : mode === 'table' ? (
             <GraphTableView
@@ -192,7 +219,10 @@ export default function GraphRoute() {
           )}
         </div>
 
-        <aside aria-label="Graph controls" className="flex shrink-0 flex-col gap-4 border-t border-ink-500/40 p-4 xl:w-72 xl:overflow-y-auto xl:border-l xl:border-t-0">
+        <aside
+          aria-label="Graph controls"
+          className="flex shrink-0 flex-col gap-4 border-t border-ink-500/40 p-4 xl:w-72 xl:overflow-y-auto xl:border-l xl:border-t-0"
+        >
           <CycleCallout
             cycles={data?.cycles ?? []}
             nodes={data?.nodes ?? []}
@@ -218,7 +248,9 @@ export default function GraphRoute() {
 function GraphLegend() {
   return (
     <details className="absolute bottom-3 left-3 max-w-xs rounded-panel border border-ink-500/40 bg-ink-900/90 text-body-sm text-ink-200">
-      <summary className="cursor-pointer px-3 py-2 font-medium hover:text-ink-50">How to read this graph</summary>
+      <summary className="cursor-pointer px-3 py-2 font-medium hover:text-ink-50">
+        How to read this graph
+      </summary>
       <ul className="flex flex-col gap-1 border-t border-ink-500/40 px-3 py-2">
         <li>Square organisation, circle person, diamond account, small circle other.</li>
         <li>Larger means higher risk. Fainter means fewer mentions. A ring means flagged.</li>

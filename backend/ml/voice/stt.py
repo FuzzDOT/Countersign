@@ -61,23 +61,21 @@ def transcribe(
     data = {"model_id": settings.elevenlabs_stt_model, "language_code": "eng"}
 
     try:
-        with httpx.Client(transport=transport, timeout=settings.elevenlabs_timeout_seconds) as client:
+        with httpx.Client(
+            transport=transport, timeout=settings.elevenlabs_timeout_seconds
+        ) as client:
             response = client.post(
                 f"{BASE_URL}/speech-to-text", headers=headers, files=files, data=data
             )
     except httpx.TimeoutException as exc:
-        raise VoiceUnavailable(
-            f"timeout after {settings.elevenlabs_timeout_seconds}s"
-        ) from exc
+        raise VoiceUnavailable(f"timeout after {settings.elevenlabs_timeout_seconds}s") from exc
     except httpx.HTTPError as exc:
         raise VoiceUnavailable(f"transport error: {exc}") from exc
 
     if response.status_code == 429 or response.status_code >= 500:
         raise VoiceUnavailable(f"upstream returned {response.status_code}")
     if response.status_code >= 400:
-        raise VoiceUnavailable(
-            f"upstream rejected the request with {response.status_code}"
-        )
+        raise VoiceUnavailable(f"upstream rejected the request with {response.status_code}")
 
     try:
         body = response.json()

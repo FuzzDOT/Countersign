@@ -8,7 +8,12 @@ function LogoMark() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M8 12.5l2.5 2.5L16 9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M8 12.5l2.5 2.5L16 9.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -17,11 +22,7 @@ function NavItem({ to, children }: { to: string; children: ReactNode }) {
   return (
     <Link
       to={to}
-      className="relative py-1 font-mono text-micro uppercase tracking-[0.14em] text-ink-200
-                 transition-colors duration-quick ease-out hover:text-ink-50
-                 after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-px after:origin-left
-                 after:scale-x-0 after:bg-verify after:transition-transform after:duration-quick after:ease-out
-                 hover:after:scale-x-100"
+      className="relative py-1 font-mono text-micro uppercase tracking-[0.14em] text-ink-200 transition-colors duration-quick ease-out after:absolute after:-bottom-0.5 after:left-0 after:right-0 after:h-px after:origin-left after:scale-x-0 after:bg-verify after:transition-transform after:duration-quick after:ease-out hover:text-ink-50 hover:after:scale-x-100"
     >
       {children}
     </Link>
@@ -68,7 +69,8 @@ const EVIDENCE = [
   {
     figure: '87%',
     label: 'Resolved without an LLM',
-    method: 'Only the 13% our classical model flags as genuinely uncertain is escalated to Nemotron.',
+    method:
+      'Only the 13% our classical model flags as genuinely uncertain is escalated to Nemotron.',
   },
   {
     figure: '1',
@@ -96,11 +98,31 @@ const APPROACH = [
 ];
 
 const PIPELINE = [
-  { n: '01', t: 'Extract', d: 'A BiLSTM-CRF tagger and a graph attention network pull entities and relations. No generative text.' },
-  { n: '02', t: 'Score', d: 'A Dirichlet evidential head separates genuine ambiguity from "never seen this before".' },
-  { n: '03', t: 'Gate', d: 'Only the high-vacuity tail continues. The confident majority auto-files.' },
-  { n: '04', t: 'Escalate', d: 'Nemotron triages the short list and returns a structured routing decision.' },
-  { n: '05', t: 'Brief', d: 'A spoken summary, ranked by severity, every claim traced to its sentence.' },
+  {
+    n: '01',
+    t: 'Extract',
+    d: 'A BiLSTM-CRF tagger and a graph attention network pull entities and relations. No generative text.',
+  },
+  {
+    n: '02',
+    t: 'Score',
+    d: 'A Dirichlet evidential head separates genuine ambiguity from "never seen this before".',
+  },
+  {
+    n: '03',
+    t: 'Gate',
+    d: 'Only the high-vacuity tail continues. The confident majority auto-files.',
+  },
+  {
+    n: '04',
+    t: 'Escalate',
+    d: 'Nemotron triages the short list and returns a structured routing decision.',
+  },
+  {
+    n: '05',
+    t: 'Brief',
+    d: 'A spoken summary, ranked by severity, every claim traced to its sentence.',
+  },
 ];
 
 const SECURITY_FACTS = [
@@ -137,7 +159,7 @@ export default function LandingPage() {
                 <p className="display-serif text-[2.75rem] text-ink-50">214</p>
                 <p className="mt-1 text-body-sm text-ink-200">insights extracted</p>
 
-                <hr className="my-6 border-0 border-t border-ink-050/10" />
+                <hr className="border-ink-050/10 my-6 border-0 border-t" />
 
                 <dl className="flex flex-col gap-3">
                   {[
@@ -234,7 +256,9 @@ export default function LandingPage() {
               >
                 <span className="font-mono text-micro text-ivory-text/45 sm:w-8">{step.n}</span>
                 <span className="text-h3 text-ivory-text sm:w-40">{step.t}</span>
-                <span className="flex-1 text-body-sm leading-relaxed text-ivory-text/70">{step.d}</span>
+                <span className="flex-1 text-body-sm leading-relaxed text-ivory-text/70">
+                  {step.d}
+                </span>
               </div>
             ))}
           </div>

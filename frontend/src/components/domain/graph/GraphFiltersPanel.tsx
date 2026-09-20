@@ -28,7 +28,13 @@ function toggle<T>(list: readonly T[], item: T, on: boolean): T[] {
 }
 
 /** Entity type, relation type, minimum confidence, routing, and neighbourhood mode (brief §9.3). */
-export function GraphFiltersPanel({ filters, onChange, onClear, activeCount, rootName }: GraphFiltersPanelProps) {
+export function GraphFiltersPanel({
+  filters,
+  onChange,
+  onClear,
+  activeCount,
+  rootName,
+}: GraphFiltersPanelProps) {
   const external = useMemo(() => filters.minConfidence ?? 0, [filters.minConfidence]);
   const [minConf, setMinConf] = useDebouncedField(external, (value) =>
     onChange({ ...filters, minConfidence: value <= 0 ? null : value }),
@@ -50,7 +56,8 @@ export function GraphFiltersPanel({ filters, onChange, onClear, activeCount, roo
       {filters.rootEntityId ? (
         <div className="flex flex-col gap-2">
           <p className="text-body-sm text-ink-50">
-            Showing the neighbourhood of <span className="font-semibold">{rootName ?? 'the selected entity'}</span>
+            Showing the neighbourhood of{' '}
+            <span className="font-semibold">{rootName ?? 'the selected entity'}</span>
           </p>
           <SegmentedControl
             ariaLabel="Neighbourhood depth"
@@ -63,7 +70,9 @@ export function GraphFiltersPanel({ filters, onChange, onClear, activeCount, roo
             variant="quiet"
             size="sm"
             className="self-start"
-            onClick={() => onChange({ ...filters, rootEntityId: null, depth: EMPTY_GRAPH_FILTERS.depth })}
+            onClick={() =>
+              onChange({ ...filters, rootEntityId: null, depth: EMPTY_GRAPH_FILTERS.depth })
+            }
           >
             Show the whole graph
           </Button>
@@ -77,7 +86,9 @@ export function GraphFiltersPanel({ filters, onChange, onClear, activeCount, roo
             key={type}
             label={entityTypeLabel(type)}
             checked={filters.entityTypes.includes(type)}
-            onChange={(on) => onChange({ ...filters, entityTypes: toggle(filters.entityTypes, type, on) })}
+            onChange={(on) =>
+              onChange({ ...filters, entityTypes: toggle(filters.entityTypes, type, on) })
+            }
           />
         ))}
       </fieldset>
@@ -89,7 +100,9 @@ export function GraphFiltersPanel({ filters, onChange, onClear, activeCount, roo
             key={relation}
             label={relationLabel(relation)}
             checked={filters.relations.includes(relation)}
-            onChange={(on) => onChange({ ...filters, relations: toggle(filters.relations, relation, on) })}
+            onChange={(on) =>
+              onChange({ ...filters, relations: toggle(filters.relations, relation, on) })
+            }
           />
         ))}
       </fieldset>
@@ -101,7 +114,9 @@ export function GraphFiltersPanel({ filters, onChange, onClear, activeCount, roo
             key={bucket}
             label={ROUTING_META[bucket].label}
             checked={filters.routing.includes(bucket)}
-            onChange={(on) => onChange({ ...filters, routing: toggle(filters.routing, bucket, on) })}
+            onChange={(on) =>
+              onChange({ ...filters, routing: toggle(filters.routing, bucket, on) })
+            }
           />
         ))}
       </fieldset>

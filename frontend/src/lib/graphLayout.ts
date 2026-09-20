@@ -86,7 +86,10 @@ export function layoutGraph(
         .distance((l) => clamp(60 / Math.max(l.confidence, 0.2), 40, 220)),
     )
     .force('charge', forceManyBody<SimNode>().strength(-280))
-    .force('collide', forceCollide<SimNode>((d) => d.r + 4))
+    .force(
+      'collide',
+      forceCollide<SimNode>((d) => d.r + 4),
+    )
     .force('center', forceCenter<SimNode>(width / 2, height / 2))
     .stop();
 

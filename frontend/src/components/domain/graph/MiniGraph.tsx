@@ -26,7 +26,12 @@ interface MiniGraphProps {
  */
 export function MiniGraph({ subjectId, subjectName, neighborhood }: MiniGraphProps) {
   const filters = useMemo(
-    () => ({ ...EMPTY_GRAPH_FILTERS, rootEntityId: subjectId, depth: neighborhood.depth, limitNodes: 120 }),
+    () => ({
+      ...EMPTY_GRAPH_FILTERS,
+      rootEntityId: subjectId,
+      depth: neighborhood.depth,
+      limitNodes: 120,
+    }),
     [subjectId, neighborhood.depth],
   );
   const query = useGraph(filters);
@@ -49,9 +54,21 @@ export function MiniGraph({ subjectId, subjectName, neighborhood }: MiniGraphPro
   );
 
   if (query.isLoading) return <Skeleton className="h-60 w-full" />;
-  if (query.isError) return <ErrorState compact error={query.error} onRetry={() => void query.refetch()} title="Graph context did not load" />;
+  if (query.isError)
+    return (
+      <ErrorState
+        compact
+        error={query.error}
+        onRetry={() => void query.refetch()}
+        title="Graph context did not load"
+      />
+    );
   if (!scoped || !layout || scoped.nodes.length === 0) {
-    return <p className="text-body-sm text-ink-200">No graph neighbourhood is recorded for this insight.</p>;
+    return (
+      <p className="text-body-sm text-ink-200">
+        No graph neighbourhood is recorded for this insight.
+      </p>
+    );
   }
 
   const { bounds } = layout;

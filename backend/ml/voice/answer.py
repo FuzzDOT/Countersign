@@ -148,12 +148,16 @@ def _citation(insight: Insight, db: Session) -> dict[str, Any]:
 
 
 def _recent_ablation(db: Session, insight_id: uuid.UUID) -> AblationRun | None:
-    return db.execute(
-        select(AblationRun)
-        .where(AblationRun.insight_id == insight_id)
-        .order_by(AblationRun.created_at.desc())
-        .limit(1)
-    ).scalars().first()
+    return (
+        db.execute(
+            select(AblationRun)
+            .where(AblationRun.insight_id == insight_id)
+            .order_by(AblationRun.created_at.desc())
+            .limit(1)
+        )
+        .scalars()
+        .first()
+    )
 
 
 def _ensure_ablation(db: Session, insight: Insight) -> AblationRun:
@@ -221,7 +225,7 @@ def _explain_flag(
             resolved_insight_id=None,
             answer_text=(
                 "I didn't catch which company or person you meant, and nothing's "
-                'flagged right now to fall back to. Try naming it directly, like '
+                "flagged right now to fall back to. Try naming it directly, like "
                 '"why is Meridian flagged".'
             ),
             citation=None,
@@ -252,7 +256,9 @@ def _explain_flag(
     )
 
 
-def _show_source(db: Session, org_id: uuid.UUID, heard: str, context_insight_id: uuid.UUID | None) -> ResolvedAnswer:
+def _show_source(
+    db: Session, org_id: uuid.UUID, heard: str, context_insight_id: uuid.UUID | None
+) -> ResolvedAnswer:
     insight = _resolve_context_insight(db, org_id, heard, context_insight_id)
     if insight is None:
         return ResolvedAnswer(
@@ -263,7 +269,7 @@ def _show_source(db: Session, org_id: uuid.UUID, heard: str, context_insight_id:
         )
     return ResolvedAnswer(
         resolved_insight_id=insight.id,
-        answer_text=f"Here's the source sentence: \"{insight.sentence_text}\"",
+        answer_text=f'Here\'s the source sentence: "{insight.sentence_text}"',
         citation=_citation(insight, db),
         ablation_run_id=None,
     )
@@ -335,7 +341,9 @@ def _entity_summary(db: Session, org_id: uuid.UUID, heard: str) -> ResolvedAnswe
     )
 
 
-def _confidence_query(db: Session, org_id: uuid.UUID, heard: str, context_insight_id: uuid.UUID | None) -> ResolvedAnswer:
+def _confidence_query(
+    db: Session, org_id: uuid.UUID, heard: str, context_insight_id: uuid.UUID | None
+) -> ResolvedAnswer:
     insight = _resolve_context_insight(db, org_id, heard, context_insight_id)
     if insight is None:
         return ResolvedAnswer(

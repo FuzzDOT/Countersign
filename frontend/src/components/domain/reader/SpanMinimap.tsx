@@ -23,7 +23,11 @@ interface SpanMinimapProps {
  */
 export function SpanMinimap({ ticks, onSelect }: SpanMinimapProps) {
   return (
-    <div className="absolute -left-6 top-0 h-full w-5" role="group" aria-label="Citation positions in this document">
+    <div
+      className="absolute -left-6 top-0 h-full w-5"
+      role="group"
+      aria-label="Citation positions in this document"
+    >
       {ticks.map((tick) => (
         <button
           key={tick.id}
@@ -34,7 +38,10 @@ export function SpanMinimap({ ticks, onSelect }: SpanMinimapProps) {
           className="absolute left-0 flex h-4 w-5 items-center"
           style={{ top: tick.top + 4 }}
         >
-          <span className="block h-1 w-full rounded-[1px]" style={{ backgroundColor: ROUTING_META[tick.routing].color }} />
+          <span
+            className="block h-1 w-full rounded-[1px]"
+            style={{ backgroundColor: ROUTING_META[tick.routing].color }}
+          />
         </button>
       ))}
     </div>

@@ -1,4 +1,13 @@
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject,
+} from 'react';
 import { select } from 'd3-selection';
 import { zoom, zoomIdentity, zoomTransform, type D3ZoomEvent, type ZoomBehavior } from 'd3-zoom';
 import type { GraphCycle, GraphEdge, GraphNode } from '@/api/types';
@@ -42,14 +51,29 @@ interface EdgeGlyphProps {
   onSelect: (edge: GraphEdge) => void;
 }
 
-const EdgeGlyph = memo(function EdgeGlyph({ edge, a, b, width, dimmed, halo, names, onSelect }: EdgeGlyphProps) {
+const EdgeGlyph = memo(function EdgeGlyph({
+  edge,
+  a,
+  b,
+  width,
+  dimmed,
+  halo,
+  names,
+  onSelect,
+}: EdgeGlyphProps) {
   const kind = relationKind(edge.relation);
   const dash = dashFor(kind);
   const line = { x1: a.x, y1: a.y, x2: b.x, y2: b.y };
   return (
     <g opacity={dimmed ? 0.2 : 1} data-edge-id={edge.id}>
       {halo ? (
-        <line {...line} stroke="var(--stamp-red)" strokeOpacity={0.25} strokeWidth={width + 4} strokeLinecap="round" />
+        <line
+          {...line}
+          stroke="var(--stamp-red)"
+          strokeOpacity={0.25}
+          strokeWidth={width + 4}
+          strokeLinecap="round"
+        />
       ) : null}
       <line
         {...line}
@@ -98,7 +122,11 @@ const NodeEl = memo(function NodeEl({
 }: NodeElProps) {
   const report = (event: { clientX: number; clientY: number }) => {
     const rect = containerRef.current?.getBoundingClientRect();
-    onHover({ id: node.id, x: event.clientX - (rect?.left ?? 0), y: event.clientY - (rect?.top ?? 0) });
+    onHover({
+      id: node.id,
+      x: event.clientX - (rect?.left ?? 0),
+      y: event.clientY - (rect?.top ?? 0),
+    });
   };
   return (
     <g
@@ -154,7 +182,14 @@ const NodeEl = memo(function NodeEl({
  * Cycles come from the server. This component never detects a cycle: it only
  * looks up which drawn edges belong to a server-provided one, to halo them.
  */
-export function GraphCanvas({ nodes, edges, cycles, selectedId, onSelectNode, onSelectEdge }: GraphCanvasProps) {
+export function GraphCanvas({
+  nodes,
+  edges,
+  cycles,
+  selectedId,
+  onSelectNode,
+  onSelectEdge,
+}: GraphCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const viewRef = useRef<SVGGElement>(null);
@@ -177,7 +212,11 @@ export function GraphCanvas({ nodes, edges, cycles, selectedId, onSelectNode, on
     for (const cycle of cycles) {
       const members = new Set(cycle.node_ids);
       for (const edge of edges) {
-        if (edge.relation === cycle.relation && members.has(edge.source) && members.has(edge.target)) {
+        if (
+          edge.relation === cycle.relation &&
+          members.has(edge.source) &&
+          members.has(edge.target)
+        ) {
           ids.add(edge.id);
         }
       }
@@ -206,7 +245,9 @@ export function GraphCanvas({ nodes, edges, cycles, selectedId, onSelectNode, on
   const orderedEdges = useMemo(
     () =>
       hover
-        ? [...edges].sort((a, b) => Number(incident.edgeIds.has(a.id)) - Number(incident.edgeIds.has(b.id)))
+        ? [...edges].sort(
+            (a, b) => Number(incident.edgeIds.has(a.id)) - Number(incident.edgeIds.has(b.id)),
+          )
         : edges,
     [edges, hover, incident],
   );
@@ -286,7 +327,10 @@ export function GraphCanvas({ nodes, edges, cycles, selectedId, onSelectNode, on
   const showAllLabels = nodes.length < ALWAYS_LABEL_UNDER;
 
   return (
-    <div ref={containerRef} className="relative h-full min-h-[420px] w-full overflow-hidden bg-ink-900">
+    <div
+      ref={containerRef}
+      className="relative h-full min-h-[420px] w-full overflow-hidden bg-ink-900"
+    >
       <svg
         ref={svgRef}
         role="group"
@@ -331,7 +375,12 @@ export function GraphCanvas({ nodes, edges, cycles, selectedId, onSelectNode, on
                   fillOpacity={mentionOpacity(node.mention_count)}
                   selected={node.id === selectedId}
                   dimmed={hover !== null && !incident.nodeIds.has(node.id)}
-                  forceLabel={showAllLabels || cycleNodeIds.has(node.id) || node.id === selectedId || node.id === hover?.id}
+                  forceLabel={
+                    showAllLabels ||
+                    cycleNodeIds.has(node.id) ||
+                    node.id === selectedId ||
+                    node.id === hover?.id
+                  }
                   onSelect={selectNode}
                   onHover={setHover}
                   containerRef={containerRef}
@@ -353,7 +402,10 @@ export function GraphCanvas({ nodes, edges, cycles, selectedId, onSelectNode, on
         <div
           role="tooltip"
           className="pointer-events-none absolute z-10 max-w-64 rounded-soft border border-ctl-border bg-ink-900 px-3 py-2 text-body-sm text-ink-50 shadow-overlay"
-          style={{ left: Math.min(hover.x + 14, (containerRef.current?.clientWidth ?? 600) - 260), top: hover.y + 14 }}
+          style={{
+            left: Math.min(hover.x + 14, (containerRef.current?.clientWidth ?? 600) - 260),
+            top: hover.y + 14,
+          }}
         >
           <p className="font-semibold">{hovered.canonical}</p>
           <p className="text-ink-200">{entityTypeLabel(hovered.entity_type)}</p>
@@ -361,7 +413,9 @@ export function GraphCanvas({ nodes, edges, cycles, selectedId, onSelectNode, on
             Risk {formatScore(hovered.risk)}, {hovered.degree} connections
           </p>
           {hovered.flags.length > 0 ? (
-            <p className="text-ink-200">Flags: {hovered.flags.map((f) => f.replace(/_/g, ' ')).join(', ')}</p>
+            <p className="text-ink-200">
+              Flags: {hovered.flags.map((f) => f.replace(/_/g, ' ')).join(', ')}
+            </p>
           ) : null}
         </div>
       ) : null}

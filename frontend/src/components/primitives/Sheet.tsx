@@ -33,11 +33,7 @@ export function Sheet({ open, onClose, labelledBy, children }: SheetProps) {
   );
 }
 
-function SheetPanel({
-  onClose,
-  labelledBy,
-  children,
-}: Omit<SheetProps, 'open'>) {
+function SheetPanel({ onClose, labelledBy, children }: Omit<SheetProps, 'open'>) {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
   const onCloseRef = useRef(onClose);

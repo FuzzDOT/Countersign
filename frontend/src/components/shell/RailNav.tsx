@@ -15,14 +15,28 @@ const ICON = 'h-[18px] w-[18px]';
 
 function FeedIcon() {
   return (
-    <svg className={ICON} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+    <svg
+      className={ICON}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden="true"
+    >
       <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />
     </svg>
   );
 }
 function GraphIcon() {
   return (
-    <svg className={ICON} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+    <svg
+      className={ICON}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden="true"
+    >
       <circle cx="12" cy="5" r="2.5" />
       <circle cx="5.5" cy="18" r="2.5" />
       <circle cx="18.5" cy="18" r="2.5" />
@@ -32,7 +46,14 @@ function GraphIcon() {
 }
 function EvidenceIcon() {
   return (
-    <svg className={ICON} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+    <svg
+      className={ICON}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden="true"
+    >
       <path d="M4 19V5M4 19h16" strokeLinecap="round" />
       <path d="M8 16V11M12.5 16V7.5M17 16v-3" strokeLinecap="round" />
     </svg>
@@ -40,7 +61,14 @@ function EvidenceIcon() {
 }
 function VoiceIcon() {
   return (
-    <svg className={ICON} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+    <svg
+      className={ICON}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden="true"
+    >
       <rect x="9" y="3" width="6" height="11" rx="3" />
       <path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3" strokeLinecap="round" />
     </svg>
@@ -48,7 +76,14 @@ function VoiceIcon() {
 }
 function IngestIcon() {
   return (
-    <svg className={ICON} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+    <svg
+      className={ICON}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden="true"
+    >
       <path d="M12 16V4m0 0L8 8m4-4l4 4" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" strokeLinecap="round" />
     </svg>
@@ -56,9 +91,19 @@ function IngestIcon() {
 }
 function SettingsIcon() {
   return (
-    <svg className={ICON} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+    <svg
+      className={ICON}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden="true"
+    >
       <circle cx="12" cy="12" r="3" />
-      <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" strokeLinecap="round" />
+      <path
+        d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -67,7 +112,12 @@ function LogoMark() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M8 12.5l2.5 2.5L16 9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M8 12.5l2.5 2.5L16 9.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -168,7 +218,7 @@ export function RailNav({ escalateCount }: { escalateCount?: number | undefined 
                   'transition-colors duration-quick ease-out',
                   expanded ? 'gap-3 px-3' : 'justify-center px-0',
                   isActive
-                    ? 'bg-verify/20 text-ink-050'
+                    ? 'text-ink-050 bg-verify/20'
                     : 'text-ink-50/70 hover:bg-ink-500/50 hover:text-ink-50',
                 )
               }

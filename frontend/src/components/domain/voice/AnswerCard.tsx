@@ -41,7 +41,9 @@ export function AnswerCard({ answer, autoplay, onRerecord }: AnswerCardProps) {
       <div>
         <p className="text-body-sm text-ink-200">You asked</p>
         <p className="text-body text-ink-50">&ldquo;{answer.heard}&rdquo;</p>
-        <p className="nums text-body-sm text-ink-200">Speech recognition confidence {formatScore(answer.stt_confidence)}</p>
+        <p className="nums text-body-sm text-ink-200">
+          Speech recognition confidence {formatScore(answer.stt_confidence)}
+        </p>
         {unclear ? (
           <p className="mt-1 flex flex-wrap items-center gap-3 text-body-sm text-ink-50">
             Didn&rsquo;t catch that clearly?
@@ -79,7 +81,10 @@ export function AnswerCard({ answer, autoplay, onRerecord }: AnswerCardProps) {
       {/* 5. Ablation reference */}
       {answer.ablation_run_id && insightId ? (
         <p className="text-body-sm">
-          <Link to={`/app/feed/${insightId}#ablation`} className="text-ink-50 underline underline-offset-4">
+          <Link
+            to={`/app/feed/${insightId}#ablation`}
+            className="text-ink-50 underline underline-offset-4"
+          >
             See the ablation history for this insight
           </Link>
         </p>
@@ -140,7 +145,11 @@ function AnswerAudio({ url, autoplay }: { url: string; autoplay: boolean }) {
       <Button size="sm" variant="secondary" disabled={!src} onClick={toggle}>
         {playing ? 'Pause answer' : 'Play answer'}
       </Button>
-      {blocked ? <span className="text-body-sm text-ink-200">Your browser blocked autoplay. Press play to hear it.</span> : null}
+      {blocked ? (
+        <span className="text-body-sm text-ink-200">
+          Your browser blocked autoplay. Press play to hear it.
+        </span>
+      ) : null}
     </div>
   );
 }

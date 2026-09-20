@@ -18,9 +18,16 @@ interface BriefingInsightCardsProps {
  * insight, that card lights up with its citation: the judge hears the claim
  * while watching the exact sentence it came from (brief §12.1).
  */
-export function BriefingInsightCards({ insightIds, activeInsightId, onOpen }: BriefingInsightCardsProps) {
+export function BriefingInsightCards({
+  insightIds,
+  activeInsightId,
+  onOpen,
+}: BriefingInsightCardsProps) {
   return (
-    <section aria-labelledby="briefing-insights" className="flex flex-col gap-3 lg:sticky lg:top-4 lg:self-start">
+    <section
+      aria-labelledby="briefing-insights"
+      className="flex flex-col gap-3 lg:sticky lg:top-4 lg:self-start"
+    >
       <h3 id="briefing-insights" className="text-body font-semibold text-ink-50">
         Insights in this briefing
       </h3>
@@ -39,16 +46,33 @@ export function BriefingInsightCards({ insightIds, activeInsightId, onOpen }: Br
   );
 }
 
-function Card({ id, active, onOpen }: { id: string; active: boolean; onOpen: (id: string) => void }) {
+function Card({
+  id,
+  active,
+  onOpen,
+}: {
+  id: string;
+  active: boolean;
+  onOpen: (id: string) => void;
+}) {
   const query = useInsight(id);
   const ref = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (active) ref.current?.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
+    if (active)
+      ref.current?.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
   }, [active, reduced]);
 
-  if (query.isError) return <ErrorState compact error={query.error} onRetry={() => void query.refetch()} title="This insight did not load" />;
+  if (query.isError)
+    return (
+      <ErrorState
+        compact
+        error={query.error}
+        onRetry={() => void query.refetch()}
+        title="This insight did not load"
+      />
+    );
   if (!query.data) return <Skeleton className="h-52 w-full" />;
 
   return (
@@ -60,7 +84,14 @@ function Card({ id, active, onOpen }: { id: string; active: boolean; onOpen: (id
       )}
       aria-current={active ? 'true' : undefined}
     >
-      <InsightRow insight={query.data} selected={false} tabbable highlighted={false} compact onOpen={onOpen} />
+      <InsightRow
+        insight={query.data}
+        selected={false}
+        tabbable
+        highlighted={false}
+        compact
+        onOpen={onOpen}
+      />
       <div className="p-3">
         <CitationBlock citation={query.data.citation} showTitle={false} />
       </div>

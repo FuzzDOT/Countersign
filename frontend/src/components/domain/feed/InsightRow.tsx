@@ -69,7 +69,9 @@ export const InsightRow = memo(function InsightRow({
         <span className="min-w-0">
           <span className="block text-h3 text-ink-50">
             {insight.subject.canonical}
-            <span className="mx-2 text-body-sm font-normal text-ink-200">{relationVerb(insight.relation)}</span>
+            <span className="mx-2 text-body-sm font-normal text-ink-200">
+              {relationVerb(insight.relation)}
+            </span>
             {insight.object.canonical}
           </span>
           <span className="mt-1 block truncate font-reader text-body-sm text-ink-200">
@@ -77,10 +79,7 @@ export const InsightRow = memo(function InsightRow({
           </span>
           <span className="mt-2 flex flex-wrap items-center gap-y-1 text-body-sm text-ink-200">
             {facts.map((fact, index) => (
-              <span
-                key={index}
-                className={cn('pr-3', index > 0 && 'border-l border-ink-500 pl-3')}
-              >
+              <span key={index} className={cn('pr-3', index > 0 && 'border-l border-ink-500 pl-3')}>
                 {fact}
               </span>
             ))}

@@ -3,16 +3,24 @@ import { improvementSentence, relativeChange } from './calibration';
 
 describe('improvementSentence', () => {
   it('states the improvement in words, from the numbers', () => {
-    expect(improvementSentence(-0.56, 43)).toBe('Calibration error fell 56% against 43 logged hard cases.');
+    expect(improvementSentence(-0.56, 43)).toBe(
+      'Calibration error fell 56% against 43 logged hard cases.',
+    );
   });
 
   it('uses the singular for one case', () => {
-    expect(improvementSentence(-0.2, 1)).toBe('Calibration error fell 20% against 1 logged hard case.');
+    expect(improvementSentence(-0.2, 1)).toBe(
+      'Calibration error fell 20% against 1 logged hard case.',
+    );
   });
 
   it('is honest when calibration got worse or did not move', () => {
-    expect(improvementSentence(0.1, 10)).toBe('Calibration error rose 10% against 10 logged hard cases.');
-    expect(improvementSentence(0, 10)).toBe('Calibration error did not change against 10 logged hard cases.');
+    expect(improvementSentence(0.1, 10)).toBe(
+      'Calibration error rose 10% against 10 logged hard cases.',
+    );
+    expect(improvementSentence(0, 10)).toBe(
+      'Calibration error did not change against 10 logged hard cases.',
+    );
   });
 });
 

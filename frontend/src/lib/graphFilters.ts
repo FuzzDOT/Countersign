@@ -46,7 +46,9 @@ export function parseGraphFilters(params: URLSearchParams): GraphFilters {
     relations: params.getAll('relation').filter((r) => RELATION_TYPES.includes(r as never)),
     routing: params.getAll('routing').filter(isRoutingBucket),
     minConfidence:
-      parsedConf !== null && Number.isFinite(parsedConf) ? Math.min(1, Math.max(0, parsedConf)) : null,
+      parsedConf !== null && Number.isFinite(parsedConf)
+        ? Math.min(1, Math.max(0, parsedConf))
+        : null,
     rootEntityId: params.get('root'),
     depth: readInt(params.get('depth'), 1, 3) ?? 2,
     limitNodes: readInt(params.get('limit_nodes'), 10, MAX_LIMIT_NODES) ?? DEFAULT_LIMIT_NODES,
@@ -76,7 +78,8 @@ export function writeGraphFilters(base: URLSearchParams, filters: GraphFilters):
     next.set('root', filters.rootEntityId);
     next.set('depth', String(filters.depth));
   }
-  if (filters.limitNodes !== DEFAULT_LIMIT_NODES) next.set('limit_nodes', String(filters.limitNodes));
+  if (filters.limitNodes !== DEFAULT_LIMIT_NODES)
+    next.set('limit_nodes', String(filters.limitNodes));
   if (filters.cycle !== null) next.set('cycle', String(filters.cycle));
   return next;
 }

@@ -180,7 +180,11 @@
   .grid-floor {
     background-image:
       linear-gradient(color-mix(in srgb, var(--ink-050) 7%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, var(--ink-050) 7%, transparent) 1px, transparent 1px);
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--ink-050) 7%, transparent) 1px,
+        transparent 1px
+      );
     background-size: 48px 48px;
     -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 0%, black 30%, transparent 82%);
     mask-image: radial-gradient(ellipse 75% 65% at 50% 0%, black 30%, transparent 82%);
@@ -190,7 +194,13 @@
   .rule-fade {
     height: 1px;
     border: 0;
-    background: linear-gradient(90deg, transparent, var(--hairline) 15%, var(--hairline) 85%, transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--hairline) 15%,
+      var(--hairline) 85%,
+      transparent
+    );
   }
 
   /* Small monospace eyebrow label in a hairline capsule. */
@@ -225,7 +235,13 @@
     color: var(--ivory-text);
   }
   .surface-ivory .rule-fade {
-    background: linear-gradient(90deg, transparent, var(--ivory-rule) 15%, var(--ivory-rule) 85%, transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--ivory-rule) 15%,
+      var(--ivory-rule) 85%,
+      transparent
+    );
   }
   .surface-ivory .eyebrow {
     color: color-mix(in srgb, var(--ivory-text) 60%, transparent);

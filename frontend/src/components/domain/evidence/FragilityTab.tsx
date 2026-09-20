@@ -48,7 +48,13 @@ interface FragilityTabProps {
 export function FragilityTab({ onOpenInsight }: FragilityTabProps) {
   const query = useFragilityEval();
   if (query.isError && !query.data) {
-    return <ErrorState error={query.error} onRetry={() => void query.refetch()} title="The fragility results did not load" />;
+    return (
+      <ErrorState
+        error={query.error}
+        onRetry={() => void query.refetch()}
+        title="The fragility results did not load"
+      />
+    );
   }
   if (!query.data) return <FragilitySkeleton />;
   return <FragilityContent data={query.data} onOpenInsight={onOpenInsight} />;
@@ -64,7 +70,13 @@ function FragilitySkeleton() {
   );
 }
 
-function FragilityContent({ data, onOpenInsight }: { data: FragilityEval; onOpenInsight: (id: string) => void }) {
+function FragilityContent({
+  data,
+  onOpenInsight,
+}: {
+  data: FragilityEval;
+  onOpenInsight: (id: string) => void;
+}) {
   return (
     <div className="flex flex-col gap-10">
       {/* The sentence we want a judge to read if they read nothing else. */}
@@ -78,7 +90,13 @@ function FragilityContent({ data, onOpenInsight }: { data: FragilityEval; onOpen
 
 // ── scatter ────────────────────────────────────────────────────────────────
 
-function ScatterFragility({ data, onOpenInsight }: { data: FragilityEval; onOpenInsight: (id: string) => void }) {
+function ScatterFragility({
+  data,
+  onOpenInsight,
+}: {
+  data: FragilityEval;
+  onOpenInsight: (id: string) => void;
+}) {
   const groups = useMemo(
     () =>
       ROUTING_ORDER.map((bucket) => ({
@@ -114,7 +132,10 @@ function ScatterFragility({ data, onOpenInsight }: { data: FragilityEval; onOpen
             Pearson {formatScore(pearson)}, {formatPValue(p_value)}, n = {data.n_insights}
           </p>
         </div>
-        <div role="img" aria-label={`Scatter plot of ${data.scatter.length} insights. Vacuity against measured fragility. Spearman correlation ${formatScore(spearman)}. The data is also available as a table below.`}>
+        <div
+          role="img"
+          aria-label={`Scatter plot of ${data.scatter.length} insights. Vacuity against measured fragility. Spearman correlation ${formatScore(spearman)}. The data is also available as a table below.`}
+        >
           <ResponsiveContainer width="100%" height={400}>
             <ScatterChart margin={{ top: 16, right: 24, bottom: 40, left: 16 }}>
               <CartesianGrid stroke={GRID_STROKE} strokeOpacity={0.4} />
@@ -125,7 +146,9 @@ function ScatterFragility({ data, onOpenInsight }: { data: FragilityEval; onOpen
                 domain={[0, 1]}
                 tick={AXIS_TICK}
                 stroke={AXIS_LINE}
-                label={axisLabel('epistemic uncertainty (vacuity)', 'insideBottom', { offset: -24 })}
+                label={axisLabel('epistemic uncertainty (vacuity)', 'insideBottom', {
+                  offset: -24,
+                })}
               />
               <YAxis
                 type="number"
@@ -186,7 +209,15 @@ function ScatterFragility({ data, onOpenInsight }: { data: FragilityEval; onOpen
           ))}
           <li className="flex items-center gap-2">
             <svg width="22" height="8" aria-hidden="true">
-              <line x1="0" y1="4" x2="22" y2="4" stroke="var(--ink-050)" strokeWidth="1.5" strokeDasharray="6 4" />
+              <line
+                x1="0"
+                y1="4"
+                x2="22"
+                y2="4"
+                stroke="var(--ink-050)"
+                strokeWidth="1.5"
+                strokeDasharray="6 4"
+              />
             </svg>
             Least-squares trend
           </li>
@@ -210,9 +241,26 @@ function ScatterFragility({ data, onOpenInsight }: { data: FragilityEval; onOpen
 
 function scatterColumns(onOpen: (id: string) => void): Column<FragilityEval['scatter'][number]>[] {
   return [
-    { key: 'routing', header: 'Routing', sortValue: (p) => ROUTING_META[p.routing].rank, render: (p) => <RoutingBadge bucket={p.routing} /> },
-    { key: 'vacuity', header: 'Vacuity', align: 'right', sortValue: (p) => p.vacuity, render: (p) => formatScore(p.vacuity) },
-    { key: 'fragility', header: 'Fragility', align: 'right', sortValue: (p) => p.fragility, render: (p) => formatScore(p.fragility) },
+    {
+      key: 'routing',
+      header: 'Routing',
+      sortValue: (p) => ROUTING_META[p.routing].rank,
+      render: (p) => <RoutingBadge bucket={p.routing} />,
+    },
+    {
+      key: 'vacuity',
+      header: 'Vacuity',
+      align: 'right',
+      sortValue: (p) => p.vacuity,
+      render: (p) => formatScore(p.vacuity),
+    },
+    {
+      key: 'fragility',
+      header: 'Fragility',
+      align: 'right',
+      sortValue: (p) => p.fragility,
+      render: (p) => formatScore(p.fragility),
+    },
     {
       key: 'open',
       header: 'Insight',
@@ -239,7 +287,13 @@ function MarkerIcon({ shape, color }: { shape: MarkerShape; color: string }) {
   );
 }
 
-function ScatterTip({ active, payload }: { active?: boolean; payload?: readonly { payload?: unknown }[] }) {
+function ScatterTip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: readonly { payload?: unknown }[];
+}) {
   if (!active || !payload || payload.length === 0) return null;
   const datum = payload[0]?.payload as Datum | undefined;
   if (!datum) return null;
@@ -255,7 +309,10 @@ function ScatterTip({ active, payload }: { active?: boolean; payload?: readonly 
 // ── quartile table ─────────────────────────────────────────────────────────
 
 function QuartileTable({ rows }: { rows: readonly QuartileRow[] }) {
-  const sorted = useMemo(() => [...rows].sort((a, b) => a.vacuity_quartile - b.vacuity_quartile), [rows]);
+  const sorted = useMemo(
+    () => [...rows].sort((a, b) => a.vacuity_quartile - b.vacuity_quartile),
+    [rows],
+  );
   const bottom = sorted[0];
   const top = sorted[sorted.length - 1];
   const maxFlip = Math.max(0.0001, ...sorted.map((r) => r.flip_rate));
@@ -270,24 +327,38 @@ function QuartileTable({ rows }: { rows: readonly QuartileRow[] }) {
         <div className="grid max-w-2xl grid-cols-2 gap-6 border-y border-ink-500/40 py-4">
           <div>
             <p className="nums text-display-2 text-ink-50">{formatPercent(bottom.flip_rate)}</p>
-            <p className="text-body-sm text-ink-200">of the most certain quartile change their label under perturbation</p>
+            <p className="text-body-sm text-ink-200">
+              of the most certain quartile change their label under perturbation
+            </p>
           </div>
           <div>
             <p className="nums text-display-2 text-ink-50">{formatPercent(top.flip_rate)}</p>
-            <p className="text-body-sm text-ink-200">of the most uncertain quartile change their label</p>
+            <p className="text-body-sm text-ink-200">
+              of the most uncertain quartile change their label
+            </p>
           </div>
         </div>
       ) : null}
 
       <div className="overflow-x-auto rounded-panel border border-ink-500/40">
         <table className="w-full text-left text-body-sm">
-          <caption className="sr-only">Mean fragility and label flip rate for each vacuity quartile</caption>
+          <caption className="sr-only">
+            Mean fragility and label flip rate for each vacuity quartile
+          </caption>
           <thead className="bg-ink-700 text-ink-200">
             <tr>
-              <th scope="col" className="px-3 py-2 font-medium">Quartile</th>
-              <th scope="col" className="px-3 py-2 font-medium">Vacuity range</th>
-              <th scope="col" className="px-3 py-2 text-right font-medium">Mean fragility</th>
-              <th scope="col" className="px-3 py-2 font-medium">Flip rate</th>
+              <th scope="col" className="px-3 py-2 font-medium">
+                Quartile
+              </th>
+              <th scope="col" className="px-3 py-2 font-medium">
+                Vacuity range
+              </th>
+              <th scope="col" className="px-3 py-2 text-right font-medium">
+                Mean fragility
+              </th>
+              <th scope="col" className="px-3 py-2 font-medium">
+                Flip rate
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -297,7 +368,9 @@ function QuartileTable({ rows }: { rows: readonly QuartileRow[] }) {
                 <tr key={row.vacuity_quartile} className="border-t border-ink-500/30">
                   <th scope="row" className="px-3 py-2 font-medium text-ink-50">
                     {row.vacuity_quartile}
-                    {index === 0 ? <span className="ml-2 font-normal text-ink-200">most certain</span> : null}
+                    {index === 0 ? (
+                      <span className="ml-2 font-normal text-ink-200">most certain</span>
+                    ) : null}
                     {index === sorted.length - 1 && sorted.length > 1 ? (
                       <span className="ml-2 font-normal text-ink-200">most uncertain</span>
                     ) : null}
@@ -305,17 +378,28 @@ function QuartileTable({ rows }: { rows: readonly QuartileRow[] }) {
                   <td className="nums px-3 py-2 text-ink-50">
                     {formatScore(row.vacuity_range[0])} to {formatScore(row.vacuity_range[1])}
                   </td>
-                  <td className="nums px-3 py-2 text-right text-ink-50">{formatScore(row.mean_fragility)}</td>
+                  <td className="nums px-3 py-2 text-right text-ink-50">
+                    {formatScore(row.mean_fragility)}
+                  </td>
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-3">
-                      <span className={edge ? 'nums w-12 text-body font-semibold text-ink-50' : 'nums w-12 text-ink-50'}>
+                      <span
+                        className={
+                          edge
+                            ? 'nums w-12 text-body font-semibold text-ink-50'
+                            : 'nums w-12 text-ink-50'
+                        }
+                      >
                         {formatPercent(row.flip_rate)}
                       </span>
                       <span
                         aria-hidden="true"
                         className="block h-2 flex-1 overflow-hidden rounded-input bg-ink-500"
                       >
-                        <span className="block h-full bg-ink-50" style={{ width: `${(row.flip_rate / maxFlip) * 100}%` }} />
+                        <span
+                          className="block h-full bg-ink-50"
+                          style={{ width: `${(row.flip_rate / maxFlip) * 100}%` }}
+                        />
                       </span>
                     </div>
                   </td>
@@ -339,35 +423,79 @@ function PerturbationChart({ data }: { data: FragilityEval }) {
         Which perturbations hurt most
       </h2>
       <div className="panel p-4">
-        <div role="img" aria-label="Grouped bar chart of flip rate, mean absolute confidence change and relation loss rate for each perturbation. The same numbers are in the table below.">
+        <div
+          role="img"
+          aria-label="Grouped bar chart of flip rate, mean absolute confidence change and relation loss rate for each perturbation. The same numbers are in the table below."
+        >
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={rows} margin={{ top: 8, right: 16, bottom: 8, left: 8 }}>
               <defs>
-                <pattern id="cs-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <pattern
+                  id="cs-hatch"
+                  width="6"
+                  height="6"
+                  patternUnits="userSpaceOnUse"
+                  patternTransform="rotate(45)"
+                >
                   <rect width="6" height="6" fill="var(--ink-500)" />
                   <line x1="0" y1="0" x2="0" y2="6" stroke="var(--ink-050)" strokeWidth="2" />
                 </pattern>
               </defs>
               <CartesianGrid stroke={GRID_STROKE} strokeOpacity={0.4} vertical={false} />
               <XAxis dataKey="perturbation" tick={AXIS_TICK} stroke={AXIS_LINE} />
-              <YAxis tick={AXIS_TICK} stroke={AXIS_LINE} tickFormatter={percentTick} domain={[0, 'auto']} />
+              <YAxis
+                tick={AXIS_TICK}
+                stroke={AXIS_LINE}
+                tickFormatter={percentTick}
+                domain={[0, 'auto']}
+              />
               <ChartTooltip
                 cursor={{ fill: 'var(--ink-500)', fillOpacity: 0.25 }}
-                contentStyle={{ background: 'var(--ink-900)', border: '1px solid var(--ink-500)', color: 'var(--ink-050)' }}
-                formatter={(value) => (typeof value === 'number' ? formatPercent(value, 1) : String(value))}
+                contentStyle={{
+                  background: 'var(--ink-900)',
+                  border: '1px solid var(--ink-500)',
+                  color: 'var(--ink-050)',
+                }}
+                formatter={(value) =>
+                  typeof value === 'number' ? formatPercent(value, 1) : String(value)
+                }
               />
-              <Bar dataKey="flip_rate" name="Flip rate" fill="var(--ink-050)" isAnimationActive={false} />
-              <Bar dataKey="mean_abs_conf_delta" name="Mean absolute confidence change" fill="url(#cs-hatch)" isAnimationActive={false} />
-              <Bar dataKey="relation_loss_rate" name="Relation loss rate" fill="var(--ink-200)" isAnimationActive={false} />
+              <Bar
+                dataKey="flip_rate"
+                name="Flip rate"
+                fill="var(--ink-050)"
+                isAnimationActive={false}
+              />
+              <Bar
+                dataKey="mean_abs_conf_delta"
+                name="Mean absolute confidence change"
+                fill="url(#cs-hatch)"
+                isAnimationActive={false}
+              />
+              <Bar
+                dataKey="relation_loss_rate"
+                name="Relation loss rate"
+                fill="var(--ink-200)"
+                isAnimationActive={false}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
         <ul className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-body-sm text-ink-200">
-          <li className="flex items-center gap-2"><span aria-hidden="true" className="inline-block size-3 bg-ink-50" />Flip rate</li>
+          <li className="flex items-center gap-2">
+            <span aria-hidden="true" className="inline-block size-3 bg-ink-50" />
+            Flip rate
+          </li>
           <li className="flex items-center gap-2">
             <svg width="12" height="12" aria-hidden="true">
               <defs>
-                <pattern id="cs-hatch-key" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <pattern
+                  id="cs-hatch-key"
+                  width="5"
+                  height="5"
+                  patternUnits="userSpaceOnUse"
+                  patternTransform="rotate(45)"
+                >
                   <rect width="5" height="5" fill="var(--ink-500)" />
                   <line x1="0" y1="0" x2="0" y2="5" stroke="var(--ink-050)" strokeWidth="2" />
                 </pattern>
@@ -376,7 +504,10 @@ function PerturbationChart({ data }: { data: FragilityEval }) {
             </svg>
             Mean absolute confidence change
           </li>
-          <li className="flex items-center gap-2"><span aria-hidden="true" className="inline-block size-3 bg-ink-200" />Relation loss rate</li>
+          <li className="flex items-center gap-2">
+            <span aria-hidden="true" className="inline-block size-3 bg-ink-200" />
+            Relation loss rate
+          </li>
         </ul>
       </div>
       <Disclosure summary="Show the perturbation results as a table">
@@ -385,10 +516,33 @@ function PerturbationChart({ data }: { data: FragilityEval }) {
           rows={rows}
           rowKey={(r) => r.perturbation}
           columns={[
-            { key: 'perturbation', header: 'Perturbation', sortValue: (r) => r.perturbation, render: (r) => r.perturbation },
-            { key: 'flip', header: 'Flip rate', align: 'right', sortValue: (r) => r.flip_rate, render: (r) => formatPercent(r.flip_rate, 1) },
-            { key: 'delta', header: 'Mean absolute confidence change', align: 'right', sortValue: (r) => r.mean_abs_conf_delta, render: (r) => formatScore(r.mean_abs_conf_delta) },
-            { key: 'loss', header: 'Relation loss rate', align: 'right', sortValue: (r) => r.relation_loss_rate, render: (r) => formatPercent(r.relation_loss_rate, 1) },
+            {
+              key: 'perturbation',
+              header: 'Perturbation',
+              sortValue: (r) => r.perturbation,
+              render: (r) => r.perturbation,
+            },
+            {
+              key: 'flip',
+              header: 'Flip rate',
+              align: 'right',
+              sortValue: (r) => r.flip_rate,
+              render: (r) => formatPercent(r.flip_rate, 1),
+            },
+            {
+              key: 'delta',
+              header: 'Mean absolute confidence change',
+              align: 'right',
+              sortValue: (r) => r.mean_abs_conf_delta,
+              render: (r) => formatScore(r.mean_abs_conf_delta),
+            },
+            {
+              key: 'loss',
+              header: 'Relation loss rate',
+              align: 'right',
+              sortValue: (r) => r.relation_loss_rate,
+              render: (r) => formatPercent(r.relation_loss_rate, 1),
+            },
           ]}
         />
       </Disclosure>

@@ -229,9 +229,7 @@ def metrics(cases: list[Case], temperature: float, n_bins: int = N_BINS) -> Metr
 # ── the case set ─────────────────────────────────────────────────────────────
 
 
-def load_cases(
-    db: Session, org_id: uuid.UUID, settings: Settings | None = None
-) -> list[Case]:
+def load_cases(db: Session, org_id: uuid.UUID, settings: Settings | None = None) -> list[Case]:
     """Every extracted insight paired with its gold relation.
 
     Keyed on `(document_id, subject_id, object_id)` — deliberately *without*

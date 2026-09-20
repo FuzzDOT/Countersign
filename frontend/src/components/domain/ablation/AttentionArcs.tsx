@@ -32,7 +32,14 @@ interface Measured {
  * Index safety: `src_idx`/`dst_idx` come from the server, so an out-of-range
  * index drops that arc instead of throwing.
  */
-export function AttentionArcs({ tokens, edges, masked, broken, interactive, onToggle }: AttentionArcsProps) {
+export function AttentionArcs({
+  tokens,
+  edges,
+  masked,
+  broken,
+  interactive,
+  onToggle,
+}: AttentionArcsProps) {
   const rowRef = useRef<HTMLDivElement>(null);
   const tokenRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const [measured, setMeasured] = useState<Measured>({ centers: [], width: 0 });
@@ -45,7 +52,9 @@ export function AttentionArcs({ tokens, edges, masked, broken, interactive, onTo
     });
     const width = rowRef.current?.scrollWidth ?? 0;
     setMeasured((prev) =>
-      prev.width === width && prev.centers.length === centers.length && prev.centers.every((c, i) => c === centers[i])
+      prev.width === width &&
+      prev.centers.length === centers.length &&
+      prev.centers.every((c, i) => c === centers[i])
         ? prev
         : { centers, width },
     );
@@ -64,7 +73,14 @@ export function AttentionArcs({ tokens, edges, masked, broken, interactive, onTo
   const maxWeight = useMemo(() => Math.max(1e-6, ...edges.map((e) => e.weight)), [edges]);
 
   const arcs = useMemo(() => {
-    const out: { edge: AttentionEdge; d: string; midX: number; apexY: number; length: number; t: number }[] = [];
+    const out: {
+      edge: AttentionEdge;
+      d: string;
+      midX: number;
+      apexY: number;
+      length: number;
+      t: number;
+    }[] = [];
     for (const edge of edges) {
       const x1 = measured.centers[edge.src_idx];
       const x2 = measured.centers[edge.dst_idx];
@@ -73,7 +89,9 @@ export function AttentionArcs({ tokens, edges, masked, broken, interactive, onTo
       out.push({ edge, ...geometry, t: Math.min(1, Math.max(0, edge.weight / maxWeight)) });
     }
     // Raise the hovered arc by painting it last.
-    return out.sort((a, b) => Number(a.edge.edge_id === hoverId) - Number(b.edge.edge_id === hoverId));
+    return out.sort(
+      (a, b) => Number(a.edge.edge_id === hoverId) - Number(b.edge.edge_id === hoverId),
+    );
   }, [edges, measured, maxWeight, hoverId]);
 
   const onKey = (event: KeyboardEvent<SVGGElement>, id: string) => {
@@ -99,7 +117,11 @@ export function AttentionArcs({ tokens, edges, masked, broken, interactive, onTo
       aria-label="Attention links between words in the cited sentence"
     >
       <div ref={rowRef} className="relative w-max min-w-full">
-        <svg width={Math.max(measured.width, 1)} height={SVG_HEIGHT} className="block overflow-visible">
+        <svg
+          width={Math.max(measured.width, 1)}
+          height={SVG_HEIGHT}
+          className="block overflow-visible"
+        >
           {arcs.map(({ edge, d, midX, apexY, length, t }) => {
             const isMasked = masked.has(edge.edge_id);
             const isBroken = broken.has(edge.edge_id);
@@ -114,7 +136,11 @@ export function AttentionArcs({ tokens, edges, masked, broken, interactive, onTo
                 role={interactive ? 'button' : 'img'}
                 tabIndex={interactive ? 0 : undefined}
                 aria-pressed={interactive ? isMasked : undefined}
-                aria-label={interactive ? `${label}. ${isMasked ? 'Marked for masking.' : 'Press to mark for masking.'}` : label}
+                aria-label={
+                  interactive
+                    ? `${label}. ${isMasked ? 'Marked for masking.' : 'Press to mark for masking.'}`
+                    : label
+                }
                 className={cn(interactive && 'cursor-pointer')}
                 onClick={interactive ? () => onToggle(edge.edge_id) : undefined}
                 onKeyDown={interactive ? (event) => onKey(event, edge.edge_id) : undefined}
@@ -133,7 +159,13 @@ export function AttentionArcs({ tokens, edges, masked, broken, interactive, onTo
                   strokeDasharray={isBroken ? length + 2 : isMasked ? '6 4' : undefined}
                   strokeDashoffset={isBroken ? length + 2 : 0}
                   style={{
-                    opacity: isBroken ? 0.15 : dimmed ? baseOpacity * 0.35 : isMasked ? 1 : baseOpacity,
+                    opacity: isBroken
+                      ? 0.15
+                      : dimmed
+                        ? baseOpacity * 0.35
+                        : isMasked
+                          ? 1
+                          : baseOpacity,
                     transition: isBroken
                       ? 'stroke-dashoffset var(--dur-quick) var(--ease-out), opacity var(--dur-quick) var(--ease-out)'
                       : 'opacity var(--dur-instant) var(--ease-out)',

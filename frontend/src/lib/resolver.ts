@@ -15,7 +15,10 @@ export function resolverMarker(
   nemotronDown: boolean | undefined,
 ): ResolverMarkerInfo | null {
   if (insight.degraded) {
-    return { label: 'classical fallback', title: 'Nemotron was unavailable, so the classical decision stands.' };
+    return {
+      label: 'classical fallback',
+      title: 'Nemotron was unavailable, so the classical decision stands.',
+    };
   }
   if (insight.resolved_by === 'nemotron') {
     return { label: 'nemotron', title: 'This routing decision was made by Nemotron.' };

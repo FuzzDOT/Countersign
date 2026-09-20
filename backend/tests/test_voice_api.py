@@ -61,9 +61,13 @@ def ingested(db_session, tenant, settings):  # type: ignore[no-untyped-def]
 
 @pytest.fixture
 def meridian_entity_id(db_session, ingested) -> uuid.UUID:
-    entity = db_session.execute(
-        select(Entity).where(Entity.org_id == ingested, Entity.canonical.ilike("%meridian%"))
-    ).scalars().first()
+    entity = (
+        db_session.execute(
+            select(Entity).where(Entity.org_id == ingested, Entity.canonical.ilike("%meridian%"))
+        )
+        .scalars()
+        .first()
+    )
     assert entity is not None, "meridian_shell_ring should always name a Meridian entity"
     return entity.id
 
@@ -171,7 +175,14 @@ def _post_ask(client, headers, *, context_insight_id: uuid.UUID | None = None): 
 
 @pytest.mark.parametrize("phrasing", REHEARSED_EXPLAIN_FLAG_PHRASINGS)
 def test_the_five_rehearsed_phrasings_resolve_to_the_same_insight(
-    client, tenant_header, ingested, meridian_entity_id, meridian_insight_id, mock_stt, mock_tts, phrasing
+    client,
+    tenant_header,
+    ingested,
+    meridian_entity_id,
+    meridian_insight_id,
+    mock_stt,
+    mock_tts,
+    phrasing,
 ) -> None:  # type: ignore[no-untyped-def]
     """Only "why is Meridian flagged" names an entity at all — the other
     four ("why is this flagged", "explain this flag", ...) are generic
@@ -300,11 +311,11 @@ def test_dismiss_has_no_citation_or_resolved_insight(
 def test_context_insight_id_wins_over_entity_matching(
     client, tenant_header, ingested, mock_stt, mock_tts, db_session
 ) -> None:  # type: ignore[no-untyped-def]
-    """"the one I'm already looking at" beats a guess from the heard text —
+    """ "the one I'm already looking at" beats a guess from the heard text —
     `ml/voice/answer.py::_resolve_context_insight`."""
-    any_insight = db_session.execute(
-        select(Insight).where(Insight.org_id == ingested)
-    ).scalars().first()
+    any_insight = (
+        db_session.execute(select(Insight).where(Insight.org_id == ingested)).scalars().first()
+    )
     mock_stt("how confident are you")  # names no entity at all
     body = _post_ask(client, tenant_header, context_insight_id=any_insight.id).json()
     assert body["resolved_insight_id"] == str(any_insight.id)
@@ -374,7 +385,13 @@ def test_briefing_falls_back_on_synthesis_failure(
         audio_url="/api/v1/voice/fallback/briefing.mp3",
         duration_ms=1000,
         transcript=[
-            {"segment_id": "s0", "start_ms": 0, "end_ms": 1000, "text": "Nothing new.", "insight_id": None}
+            {
+                "segment_id": "s0",
+                "start_ms": 0,
+                "end_ms": 1000,
+                "text": "Nothing new.",
+                "insight_id": None,
+            }
         ],
         insight_ids=[],
         generated_at="2026-01-01T00:00:00Z",
@@ -562,9 +579,7 @@ def test_a_range_request_gets_206_partial_content(
     assert response.headers["content-range"] == f"bytes 4-9/{len(content)}"
 
 
-def test_an_unsatisfiable_range_is_416(
-    client, tenant_header, written_audio_file
-) -> None:  # type: ignore[no-untyped-def]
+def test_an_unsatisfiable_range_is_416(client, tenant_header, written_audio_file) -> None:  # type: ignore[no-untyped-def]
     file_id, content = written_audio_file
     response = client.get(
         f"/api/v1/voice/audio/{file_id}.mp3",

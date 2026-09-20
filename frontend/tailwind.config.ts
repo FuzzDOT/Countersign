@@ -113,8 +113,14 @@ export default {
         h3: ['1.25rem', { lineHeight: '1.35', fontWeight: '600' }],
         h2: ['1.563rem', { lineHeight: '1.25', letterSpacing: '-0.005em', fontWeight: '600' }],
         h1: ['1.953rem', { lineHeight: '1.15', letterSpacing: '-0.01em', fontWeight: '600' }],
-        'display-2': ['2.441rem', { lineHeight: '1.1', letterSpacing: '-0.015em', fontWeight: '600' }],
-        'display-1': ['3.052rem', { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '600' }],
+        'display-2': [
+          '2.441rem',
+          { lineHeight: '1.1', letterSpacing: '-0.015em', fontWeight: '600' },
+        ],
+        'display-1': [
+          '3.052rem',
+          { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '600' },
+        ],
         'reader-sm': ['0.95rem', { lineHeight: '1.65' }],
         'reader-body': ['1.125rem', { lineHeight: '1.7' }],
       },

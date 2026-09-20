@@ -1,5 +1,5 @@
-import { useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 export function RouteTransition({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -13,8 +13,7 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className={`h-full transition-[opacity,transform] duration-move ease-out
-                  ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+      className={`h-full transition-[opacity,transform] duration-move ease-out ${visible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}
     >
       {children}
     </div>

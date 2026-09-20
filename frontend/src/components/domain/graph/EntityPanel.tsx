@@ -24,16 +24,27 @@ function neighbourSentence(n: NeighborOut): string {
 }
 
 /** The left detail panel for a selected entity (brief §9.3). */
-export function EntityPanel({ entityId, onClose, nodeHref, onOpenInsight, onShowNeighbourhood }: EntityPanelProps) {
+export function EntityPanel({
+  entityId,
+  onClose,
+  nodeHref,
+  onOpenInsight,
+  onShowNeighbourhood,
+}: EntityPanelProps) {
   const query = useEntity(entityId);
 
   return (
-    <aside aria-label="Entity details" className="flex h-full flex-col overflow-y-auto border-r border-ink-500/40 bg-ink-700">
+    <aside
+      aria-label="Entity details"
+      className="flex h-full flex-col overflow-y-auto border-r border-ink-500/40 bg-ink-700"
+    >
       <div className="flex items-start justify-between gap-2 border-b border-ink-500/40 p-4">
         {query.data ? (
           <div>
             <h2 className="text-h3 text-ink-50">{query.data.entity.canonical}</h2>
-            <p className="text-body-sm text-ink-200">{entityTypeLabel(query.data.entity.entity_type)}</p>
+            <p className="text-body-sm text-ink-200">
+              {entityTypeLabel(query.data.entity.entity_type)}
+            </p>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -47,7 +58,12 @@ export function EntityPanel({ entityId, onClose, nodeHref, onOpenInsight, onShow
       </div>
 
       {query.isError ? (
-        <ErrorState compact error={query.error} onRetry={() => void query.refetch()} title="Entity did not load" />
+        <ErrorState
+          compact
+          error={query.error}
+          onRetry={() => void query.refetch()}
+          title="Entity did not load"
+        />
       ) : query.data ? (
         <div className="flex flex-col gap-6 p-4">
           <dl className="grid grid-cols-2 gap-3 text-body-sm">
@@ -57,7 +73,9 @@ export function EntityPanel({ entityId, onClose, nodeHref, onOpenInsight, onShow
             </div>
             <div>
               <dt className="text-ink-200">First seen</dt>
-              <dd className="text-body text-ink-50">{formatDateShort(query.data.entity.first_seen)}</dd>
+              <dd className="text-body text-ink-50">
+                {formatDateShort(query.data.entity.first_seen)}
+              </dd>
             </div>
             <div>
               <dt className="text-ink-200">Mentions</dt>
@@ -70,7 +88,11 @@ export function EntityPanel({ entityId, onClose, nodeHref, onOpenInsight, onShow
           </dl>
 
           <div className="flex flex-wrap gap-2">
-            <LinkButton to={`/app/feed?entity_id=${encodeURIComponent(entityId)}`} size="sm" variant="secondary">
+            <LinkButton
+              to={`/app/feed?entity_id=${encodeURIComponent(entityId)}`}
+              size="sm"
+              variant="secondary"
+            >
               Show insights in the feed
             </LinkButton>
             <Button size="sm" variant="secondary" onClick={() => onShowNeighbourhood(entityId)}>
@@ -99,15 +121,26 @@ export function EntityPanel({ entityId, onClose, nodeHref, onOpenInsight, onShow
               {query.data.neighbors.map((n, index) => {
                 const first = n.insight_ids[0];
                 return (
-                  <li key={`${n.entity.id}-${n.relation}-${index}`} className="flex flex-col gap-1 py-2 text-body-sm">
-                    <Link to={nodeHref(n.entity.id)} className="font-medium text-ink-50 underline-offset-4 hover:underline">
+                  <li
+                    key={`${n.entity.id}-${n.relation}-${index}`}
+                    className="flex flex-col gap-1 py-2 text-body-sm"
+                  >
+                    <Link
+                      to={nodeHref(n.entity.id)}
+                      className="font-medium text-ink-50 underline-offset-4 hover:underline"
+                    >
                       {n.entity.canonical}
                     </Link>
                     <span className="nums text-ink-200">
                       {neighbourSentence(n)}, confidence {formatScore(n.confidence)}
                     </span>
                     {first ? (
-                      <Button size="sm" variant="quiet" className="self-start" onClick={() => onOpenInsight(first)}>
+                      <Button
+                        size="sm"
+                        variant="quiet"
+                        className="self-start"
+                        onClick={() => onOpenInsight(first)}
+                      >
                         Open insight
                       </Button>
                     ) : null}

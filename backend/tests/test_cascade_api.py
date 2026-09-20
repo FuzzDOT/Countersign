@@ -458,9 +458,9 @@ def test_a_hand_written_mechanism_note_outranks_an_uninteresting_misroute(
         if "No hand-written mechanism note" in failure["note"]
     ]
     if hand_written and generated:
-        assert max(hand_written) < min(generated), (
-            "a generated note outranked a hand-written mechanism note"
-        )
+        assert max(hand_written) < min(
+            generated
+        ), "a generated note outranked a hand-written mechanism note"
     # Every documented failure reports what actually happened this run,
     # hand-written or not — that part is unconditional.
     for failure in failures:

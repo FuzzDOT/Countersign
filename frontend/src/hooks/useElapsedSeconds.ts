@@ -9,7 +9,10 @@ export function useElapsedSeconds(active: boolean): number {
       return undefined;
     }
     const started = Date.now();
-    const timer = window.setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 250);
+    const timer = window.setInterval(
+      () => setSeconds(Math.floor((Date.now() - started) / 1000)),
+      250,
+    );
     return () => window.clearInterval(timer);
   }, [active]);
   return seconds;

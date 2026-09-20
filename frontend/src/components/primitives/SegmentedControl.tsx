@@ -29,7 +29,8 @@ export function SegmentedControl<T extends string>({
 
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     let next = index;
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (index + 1) % options.length;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
+      next = (index + 1) % options.length;
     else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
       next = (index - 1 + options.length) % options.length;
     else return;
@@ -45,7 +46,10 @@ export function SegmentedControl<T extends string>({
     <div
       role="radiogroup"
       aria-label={ariaLabel}
-      className={cn('inline-flex rounded-input border border-ctl-border bg-ctl-alt p-0.5', className)}
+      className={cn(
+        'inline-flex rounded-input border border-ctl-border bg-ctl-alt p-0.5',
+        className,
+      )}
     >
       {options.map((option, index) => {
         const selected = option.value === value;

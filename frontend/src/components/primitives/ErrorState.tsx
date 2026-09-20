@@ -38,14 +38,26 @@ interface ErrorStateProps {
 }
 
 /** Designed error state. Always shows the request id in mono so a failure can be traced in seconds. */
-export function ErrorState({ error, onRetry, title = 'That did not load', className, compact }: ErrorStateProps) {
+export function ErrorState({
+  error,
+  onRetry,
+  title = 'That did not load',
+  className,
+  compact,
+}: ErrorStateProps) {
   const requestId = isApiError(error) ? error.requestId : null;
   return (
     <div
       role="alert"
-      className={cn('flex flex-col items-start gap-3', compact ? 'p-4' : 'mx-auto max-w-prose px-6 py-12', className)}
+      className={cn(
+        'flex flex-col items-start gap-3',
+        compact ? 'p-4' : 'mx-auto max-w-prose px-6 py-12',
+        className,
+      )}
     >
-      <h2 className={compact ? 'text-body font-semibold text-ink-50' : 'text-h3 text-ink-50'}>{title}</h2>
+      <h2 className={compact ? 'text-body font-semibold text-ink-50' : 'text-h3 text-ink-50'}>
+        {title}
+      </h2>
       <p className="text-body text-ink-200">{describeError(error)}</p>
       {requestId ? (
         <p className="text-body-sm text-ink-200">

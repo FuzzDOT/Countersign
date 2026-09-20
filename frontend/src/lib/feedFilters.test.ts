@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { EMPTY_FILTERS, activeFilterCount, parseFeedFilters, toApiQuery, writeFeedFilters } from './feedFilters';
+import {
+  EMPTY_FILTERS,
+  activeFilterCount,
+  parseFeedFilters,
+  toApiQuery,
+  writeFeedFilters,
+} from './feedFilters';
 
 describe('feed filters in the URL', () => {
   it('parses an empty query string to the defaults', () => {
@@ -19,13 +25,18 @@ describe('feed filters in the URL', () => {
       sort: '-vacuity' as const,
       q: 'advent holdings',
     };
-    const written = writeFeedFilters(new URLSearchParams(), { ...filters, routing: [...filters.routing] });
+    const written = writeFeedFilters(new URLSearchParams(), {
+      ...filters,
+      routing: [...filters.routing],
+    });
     expect(parseFeedFilters(written)).toEqual({ ...filters, routing: [...filters.routing] });
     expect(written.getAll('routing')).toEqual(['escalate_now', 'flag_for_review']);
   });
 
   it('drops junk values instead of trusting them', () => {
-    const parsed = parseFeedFilters(new URLSearchParams('routing=bogus&sort=nope&min_confidence=abc&resolved_by=alien'));
+    const parsed = parseFeedFilters(
+      new URLSearchParams('routing=bogus&sort=nope&min_confidence=abc&resolved_by=alien'),
+    );
     expect(parsed.routing).toEqual([]);
     expect(parsed.sort).toBe(EMPTY_FILTERS.sort);
     expect(parsed.minConfidence).toBeNull();
@@ -33,7 +44,10 @@ describe('feed filters in the URL', () => {
   });
 
   it('keeps unrelated params such as the open sheet', () => {
-    const written = writeFeedFilters(new URLSearchParams('insight=abc'), { ...EMPTY_FILTERS, q: 'x' });
+    const written = writeFeedFilters(new URLSearchParams('insight=abc'), {
+      ...EMPTY_FILTERS,
+      q: 'x',
+    });
     expect(written.get('insight')).toBe('abc');
     expect(written.get('q')).toBe('x');
   });

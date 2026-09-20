@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { getCookie, setCookie } from "../lib/cookies";
+import { useState, useEffect } from 'react';
+import { getCookie, setCookie } from '../lib/cookies';
 
-const COOKIE_NAME = "rail_expanded";
+const COOKIE_NAME = 'rail_expanded';
 
 export function useRailState() {
-  const [expanded, setExpanded] = useState(() => getCookie(COOKIE_NAME) === "true");
+  const [expanded, setExpanded] = useState(() => getCookie(COOKIE_NAME) === 'true');
 
   useEffect(() => {
     setCookie(COOKIE_NAME, String(expanded));

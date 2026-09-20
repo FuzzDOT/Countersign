@@ -44,6 +44,11 @@ interface LinkButtonProps extends LinkProps {
   size?: ButtonSize | undefined;
 }
 
-export function LinkButton({ variant = 'secondary', size = 'md', className, ...rest }: LinkButtonProps) {
+export function LinkButton({
+  variant = 'secondary',
+  size = 'md',
+  className,
+  ...rest
+}: LinkButtonProps) {
   return <Link className={buttonClasses(variant, size, className)} {...rest} />;
 }

@@ -76,7 +76,11 @@ export default function VoiceRoute() {
         setBriefing({ data, fallback: true });
       } catch (error) {
         setBriefing(null);
-        setBriefingError(isApiError(error) ? error.message : 'Neither the live nor the recorded briefing could be loaded.');
+        setBriefingError(
+          isApiError(error)
+            ? error.message
+            : 'Neither the live nor the recorded briefing could be loaded.',
+        );
       }
     } finally {
       setPending(false);
@@ -101,7 +105,11 @@ export default function VoiceRoute() {
   }, [answers.length]);
 
   if (!can('voice:use')) {
-    return <EmptyState title="You do not have access to voice">Ask an owner to grant voice access.</EmptyState>;
+    return (
+      <EmptyState title="You do not have access to voice">
+        Ask an owner to grant voice access.
+      </EmptyState>
+    );
   }
 
   return (
@@ -119,30 +127,50 @@ export default function VoiceRoute() {
           <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
             <div className="flex flex-col gap-1">
               <span className="text-body-sm font-semibold text-card-fg">What to cover</span>
-              <SegmentedControl ariaLabel="Briefing scope" options={SCOPES} value={scope} onChange={setScope} />
+              <SegmentedControl
+                ariaLabel="Briefing scope"
+                options={SCOPES}
+                value={scope}
+                onChange={setScope}
+              />
             </div>
             <div role="group" aria-label="Maximum items" className="flex flex-col gap-1">
               <span className="text-body-sm font-semibold text-card-fg">Maximum items</span>
               <div className="flex items-center gap-1">
-                <IconButton label="Fewer items" disabled={maxItems <= 1} onClick={() => setMaxItems((n) => Math.max(1, n - 1))}>
+                <IconButton
+                  label="Fewer items"
+                  disabled={maxItems <= 1}
+                  onClick={() => setMaxItems((n) => Math.max(1, n - 1))}
+                >
                   <MinusIcon />
                 </IconButton>
                 <span className="nums w-6 text-center text-body text-ink-50" aria-live="polite">
                   {maxItems}
                 </span>
-                <IconButton label="More items" disabled={maxItems >= 5} onClick={() => setMaxItems((n) => Math.min(5, n + 1))}>
+                <IconButton
+                  label="More items"
+                  disabled={maxItems >= 5}
+                  onClick={() => setMaxItems((n) => Math.min(5, n + 1))}
+                >
                   <PlusIcon />
                 </IconButton>
               </div>
             </div>
-            <Button variant="primary" pending={pending} pendingLabel="Preparing briefing…" onClick={() => void playBriefing()}>
+            <Button
+              variant="primary"
+              pending={pending}
+              pendingLabel="Preparing briefing…"
+              onClick={() => void playBriefing()}
+            >
               Play briefing
             </Button>
           </div>
 
           <div aria-live="polite">
             {briefing?.fallback ? (
-              <p className="text-body-sm text-ink-200">Playing recorded briefing; live synthesis is unavailable.</p>
+              <p className="text-body-sm text-ink-200">
+                Playing recorded briefing; live synthesis is unavailable.
+              </p>
             ) : null}
           </div>
           {briefingError ? (
@@ -153,7 +181,11 @@ export default function VoiceRoute() {
 
           {briefing ? (
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
-              <BriefingPlayer key={briefing.data.briefing_id} briefing={briefing.data} onActiveInsight={setActiveInsight} />
+              <BriefingPlayer
+                key={briefing.data.briefing_id}
+                briefing={briefing.data}
+                onActiveInsight={setActiveInsight}
+              />
               <BriefingInsightCards
                 insightIds={briefing.data.insight_ids}
                 activeInsightId={activeInsight}
@@ -162,8 +194,8 @@ export default function VoiceRoute() {
             </div>
           ) : (
             <p className="max-w-prose text-body text-ink-200">
-              Choose what to cover and press Play briefing. The transcript follows the audio, and each insight it
-              mentions lights up with the sentence it came from.
+              Choose what to cover and press Play briefing. The transcript follows the audio, and
+              each insight it mentions lights up with the sentence it came from.
             </p>
           )}
         </section>
@@ -187,12 +219,16 @@ export default function VoiceRoute() {
             </div>
           ) : (
             <p className="max-w-prose text-body text-ink-200">
-              Ask about a flagged item, for example why it was flagged or where the claim came from. Your questions and
-              the answers stay here for this session.
+              Ask about a flagged item, for example why it was flagged or where the claim came from.
+              Your questions and the answers stay here for this session.
             </p>
           )}
 
-          <PushToTalk busy={ask.isPending} onRecorded={(audio) => ask.mutate(audio)} buttonRef={pttRef} />
+          <PushToTalk
+            busy={ask.isPending}
+            onRecorded={(audio) => ask.mutate(audio)}
+            buttonRef={pttRef}
+          />
         </section>
       </div>
 

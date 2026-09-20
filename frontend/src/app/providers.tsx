@@ -13,7 +13,11 @@ function makeClient(): QueryClient {
         // A screen that has nothing to show renders its own ErrorState. Only a
         // failed *background* refetch (data already on screen) needs a toast.
         if (query.state.data === undefined) return;
-        if (isApiError(error) && ['FORBIDDEN', 'TOKEN_EXPIRED', 'REFRESH_REUSED'].includes(error.code)) return;
+        if (
+          isApiError(error) &&
+          ['FORBIDDEN', 'TOKEN_EXPIRED', 'REFRESH_REUSED'].includes(error.code)
+        )
+          return;
         pushToast({
           tone: 'error',
           title: 'Could not refresh this view',

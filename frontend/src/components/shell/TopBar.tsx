@@ -38,8 +38,7 @@ function AccountMenu() {
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((was) => !was)}
-        className="rounded-input border border-ctl-border bg-ctl-alt px-3 py-1.5 text-body-sm text-ctl-alt-fg
-                   transition-colors duration-quick ease-out hover:border-verify hover:bg-ctl-alt-hover"
+        className="rounded-input border border-ctl-border bg-ctl-alt px-3 py-1.5 text-body-sm text-ctl-alt-fg transition-colors duration-quick ease-out hover:border-verify hover:bg-ctl-alt-hover"
       >
         Account
       </button>
@@ -47,8 +46,7 @@ function AccountMenu() {
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-50 mt-2 w-60 rounded-panel border border-ink-500 bg-ink-700
-                     p-1 text-body-sm text-ink-50 shadow-overlay"
+          className="absolute right-0 z-50 mt-2 w-60 rounded-panel border border-ink-500 bg-ink-700 p-1 text-body-sm text-ink-50 shadow-overlay"
         >
           {me ? (
             <div className="border-b border-ink-500 px-3 py-2">
@@ -62,8 +60,7 @@ function AccountMenu() {
               setOpen(false);
               navigate('/app/settings');
             }}
-            className="w-full rounded-input px-3 py-2 text-left transition-colors duration-quick ease-out
-                       hover:bg-ctl-alt-hover"
+            className="w-full rounded-input px-3 py-2 text-left transition-colors duration-quick ease-out hover:bg-ctl-alt-hover"
           >
             Settings
           </button>
@@ -75,8 +72,7 @@ function AccountMenu() {
               // anonymous, so this does not navigate itself.
               void signOut();
             }}
-            className="w-full rounded-input px-3 py-2 text-left transition-colors duration-quick ease-out
-                       hover:bg-ctl-alt-hover"
+            className="w-full rounded-input px-3 py-2 text-left transition-colors duration-quick ease-out hover:bg-ctl-alt-hover"
           >
             Sign out
           </button>
@@ -117,8 +113,7 @@ export function TopBar({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && onSearch(query)}
-          className="h-9 w-64 rounded-input border border-fld-border bg-fld px-4 text-body-sm text-ctl-alt-fg
-                     placeholder:text-fld-ph focus-visible:border-verify"
+          className="h-9 w-64 rounded-input border border-fld-border bg-fld px-4 text-body-sm text-ctl-alt-fg placeholder:text-fld-ph focus-visible:border-verify"
         />
 
         <div className="flex items-center gap-3">

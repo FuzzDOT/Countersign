@@ -89,7 +89,6 @@
   --fld-border: rgba(244, 246, 249, 0.5);
   --fld-fg: #f4f6f9;
   --fld-ph: rgba(244, 246, 249, 0.45);
-
 }
 
 [data-theme='light'] {
@@ -154,7 +153,6 @@
   --fld-border: rgba(17, 26, 39, 0.35);
   --fld-fg: #111a27;
   --fld-ph: rgba(17, 26, 39, 0.45);
-
 }
 
 :root {

@@ -307,7 +307,11 @@ def ask(
         answer_audio_id = uuid.uuid4()
         _write_audio(synthesis.audio_bytes, answer_audio_id, settings)
         audio_url = _signed_audio_url(answer_audio_id, settings)
-        duration_ms = int(synthesis.alignment.end_seconds[-1] * 1000) if synthesis.alignment.char_count() else duration_ms
+        duration_ms = (
+            int(synthesis.alignment.end_seconds[-1] * 1000)
+            if synthesis.alignment.char_count()
+            else duration_ms
+        )
 
     return AskResponse(
         question_id=question_id,

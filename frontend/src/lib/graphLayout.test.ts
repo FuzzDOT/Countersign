@@ -34,7 +34,12 @@ describe('graphKey', () => {
 
 describe('layoutGraph', () => {
   const nodes = ['a', 'b', 'c', 'd'].map((id) => node(id));
-  const edges = [edge('1', 'a', 'b'), edge('2', 'b', 'c'), edge('3', 'c', 'a'), edge('4', 'c', 'd')];
+  const edges = [
+    edge('1', 'a', 'b'),
+    edge('2', 'b', 'c'),
+    edge('3', 'c', 'a'),
+    edge('4', 'c', 'd'),
+  ];
 
   it('is deterministic: the same data lays out the same way every time', () => {
     const one = layoutGraph(nodes, edges);

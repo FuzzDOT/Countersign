@@ -17,7 +17,12 @@ interface FeedStatsHeaderProps {
  * of documents ingested. The skeleton is the same height as the loaded strip
  * so nothing shifts when data arrives.
  */
-export function FeedStatsHeader({ stats, loading, activeRouting, onToggleRouting }: FeedStatsHeaderProps) {
+export function FeedStatsHeader({
+  stats,
+  loading,
+  activeRouting,
+  onToggleRouting,
+}: FeedStatsHeaderProps) {
   if (!stats) {
     return (
       <div className="h-[104px] border-b border-ink-500/40 px-5 py-4">
@@ -52,7 +57,10 @@ export function FeedStatsHeader({ stats, loading, activeRouting, onToggleRouting
               aria-label={`${ROUTING_META[bucket].label}: ${count}. Filter the feed.`}
               onClick={() => onToggleRouting(bucket)}
               className="h-full transition-opacity duration-instant hover:opacity-80"
-              style={{ width: `${(count / Math.max(total, 1)) * 100}%`, backgroundColor: ROUTING_META[bucket].color }}
+              style={{
+                width: `${(count / Math.max(total, 1)) * 100}%`,
+                backgroundColor: ROUTING_META[bucket].color,
+              }}
             />
           ))}
       </div>
@@ -87,7 +95,8 @@ export function FeedStatsHeader({ stats, loading, activeRouting, onToggleRouting
 
       <p className="mt-1 flex flex-wrap items-baseline gap-x-6 gap-y-0.5 text-body text-ink-50">
         <span>
-          <CountUp value={llm} /> of <CountUp value={stats.total} /> insights needed a language model
+          <CountUp value={llm} /> of <CountUp value={stats.total} /> insights needed a language
+          model
         </span>
         <span className="text-body-sm text-ink-200">
           <CountUp value={stats.documents_ingested} /> documents ingested

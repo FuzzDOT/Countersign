@@ -44,7 +44,8 @@ export default function FeedRoute() {
   const count = activeFilterCount(filters);
 
   const setFilters = useCallback(
-    (next: FeedFilters) => setParams((current) => writeFeedFilters(current, next), { replace: true }),
+    (next: FeedFilters) =>
+      setParams((current) => writeFeedFilters(current, next), { replace: true }),
     [setParams],
   );
   const clear = useCallback(
@@ -61,16 +62,24 @@ export default function FeedRoute() {
 
   const stats = useInsightStats();
   const insights = useInsightsInfinite(filters);
-  const rows = useMemo(() => insights.data?.pages.flatMap((page) => page.data) ?? [], [insights.data]);
+  const rows = useMemo(
+    () => insights.data?.pages.flatMap((page) => page.data) ?? [],
+    [insights.data],
+  );
   const fetchNext = useCallback(() => {
     void insights.fetchNextPage();
   }, [insights]);
 
   const anyDegraded = rows.some((row) => row.degraded);
-  const showBanner = (upstream.nemotronDown && !upstream.dismissed) || (anyDegraded && !upstream.dismissed);
+  const showBanner =
+    (upstream.nemotronDown && !upstream.dismissed) || (anyDegraded && !upstream.dismissed);
 
   if (!can('insights:read')) {
-    return <EmptyState title="You do not have access to the feed">Ask an owner to grant insight access.</EmptyState>;
+    return (
+      <EmptyState title="You do not have access to the feed">
+        Ask an owner to grant insight access.
+      </EmptyState>
+    );
   }
 
   const panel = (
@@ -86,7 +95,10 @@ export default function FeedRoute() {
   return (
     <div className="flex h-full">
       {wide ? (
-        <aside aria-label="Feed filters" className="w-[var(--filter-width)] shrink-0 overflow-y-auto border-r border-ink-500/40">
+        <aside
+          aria-label="Feed filters"
+          className="w-[var(--filter-width)] shrink-0 overflow-y-auto border-r border-ink-500/40"
+        >
           {panel}
         </aside>
       ) : null}
@@ -116,14 +128,18 @@ export default function FeedRoute() {
         {showBanner ? (
           <div className="px-5 pt-3">
             <Banner onDismiss={dismissNemotronBanner}>
-              The Nemotron upstream is unavailable. The feed is unaffected: escalated insights are marked as
-              reviewed classically until it recovers.
+              The Nemotron upstream is unavailable. The feed is unaffected: escalated insights are
+              marked as reviewed classically until it recovers.
             </Banner>
           </div>
         ) : null}
 
         {insights.isError && rows.length === 0 ? (
-          <ErrorState error={insights.error} onRetry={() => void insights.refetch()} title="The feed did not load" />
+          <ErrorState
+            error={insights.error}
+            onRetry={() => void insights.refetch()}
+            title="The feed did not load"
+          />
         ) : insights.isLoading ? (
           <div className="flex flex-col" aria-busy="true">
             {Array.from({ length: 6 }, (_, i) => (
@@ -136,17 +152,25 @@ export default function FeedRoute() {
           count > 0 ? (
             <EmptyState
               title="No insights match these filters"
-              action={<Button variant="secondary" onClick={clear}>Clear all filters</Button>}
+              action={
+                <Button variant="secondary" onClick={clear}>
+                  Clear all filters
+                </Button>
+              }
             >
               Loosen a filter or clear them to see the whole feed.
             </EmptyState>
           ) : (
             <EmptyState
               title="No insights yet"
-              action={<LinkButton to="/app/ingest" variant="primary">Load a demo scenario</LinkButton>}
+              action={
+                <LinkButton to="/app/ingest" variant="primary">
+                  Load a demo scenario
+                </LinkButton>
+              }
             >
-              Ingest some documents and every claim we extract will appear here, each tied to the sentence it
-              came from.
+              Ingest some documents and every claim we extract will appear here, each tied to the
+              sentence it came from.
             </EmptyState>
           )
         ) : (
@@ -165,7 +189,11 @@ export default function FeedRoute() {
       <InsightSheet insightId={sheet.insightId} onClose={sheet.close} />
 
       {!wide ? (
-        <Sheet open={filtersOpen} onClose={() => setFiltersOpen(false)} labelledBy="feed-filters-sheet-title">
+        <Sheet
+          open={filtersOpen}
+          onClose={() => setFiltersOpen(false)}
+          labelledBy="feed-filters-sheet-title"
+        >
           <div className="flex items-center justify-between border-b border-ink-500/40 px-4 py-2">
             <h2 id="feed-filters-sheet-title" className="text-body font-semibold text-ink-50">
               Feed filters

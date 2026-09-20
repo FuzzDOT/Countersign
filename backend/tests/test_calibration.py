@@ -176,9 +176,7 @@ def test_rescoring_cannot_change_which_relation_was_predicted(db_session, ingest
     assert cases
     for temperature in (0.5, 1.0, 2.0, 3.5):
         after = calib.rescored(cases, temperature)
-        assert [c.predicted_relation for c in after] == [
-            c.predicted_relation for c in cases
-        ]
+        assert [c.predicted_relation for c in after] == [c.predicted_relation for c in cases]
         assert [c.correct for c in after] == [c.correct for c in cases]
 
 
@@ -231,9 +229,7 @@ def test_recalibrate_records_a_baseline_and_a_post_snapshot(
 
 def test_recalibrate_bins_sum_to_the_case_count(client, tenant_header, ingested) -> None:  # type: ignore[no-untyped-def]
     """Exit criterion: bins sum to total case count, both series."""
-    body = client.post(
-        "/api/v1/calibration/recalibrate", headers=tenant_header, json={}
-    ).json()
+    body = client.post("/api/v1/calibration/recalibrate", headers=tenant_header, json={}).json()
     for series in ("before", "after"):
         bins = body[series]["bins"]
         assert len(bins) == calib.N_BINS
@@ -245,9 +241,7 @@ def test_recalibrate_bins_sum_to_the_case_count(client, tenant_header, ingested)
     )
 
 
-def test_recalibrate_completes_well_under_four_seconds(
-    client, tenant_header, ingested
-) -> None:  # type: ignore[no-untyped-def]
+def test_recalibrate_completes_well_under_four_seconds(client, tenant_header, ingested) -> None:  # type: ignore[no-untyped-def]
     """Exit criterion: completes < 4 s. Asserted against the wall clock as
     well as the reported number, so a wrong `elapsed_ms` cannot pass it."""
     started = time.monotonic()
@@ -274,9 +268,7 @@ def test_recalibration_does_not_degrade_ece(client, tenant_header, ingested) -> 
     the actual ECE change, so the response cannot claim an improvement it
     did not produce.
     """
-    body = client.post(
-        "/api/v1/calibration/recalibrate", headers=tenant_header, json={}
-    ).json()
+    body = client.post("/api/v1/calibration/recalibrate", headers=tenant_header, json={}).json()
     before, after = body["before"]["ece"], body["after"]["ece"]
     improvement = body["improvement"]
 
@@ -324,9 +316,7 @@ def test_the_replay_does_not_refit(client, tenant_header, ingested, db_session) 
     assert after_first == after_second
 
 
-def test_different_keys_produce_different_snapshots(
-    client, tenant_header, ingested
-) -> None:  # type: ignore[no-untyped-def]
+def test_different_keys_produce_different_snapshots(client, tenant_header, ingested) -> None:  # type: ignore[no-untyped-def]
     first = client.post(
         "/api/v1/calibration/recalibrate",
         headers={**tenant_header, "Idempotency-Key": "key-a"},
@@ -364,9 +354,7 @@ def test_the_fitted_temperature_becomes_the_live_one(
     client, tenant_header, ingested, db_session
 ) -> None:  # type: ignore[no-untyped-def]
     """The point of persisting a snapshot: the next ingest uses it."""
-    body = client.post(
-        "/api/v1/calibration/recalibrate", headers=tenant_header, json={}
-    ).json()
+    body = client.post("/api/v1/calibration/recalibrate", headers=tenant_header, json={}).json()
     live = temperature_mod.current_temperature(db_session, ingested)
     assert live == pytest.approx(body["after"]["temperature"], abs=1e-6)
 

@@ -18,10 +18,17 @@ interface CitationBlockProps {
  * it is set in mono. The text is a React text node: it is untrusted document
  * content and is never interpreted as markup.
  */
-export function CitationBlock({ citation, action, className, showTitle = true }: CitationBlockProps) {
+export function CitationBlock({
+  citation,
+  action,
+  className,
+  showTitle = true,
+}: CitationBlockProps) {
   return (
     <PaperSurface className={cn('px-5 py-4', className)}>
-      {showTitle ? <p className="mb-2 font-sans text-body-sm text-paper-text/70">{citation.document_title}</p> : null}
+      {showTitle ? (
+        <p className="mb-2 font-sans text-body-sm text-paper-text/70">{citation.document_title}</p>
+      ) : null}
       <blockquote className="max-w-reader text-reader-sm text-paper-text">
         <p className="whitespace-pre-wrap break-words">{citation.sentence_text}</p>
       </blockquote>

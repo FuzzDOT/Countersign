@@ -44,18 +44,19 @@ def ingested(db_session, tenant, settings):  # type: ignore[no-untyped-def]
 
 @pytest.fixture
 def insights(db_session, ingested):  # type: ignore[no-untyped-def]
-    rows = db_session.execute(
-        select(Insight)
-        .where(Insight.org_id == ingested)
-        .order_by(Insight.confidence.desc())
-    ).scalars().all()
+    rows = (
+        db_session.execute(
+            select(Insight).where(Insight.org_id == ingested).order_by(Insight.confidence.desc())
+        )
+        .scalars()
+        .all()
+    )
     return [row for row in rows if row.attention]
 
 
 def _top(insight: Insight, count: int = 4) -> list[str]:
     return [
-        edge["edge_id"]
-        for edge in sorted(insight.attention, key=lambda e: -e["weight"])[:count]
+        edge["edge_id"] for edge in sorted(insight.attention, key=lambda e: -e["weight"])[:count]
     ]
 
 
@@ -157,9 +158,11 @@ def test_an_unknown_edge_is_rejected(db_session, insights) -> None:  # type: ign
 def test_a_run_is_persisted_with_both_states(db_session, insights) -> None:  # type: ignore[no-untyped-def]
     insight = insights[0]
     ablate(db_session, insight, _top(insight))
-    run = db_session.execute(
-        select(AblationRun).where(AblationRun.insight_id == insight.id)
-    ).scalars().first()
+    run = (
+        db_session.execute(select(AblationRun).where(AblationRun.insight_id == insight.id))
+        .scalars()
+        .first()
+    )
 
     assert run is not None
     assert run.mode == "zero"
@@ -191,9 +194,7 @@ def test_the_rule_model_also_produces_a_counterfactual(db_session, insights, set
             rebuilt = rebuild(db_session, insight, rules)
             every = list(rebuilt.graph.known_edge_ids())
 
-            before = extractor.infer(
-                rebuilt.graph, rebuilt.pair, None, lemmas=rebuilt.lemmas
-            )
+            before = extractor.infer(rebuilt.graph, rebuilt.pair, None, lemmas=rebuilt.lemmas)
             after = extractor.infer(
                 rebuilt.graph, rebuilt.pair, EdgeMask.of(every), lemmas=rebuilt.lemmas
             )

@@ -35,7 +35,11 @@ export function RoutingBadge({ bucket, stampKey, prefix, className }: RoutingBad
     const el = ref.current;
     if (el && typeof el.animate === 'function') {
       el.animate(
-        [{ transform: 'scale(1)' }, { transform: 'scale(1.08)', offset: 0.4 }, { transform: 'scale(1)' }],
+        [
+          { transform: 'scale(1)' },
+          { transform: 'scale(1.08)', offset: 0.4 },
+          { transform: 'scale(1)' },
+        ],
         { duration: 240, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
       );
     }

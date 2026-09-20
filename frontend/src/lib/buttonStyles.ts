@@ -47,8 +47,7 @@ export function buttonClasses(
 
     variant === 'quiet' && 'text-ctl-alt-fg/85 hover:bg-ctl-alt-hover hover:text-ctl-alt-fg',
 
-    variant === 'danger' &&
-      'border-2 border-ctl-border text-ctl-alt-fg hover:bg-ctl-alt-hover',
+    variant === 'danger' && 'border-2 border-ctl-border text-ctl-alt-fg hover:bg-ctl-alt-hover',
 
     extra,
   );

@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest';
 import type { DocumentDetail } from '@/api/types';
 import { DocumentReader } from './DocumentReader';
 
-const HOSTILE = 'Pay <img src=x onerror="window.pwned=1"> now. **Not bold.** <script>window.pwned=2</script> Done.';
+const HOSTILE =
+  'Pay <img src=x onerror="window.pwned=1"> now. **Not bold.** <script>window.pwned=2</script> Done.';
 
 function doc(overrides: Partial<DocumentDetail> = {}): DocumentDetail {
   return {
@@ -14,8 +15,22 @@ function doc(overrides: Partial<DocumentDetail> = {}): DocumentDetail {
     received_at: '2026-09-14T10:00:00Z',
     raw_text: HOSTILE,
     spans: [
-      { insight_id: 'a', char_start: 0, char_end: 30, relation: 'WIRED_FUNDS_TO', confidence: 0.8, routing: 'escalate_now' },
-      { insight_id: 'b', char_start: 20, char_end: 60, relation: 'OWNED_BY', confidence: 0.6, routing: 'flag_for_review' },
+      {
+        insight_id: 'a',
+        char_start: 0,
+        char_end: 30,
+        relation: 'WIRED_FUNDS_TO',
+        confidence: 0.8,
+        routing: 'escalate_now',
+      },
+      {
+        insight_id: 'b',
+        char_start: 20,
+        char_end: 60,
+        relation: 'OWNED_BY',
+        confidence: 0.6,
+        routing: 'flag_for_review',
+      },
     ],
     mentions: [],
     ...overrides,
@@ -48,10 +63,38 @@ describe('DocumentReader', () => {
     const { container } = renderReader(
       doc({
         spans: [
-          { insight_id: 'a', char_start: 0, char_end: 40, relation: 'WIRED_FUNDS_TO', confidence: 0.8, routing: 'escalate_now' },
-          { insight_id: 'b', char_start: 10, char_end: 50, relation: 'OWNED_BY', confidence: 0.6, routing: 'flag_for_review' },
-          { insight_id: 'bad', char_start: -4, char_end: 99999, relation: 'OWNED_BY', confidence: 0.6, routing: 'auto_file' },
-          { insight_id: 'nan', char_start: Number.NaN, char_end: 3, relation: 'OWNED_BY', confidence: 0.6, routing: 'auto_file' },
+          {
+            insight_id: 'a',
+            char_start: 0,
+            char_end: 40,
+            relation: 'WIRED_FUNDS_TO',
+            confidence: 0.8,
+            routing: 'escalate_now',
+          },
+          {
+            insight_id: 'b',
+            char_start: 10,
+            char_end: 50,
+            relation: 'OWNED_BY',
+            confidence: 0.6,
+            routing: 'flag_for_review',
+          },
+          {
+            insight_id: 'bad',
+            char_start: -4,
+            char_end: 99999,
+            relation: 'OWNED_BY',
+            confidence: 0.6,
+            routing: 'auto_file',
+          },
+          {
+            insight_id: 'nan',
+            char_start: Number.NaN,
+            char_end: 3,
+            relation: 'OWNED_BY',
+            confidence: 0.6,
+            routing: 'auto_file',
+          },
         ],
       }),
     );

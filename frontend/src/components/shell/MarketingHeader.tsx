@@ -4,7 +4,15 @@ import { ThemeToggle } from '@/components/primitives/ThemeToggle';
 
 function BackArrow() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      aria-hidden="true"
+    >
       <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -21,10 +29,7 @@ export function MarketingHeader({ title }: { title?: ReactNode }) {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 rounded-input border border-ctl-border
-                     bg-ctl-alt px-3.5 py-2 font-mono text-micro uppercase tracking-[0.14em]
-                     text-ctl-alt-fg transition-colors duration-quick ease-out
-                     hover:border-verify hover:bg-ctl-alt-hover"
+          className="inline-flex items-center gap-2 rounded-input border border-ctl-border bg-ctl-alt px-3.5 py-2 font-mono text-micro uppercase tracking-[0.14em] text-ctl-alt-fg transition-colors duration-quick ease-out hover:border-verify hover:bg-ctl-alt-hover"
         >
           <BackArrow />
           Back

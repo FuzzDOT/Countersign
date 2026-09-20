@@ -134,7 +134,13 @@ export function InsightList({
                 key={insight.id}
                 data-index={item.index}
                 ref={virtualizer.measureElement}
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${item.start}px)` }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${item.start}px)`,
+                }}
               >
                 {renderRow(insight)}
               </div>

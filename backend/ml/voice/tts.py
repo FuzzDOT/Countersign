@@ -104,21 +104,19 @@ def synthesize(
     url = f"{BASE_URL}{_WITH_TIMESTAMPS.format(voice_id=resolved_voice)}"
 
     try:
-        with httpx.Client(transport=transport, timeout=settings.elevenlabs_timeout_seconds) as client:
+        with httpx.Client(
+            transport=transport, timeout=settings.elevenlabs_timeout_seconds
+        ) as client:
             response = client.post(url, json=payload, headers=headers)
     except httpx.TimeoutException as exc:
-        raise VoiceUnavailable(
-            f"timeout after {settings.elevenlabs_timeout_seconds}s"
-        ) from exc
+        raise VoiceUnavailable(f"timeout after {settings.elevenlabs_timeout_seconds}s") from exc
     except httpx.HTTPError as exc:
         raise VoiceUnavailable(f"transport error: {exc}") from exc
 
     if response.status_code == 429 or response.status_code >= 500:
         raise VoiceUnavailable(f"upstream returned {response.status_code}")
     if response.status_code >= 400:
-        raise VoiceUnavailable(
-            f"upstream rejected the request with {response.status_code}"
-        )
+        raise VoiceUnavailable(f"upstream rejected the request with {response.status_code}")
 
     try:
         body = response.json()
@@ -146,7 +144,9 @@ def synthesize(
     return Synthesis(audio_bytes=audio_bytes, alignment=alignment, full_text=text)
 
 
-def segment_timing_ms(alignment: Alignment, full_text: str, segment_text: str, start_from: int = 0) -> tuple[int, int]:
+def segment_timing_ms(
+    alignment: Alignment, full_text: str, segment_text: str, start_from: int = 0
+) -> tuple[int, int]:
     """Where one segment's words fall in the full synthesized audio.
 
     `full_text` is the exact string that was submitted for synthesis, so a

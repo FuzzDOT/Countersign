@@ -32,7 +32,13 @@ const sameRange = (a: [number, number], b: [number, number]) => a[0] === b[0] &&
  * Every control here writes to the URL (brief §7.4). Text and slider input are
  * debounced 300ms; checkboxes and segmented controls apply immediately.
  */
-export function FeedFiltersPanel({ filters, onChange, onClear, activeCount, stats }: FeedFiltersPanelProps) {
+export function FeedFiltersPanel({
+  filters,
+  onChange,
+  onClear,
+  activeCount,
+  stats,
+}: FeedFiltersPanelProps) {
   const [q, setQ] = useDebouncedField(filters.q, (value) => onChange({ ...filters, q: value }));
 
   const externalRange = useMemo<[number, number]>(
@@ -42,7 +48,11 @@ export function FeedFiltersPanel({ filters, onChange, onClear, activeCount, stat
   const [range, setRange] = useDebouncedField<[number, number]>(
     externalRange,
     ([lo, hi]) =>
-      onChange({ ...filters, minConfidence: lo <= 0 ? null : lo, maxConfidence: hi >= 1 ? null : hi }),
+      onChange({
+        ...filters,
+        minConfidence: lo <= 0 ? null : lo,
+        maxConfidence: hi >= 1 ? null : hi,
+      }),
     sameRange,
   );
 
@@ -59,7 +69,9 @@ export function FeedFiltersPanel({ filters, onChange, onClear, activeCount, stat
   const toggleRelation = (relation: string, on: boolean) =>
     onChange({
       ...filters,
-      relation: on ? [...filters.relation, relation] : filters.relation.filter((r) => r !== relation),
+      relation: on
+        ? [...filters.relation, relation]
+        : filters.relation.filter((r) => r !== relation),
     });
 
   return (

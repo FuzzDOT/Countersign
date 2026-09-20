@@ -50,7 +50,11 @@ export default function DocumentRoute() {
   }, [doc]);
 
   if (!can('insights:read')) {
-    return <EmptyState title="You do not have access to documents">Ask an owner to grant access.</EmptyState>;
+    return (
+      <EmptyState title="You do not have access to documents">
+        Ask an owner to grant access.
+      </EmptyState>
+    );
   }
 
   const showMentions = params.get('mentions') !== '0';
@@ -71,7 +75,13 @@ export default function DocumentRoute() {
   const from = (location.state as { from?: string } | null)?.from;
   const canGoBack = location.key !== 'default';
   const backLabel =
-    from === 'graph' ? 'Back to the graph' : from === 'feed' ? 'Back to the feed' : canGoBack ? 'Back' : 'Go to the feed';
+    from === 'graph'
+      ? 'Back to the graph'
+      : from === 'feed'
+        ? 'Back to the feed'
+        : canGoBack
+          ? 'Back'
+          : 'Go to the feed';
 
   return (
     <div
@@ -86,7 +96,11 @@ export default function DocumentRoute() {
         style={{ maxWidth: flipped ? '66ch' : '100ch' }}
       >
         {query.isError ? (
-          <ErrorState error={query.error} onRetry={() => void query.refetch()} title="The document did not load" />
+          <ErrorState
+            error={query.error}
+            onRetry={() => void query.refetch()}
+            title="The document did not load"
+          />
         ) : !doc ? (
           <div className="flex flex-col gap-4" aria-busy="true">
             <Skeleton className="h-8 w-2/3" />
@@ -94,7 +108,12 @@ export default function DocumentRoute() {
             <Skeleton className="h-64 w-full" />
           </div>
         ) : (
-          <div className={cn('transition-opacity duration-move ease-inout', flipped ? 'opacity-100' : 'opacity-0')}>
+          <div
+            className={cn(
+              'transition-opacity duration-move ease-inout',
+              flipped ? 'opacity-100' : 'opacity-0',
+            )}
+          >
             <header className="mb-8 border-b border-paper-rule pb-4 font-sans">
               <button
                 type="button"
@@ -105,11 +124,20 @@ export default function DocumentRoute() {
               </button>
               <h1 className="text-h2 text-paper-text">{doc.title}</h1>
               <p className="mt-1 text-body-sm text-paper-text/70">
-                {SOURCE_LABELS[doc.source] ?? doc.source}, received {formatDateLong(doc.received_at)}
+                {SOURCE_LABELS[doc.source] ?? doc.source}, received{' '}
+                {formatDateLong(doc.received_at)}
               </p>
               <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-body-sm">
-                <PaperToggle label="Show entity mentions" checked={showMentions} onChange={(on) => setFlag('mentions', on, true)} />
-                <PaperToggle label="Show only escalated spans" checked={onlyEscalated} onChange={(on) => setFlag('escalated', on, false)} />
+                <PaperToggle
+                  label="Show entity mentions"
+                  checked={showMentions}
+                  onChange={(on) => setFlag('mentions', on, true)}
+                />
+                <PaperToggle
+                  label="Show only escalated spans"
+                  checked={onlyEscalated}
+                  onChange={(on) => setFlag('escalated', on, false)}
+                />
               </div>
             </header>
 
@@ -131,7 +159,15 @@ export default function DocumentRoute() {
   );
 }
 
-function PaperToggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
+function PaperToggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (on: boolean) => void;
+}) {
   return (
     <label className="flex cursor-pointer items-center gap-2 text-paper-text">
       <input

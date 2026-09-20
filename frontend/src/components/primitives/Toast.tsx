@@ -33,7 +33,9 @@ export function ToastViewport() {
           className="pointer-events-auto rounded-panel border border-ink-500 bg-ink-700 p-3 shadow-overlay"
         >
           <p className="text-body font-semibold text-ink-50">{toast.title}</p>
-          {toast.description ? <p className="mt-1 text-body-sm text-ink-200">{toast.description}</p> : null}
+          {toast.description ? (
+            <p className="mt-1 text-body-sm text-ink-200">{toast.description}</p>
+          ) : null}
           {toast.requestId ? (
             <p className="mt-2 flex items-center gap-2 text-body-sm text-ink-200">
               <span>Request id</span>

@@ -22,7 +22,13 @@ interface GraphTableViewProps {
  * and edges as two sortable tables, with the same filters applied upstream and
  * rows that lead to the same details. Not a stub.
  */
-export function GraphTableView({ nodes, edges, cycles, nodeHref, onOpenInsight }: GraphTableViewProps) {
+export function GraphTableView({
+  nodes,
+  edges,
+  cycles,
+  nodeHref,
+  onOpenInsight,
+}: GraphTableViewProps) {
   const nameById = useMemo(() => new Map(nodes.map((n) => [n.id, n.canonical])), [nodes]);
   const cycleNodes = useMemo(() => new Set(cycles.flatMap((c) => c.node_ids)), [cycles]);
 
@@ -32,22 +38,53 @@ export function GraphTableView({ nodes, edges, cycles, nodeHref, onOpenInsight }
       header: 'Entity',
       sortValue: (n) => n.canonical.toLowerCase(),
       render: (n) => (
-        <Link to={nodeHref(n.id)} className="font-medium text-ink-50 underline-offset-4 hover:underline">
+        <Link
+          to={nodeHref(n.id)}
+          className="font-medium text-ink-50 underline-offset-4 hover:underline"
+        >
           {n.canonical}
         </Link>
       ),
     },
-    { key: 'type', header: 'Type', sortValue: (n) => n.entity_type, render: (n) => entityTypeLabel(n.entity_type) },
-    { key: 'risk', header: 'Risk', align: 'right', sortValue: (n) => n.risk, render: (n) => formatScore(n.risk) },
-    { key: 'degree', header: 'Connections', align: 'right', sortValue: (n) => n.degree, render: (n) => n.degree },
-    { key: 'mentions', header: 'Mentions', align: 'right', sortValue: (n) => n.mention_count, render: (n) => n.mention_count },
+    {
+      key: 'type',
+      header: 'Type',
+      sortValue: (n) => n.entity_type,
+      render: (n) => entityTypeLabel(n.entity_type),
+    },
+    {
+      key: 'risk',
+      header: 'Risk',
+      align: 'right',
+      sortValue: (n) => n.risk,
+      render: (n) => formatScore(n.risk),
+    },
+    {
+      key: 'degree',
+      header: 'Connections',
+      align: 'right',
+      sortValue: (n) => n.degree,
+      render: (n) => n.degree,
+    },
+    {
+      key: 'mentions',
+      header: 'Mentions',
+      align: 'right',
+      sortValue: (n) => n.mention_count,
+      render: (n) => n.mention_count,
+    },
     {
       key: 'flags',
       header: 'Flags',
       render: (n) => {
         const flags = [...n.flags];
-        if (cycleNodes.has(n.id) && !flags.includes('ownership_cycle')) flags.push('ownership_cycle');
-        return flags.length ? flags.map((f) => f.replace(/_/g, ' ')).join(', ') : <span className="text-ink-200">none</span>;
+        if (cycleNodes.has(n.id) && !flags.includes('ownership_cycle'))
+          flags.push('ownership_cycle');
+        return flags.length ? (
+          flags.map((f) => f.replace(/_/g, ' ')).join(', ')
+        ) : (
+          <span className="text-ink-200">none</span>
+        );
       },
     },
   ];
@@ -63,7 +100,12 @@ export function GraphTableView({ nodes, edges, cycles, nodeHref, onOpenInsight }
         </Link>
       ),
     },
-    { key: 'relation', header: 'Relation', sortValue: (e) => e.relation, render: (e) => relationLabel(e.relation) },
+    {
+      key: 'relation',
+      header: 'Relation',
+      sortValue: (e) => e.relation,
+      render: (e) => relationLabel(e.relation),
+    },
     {
       key: 'to',
       header: 'To',
@@ -74,15 +116,33 @@ export function GraphTableView({ nodes, edges, cycles, nodeHref, onOpenInsight }
         </Link>
       ),
     },
-    { key: 'conf', header: 'Confidence', align: 'right', sortValue: (e) => e.confidence, render: (e) => formatScore(e.confidence) },
-    { key: 'vac', header: 'Vacuity', align: 'right', sortValue: (e) => e.vacuity, render: (e) => formatScore(e.vacuity) },
+    {
+      key: 'conf',
+      header: 'Confidence',
+      align: 'right',
+      sortValue: (e) => e.confidence,
+      render: (e) => formatScore(e.confidence),
+    },
+    {
+      key: 'vac',
+      header: 'Vacuity',
+      align: 'right',
+      sortValue: (e) => e.vacuity,
+      render: (e) => formatScore(e.vacuity),
+    },
     {
       key: 'routing',
       header: 'Routing',
       sortValue: (e) => ROUTING_META[e.routing].rank,
       render: (e) => <RoutingBadge bucket={e.routing} />,
     },
-    { key: 'weight', header: 'Supporting insights', align: 'right', sortValue: (e) => e.weight, render: (e) => e.weight },
+    {
+      key: 'weight',
+      header: 'Supporting insights',
+      align: 'right',
+      sortValue: (e) => e.weight,
+      render: (e) => e.weight,
+    },
     {
       key: 'open',
       header: 'Detail',

@@ -91,9 +91,7 @@ def main() -> int:
         insights = [
             insight
             for insight in db.execute(
-                select(Insight)
-                .where(Insight.org_id == org_id)
-                .order_by(Insight.confidence.desc())
+                select(Insight).where(Insight.org_id == org_id).order_by(Insight.confidence.desc())
             ).scalars()
             if insight.attention
         ][: args.limit]

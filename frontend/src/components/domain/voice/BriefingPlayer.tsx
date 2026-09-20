@@ -161,15 +161,23 @@ export function BriefingPlayer({ briefing, onActiveInsight }: BriefingPlayerProp
           />
         </div>
         {!peaks && src ? (
-          <p className="text-body-sm text-ink-200">Waveform unavailable for this audio. The transport still works.</p>
+          <p className="text-body-sm text-ink-200">
+            Waveform unavailable for this audio. The transport still works.
+          </p>
         ) : null}
 
         <div className="flex flex-wrap items-center gap-3">
-          <IconButton label={playing ? 'Pause briefing' : 'Play briefing'} onClick={toggle} disabled={!src || audioFailed} className="bg-ink-500/40">
+          <IconButton
+            label={playing ? 'Pause briefing' : 'Play briefing'}
+            onClick={toggle}
+            disabled={!src || audioFailed}
+            className="bg-ink-500/40"
+          >
             {playing ? <PauseIcon /> : <PlayIcon />}
           </IconButton>
           <span className="nums text-body-sm text-ink-50">
-            {formatClock(currentMs)} <span className="text-ink-200">of {formatClock(durationMs)}</span>
+            {formatClock(currentMs)}{' '}
+            <span className="text-ink-200">of {formatClock(durationMs)}</span>
           </span>
           <div className="range min-w-32 flex-1">
             <div className="range__track" />
@@ -185,7 +193,13 @@ export function BriefingPlayer({ briefing, onActiveInsight }: BriefingPlayerProp
               onChange={(event) => seek(Number(event.target.value))}
             />
           </div>
-          <SegmentedControl ariaLabel="Playback speed" size="sm" options={RATES} value={rate} onChange={setRate} />
+          <SegmentedControl
+            ariaLabel="Playback speed"
+            size="sm"
+            options={RATES}
+            value={rate}
+            onChange={setRate}
+          />
         </div>
 
         {audioFailed ? (

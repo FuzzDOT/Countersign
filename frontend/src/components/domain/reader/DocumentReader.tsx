@@ -1,4 +1,14 @@
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from 'react';
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from 'react';
 import type { DocumentDetail, MentionOut, SpanOut } from '@/api/types';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { formatScore } from '@/lib/format';
@@ -22,7 +32,10 @@ type Popover =
   | { kind: 'mention'; index: number; x: number; y: number };
 
 /** The most severe span wins a segment's colour; ties go to the most specific (shortest). */
-function dominantSpan(ids: readonly string[], byId: ReadonlyMap<string, SpanOut>): SpanOut | undefined {
+function dominantSpan(
+  ids: readonly string[],
+  byId: ReadonlyMap<string, SpanOut>,
+): SpanOut | undefined {
   let best: SpanOut | undefined;
   for (const id of ids) {
     const span = byId.get(id);
@@ -47,7 +60,14 @@ function dominantSpan(ids: readonly string[], byId: ReadonlyMap<string, SpanOut>
  * (see lib/spans.ts), so overlapping citations split cleanly and a malformed
  * offset yields a missing highlight rather than a crash.
  */
-export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, scrollRef, onOpenInsight }: DocumentReaderProps) {
+export function DocumentReader({
+  doc,
+  showMentions,
+  onlyEscalated,
+  focusSpanId,
+  scrollRef,
+  onOpenInsight,
+}: DocumentReaderProps) {
   const reduced = usePrefersReducedMotion();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<number | undefined>(undefined);
@@ -59,8 +79,14 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
     () => (onlyEscalated ? doc.spans.filter((s) => s.routing === 'escalate_now') : doc.spans),
     [doc.spans, onlyEscalated],
   );
-  const mentions = useMemo<readonly MentionOut[]>(() => (showMentions ? doc.mentions : []), [doc.mentions, showMentions]);
-  const segments = useMemo(() => buildSegments(doc.raw_text, spans, mentions), [doc.raw_text, spans, mentions]);
+  const mentions = useMemo<readonly MentionOut[]>(
+    () => (showMentions ? doc.mentions : []),
+    [doc.mentions, showMentions],
+  );
+  const segments = useMemo(
+    () => buildSegments(doc.raw_text, spans, mentions),
+    [doc.raw_text, spans, mentions],
+  );
   const spanById = useMemo(() => new Map(spans.map((s) => [s.insight_id, s])), [spans]);
 
   // The first segment of each span is its scroll target, tick anchor and keyboard stop.
@@ -82,7 +108,8 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
     wrapper.querySelectorAll<HTMLElement>('[data-first-of]').forEach((el) => {
       const id = el.dataset['firstOf'];
       const span = id ? spanById.get(id) : undefined;
-      if (id && span) next.push({ id, top: el.offsetTop, routing: span.routing, relation: span.relation });
+      if (id && span)
+        next.push({ id, top: el.offsetTop, routing: span.routing, relation: span.relation });
     });
     setTicks(next);
   }, [spanById]);
@@ -101,7 +128,9 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
     (id: string, pulse: boolean) => {
       const container = scrollRef.current;
       const target = wrapperRef.current
-        ? Array.from(wrapperRef.current.querySelectorAll<HTMLElement>('[data-first-of]')).find((el) => el.dataset['firstOf'] === id)
+        ? Array.from(wrapperRef.current.querySelectorAll<HTMLElement>('[data-first-of]')).find(
+            (el) => el.dataset['firstOf'] === id,
+          )
         : undefined;
       if (!container || !target) return;
       const top =
@@ -166,7 +195,10 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
         <span
           key={index}
           className={className}
-          onPointerEnter={(e) => mentionIndex !== undefined && show({ kind: 'mention', index: mentionIndex, ...place(e.clientX, e.clientY) })}
+          onPointerEnter={(e) =>
+            mentionIndex !== undefined &&
+            show({ kind: 'mention', index: mentionIndex, ...place(e.clientX, e.clientY) })
+          }
           onPointerLeave={hideSoon}
         >
           {segment.text}
@@ -186,9 +218,13 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
         tabIndex={keyboardStop ? 0 : undefined}
         aria-label={keyboardStop ? label : undefined}
         onAnimationEnd={() => setPulseId(null)}
-        onPointerEnter={(e) => show({ kind: 'span', ids: segment.spanIds, ...place(e.clientX, e.clientY) })}
+        onPointerEnter={(e) =>
+          show({ kind: 'span', ids: segment.spanIds, ...place(e.clientX, e.clientY) })
+        }
         onPointerLeave={hideSoon}
-        onClick={(e) => show({ kind: 'span', ids: segment.spanIds, ...place(e.clientX, e.clientY) })}
+        onClick={(e) =>
+          show({ kind: 'span', ids: segment.spanIds, ...place(e.clientX, e.clientY) })
+        }
         onFocus={(e) => {
           const r = e.currentTarget.getBoundingClientRect();
           show({ kind: 'span', ids: segment.spanIds, ...place(r.left, r.bottom - 14) });
@@ -210,7 +246,10 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
       <SpanMinimap ticks={ticks} onSelect={(id) => scrollToSpan(id, true)} />
 
       {/* Text nodes only. Never innerHTML, never a markdown renderer. */}
-      <p className="whitespace-pre-wrap break-words font-reader text-reader-body text-paper-text" data-testid="reader-text">
+      <p
+        className="whitespace-pre-wrap break-words font-reader text-reader-body text-paper-text"
+        data-testid="reader-text"
+      >
         {segments.map(renderSegment)}
       </p>
 
@@ -245,7 +284,9 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
               );
             })}
           </ul>
-          {popover.ids.length > 3 ? <p className="mt-1 text-ink-200">and {popover.ids.length - 3} more overlapping</p> : null}
+          {popover.ids.length > 3 ? (
+            <p className="mt-1 text-ink-200">and {popover.ids.length - 3} more overlapping</p>
+          ) : null}
         </div>
       ) : null}
 

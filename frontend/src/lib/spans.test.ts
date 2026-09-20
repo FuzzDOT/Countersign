@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { buildSegments, createOffsetMapper, firstSegmentIndex, normalizeRange } from './spans';
 
-const TEXT = 'Invoice 4471: payment of $48,200 was routed through Advent Holdings on behalf of Meridian Supply LLC.';
+const TEXT =
+  'Invoice 4471: payment of $48,200 was routed through Advent Holdings on behalf of Meridian Supply LLC.';
 
 const at = (needle: string) => {
   const start = TEXT.indexOf(needle);

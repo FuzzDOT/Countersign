@@ -52,7 +52,10 @@ export function makeMentionOpacity(nodes: readonly GraphNode[]): (mentions: numb
 export function makeEdgeWidth(edges: readonly GraphEdge[]): (weight: number) => number {
   const weights = edges.map((e) => e.weight);
   const max = weights.length ? Math.max(...weights) : 1;
-  const scale = scaleLinear().domain([1, max <= 1 ? 2 : max]).range([1, 4]).clamp(true);
+  const scale = scaleLinear()
+    .domain([1, max <= 1 ? 2 : max])
+    .range([1, 4])
+    .clamp(true);
   return (weight) => scale(weight);
 }
 

@@ -109,7 +109,10 @@ export function DataTable<T>({
             </tr>
           ) : (
             sorted.map((row) => (
-              <tr key={rowKey(row)} className="border-b border-ink-500/20 last:border-0 hover:bg-ink-500/20">
+              <tr
+                key={rowKey(row)}
+                className="border-b border-ink-500/20 last:border-0 hover:bg-ink-500/20"
+              >
                 {columns.map((column) => (
                   <td
                     key={column.key}

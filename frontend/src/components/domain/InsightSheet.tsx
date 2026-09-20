@@ -74,7 +74,11 @@ function SheetContent({ id, onClose }: { id: string; onClose: () => void }) {
       </div>
 
       {query.isError ? (
-        <ErrorState error={query.error} onRetry={() => void query.refetch()} title="This insight did not load" />
+        <ErrorState
+          error={query.error}
+          onRetry={() => void query.refetch()}
+          title="This insight did not load"
+        />
       ) : !query.data ? (
         <SheetSkeleton />
       ) : (
@@ -97,7 +101,13 @@ function SheetSkeleton() {
   );
 }
 
-function SheetBody({ insight, ablationRef }: { insight: InsightDetail; ablationRef: RefObject<HTMLElement> }) {
+function SheetBody({
+  insight,
+  ablationRef,
+}: {
+  insight: InsightDetail;
+  ablationRef: RefObject<HTMLElement>;
+}) {
   const nemotron = insight.nemotron;
   // So the reader's back control returns to whichever screen opened this sheet.
   const { pathname } = useLocation();
@@ -112,10 +122,14 @@ function SheetBody({ insight, ablationRef }: { insight: InsightDetail; ablationR
       <section aria-label="Claim">
         <p className="text-h2 text-ink-50">
           <EntityLink id={insight.subject.id} name={insight.subject.canonical} />
-          <span className="mx-2 text-body font-normal text-ink-200">{relationVerb(insight.relation)}</span>
+          <span className="mx-2 text-body font-normal text-ink-200">
+            {relationVerb(insight.relation)}
+          </span>
           <EntityLink id={insight.object.id} name={insight.object.canonical} />
         </p>
-        <p className="mt-1 text-body-sm text-ink-200">Extracted {formatDateTime(insight.created_at)}</p>
+        <p className="mt-1 text-body-sm text-ink-200">
+          Extracted {formatDateTime(insight.created_at)}
+        </p>
       </section>
 
       {/* 2. Trust */}
@@ -147,20 +161,23 @@ function SheetBody({ insight, ablationRef }: { insight: InsightDetail; ablationR
         <div className="flex flex-wrap items-center gap-3">
           <RoutingBadge bucket={insight.routing} />
           <span className="text-body-sm text-ink-200">
-            {insight.resolved_by === 'nemotron' ? 'Decided by Nemotron' : 'Decided by the classical gate'}
+            {insight.resolved_by === 'nemotron'
+              ? 'Decided by Nemotron'
+              : 'Decided by the classical gate'}
           </span>
           <ResolverMarker insight={insight} />
         </div>
         {insight.degraded ? (
           <p className="mt-2 max-w-prose text-body-sm text-ink-200">
-            Nemotron was unavailable for this insight, so it was reviewed classically and the classical
-            decision stands.
+            Nemotron was unavailable for this insight, so it was reviewed classically and the
+            classical decision stands.
           </p>
         ) : null}
         {nemotron ? (
           <figure className="mt-3">
             <figcaption className="mb-1 text-body-sm text-ink-200">
-              Nemotron&rsquo;s stated reasoning. This is the model&rsquo;s explanation, not a verified fact.
+              Nemotron&rsquo;s stated reasoning. This is the model&rsquo;s explanation, not a
+              verified fact.
             </figcaption>
             <blockquote className="max-w-prose border-l-2 border-ink-500 pl-4 text-body text-ink-50">
               {nemotron.rationale}
@@ -174,7 +191,12 @@ function SheetBody({ insight, ablationRef }: { insight: InsightDetail; ablationR
 
       {/* 5. Attention and ablation */}
       {insight.attention_available ? (
-        <section id="ablation" ref={ablationRef} aria-labelledby="sheet-ablation" className="scroll-mt-16">
+        <section
+          id="ablation"
+          ref={ablationRef}
+          aria-labelledby="sheet-ablation"
+          className="scroll-mt-16"
+        >
           <SectionHeading id="sheet-ablation">Attention and ablation</SectionHeading>
           <AblationPanel insight={insight} />
         </section>
@@ -208,7 +230,9 @@ function SheetBody({ insight, ablationRef }: { insight: InsightDetail; ablationR
                 <tr key={trial.perturbation} className="border-b border-ink-500/20 last:border-0">
                   <td className="py-1.5 pr-3 text-ink-50">{trial.perturbation}</td>
                   <td className="py-1.5 pr-3 text-ink-50">{trial.label_flipped ? 'Yes' : 'No'}</td>
-                  <td className="nums py-1.5 text-right text-ink-50">{formatSigned(trial.conf_delta)}</td>
+                  <td className="nums py-1.5 text-right text-ink-50">
+                    {formatSigned(trial.conf_delta)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -231,7 +255,10 @@ function SheetBody({ insight, ablationRef }: { insight: InsightDetail; ablationR
 
 function EntityLink({ id, name }: { id: string; name: string }) {
   return (
-    <Link to={`/app/graph/${id}`} className="underline decoration-ink-500 underline-offset-4 hover:decoration-ink-50">
+    <Link
+      to={`/app/graph/${id}`}
+      className="underline decoration-ink-500 underline-offset-4 hover:decoration-ink-50"
+    >
       {name}
     </Link>
   );

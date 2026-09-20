@@ -32,7 +32,11 @@ export default function EvidenceRoute() {
   const tab = parseTab(params.get('tab'));
 
   if (!can('evals:read')) {
-    return <EmptyState title="You do not have access to the evidence dashboards">Ask an owner to grant access.</EmptyState>;
+    return (
+      <EmptyState title="You do not have access to the evidence dashboards">
+        Ask an owner to grant access.
+      </EmptyState>
+    );
   }
 
   const setTab = (next: TabId) =>

@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+  type Ref,
+} from 'react';
 import { MicIcon } from '@/components/primitives/icons';
 import { Button } from '@/components/primitives/Button';
 import { buttonClasses } from '@/lib/buttonStyles';
@@ -20,12 +28,15 @@ interface PushToTalkProps {
 
 function pickMimeType(): string | undefined {
   if (typeof MediaRecorder === 'undefined') return undefined;
-  return MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : undefined;
+  return MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+    ? 'audio/webm;codecs=opus'
+    : undefined;
 }
 
 function classify(error: unknown): Phase {
   const name = error instanceof DOMException ? error.name : '';
-  if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') return 'denied';
+  if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError')
+    return 'denied';
   if (name === 'NotFoundError' || name === 'OverconstrainedError') return 'no-mic';
   return 'denied';
 }
@@ -48,7 +59,8 @@ const clock = (ms: number) => {
 export function PushToTalk({ busy, onRecorded, buttonRef }: PushToTalkProps) {
   const [phase, setPhase] = useState<Phase>(() => {
     if (typeof window !== 'undefined' && !window.isSecureContext) return 'insecure';
-    if (typeof MediaRecorder === 'undefined' || !navigator.mediaDevices?.getUserMedia) return 'unsupported';
+    if (typeof MediaRecorder === 'undefined' || !navigator.mediaDevices?.getUserMedia)
+      return 'unsupported';
     return 'idle';
   });
   const [elapsed, setElapsed] = useState(0);
@@ -195,21 +207,37 @@ export function PushToTalk({ busy, onRecorded, buttonRef }: PushToTalkProps) {
         onKeyUp={onKeyUp}
         onBlur={stop}
         onContextMenu={(event) => event.preventDefault()}
-        className={buttonClasses(recording ? 'secondary' : 'primary', 'lg', cn('touch-none', recording && 'border-verify'))}
+        className={buttonClasses(
+          recording ? 'secondary' : 'primary',
+          'lg',
+          cn('touch-none', recording && 'border-verify'),
+        )}
       >
         <MicIcon />
-        {busy ? 'Working on your answer…' : recording ? 'Recording. Release to send' : phase === 'starting' ? 'Getting the microphone…' : 'Hold to ask a question'}
+        {busy
+          ? 'Working on your answer…'
+          : recording
+            ? 'Recording. Release to send'
+            : phase === 'starting'
+              ? 'Getting the microphone…'
+              : 'Hold to ask a question'}
       </button>
 
       {recording ? (
         <p className="nums text-body-sm text-ink-50">
           {clock(elapsed)}
-          {elapsed >= WARN_MS ? <span className="ml-3 font-semibold">{remaining}s left, then it sends</span> : <span className="ml-3 text-ink-200">30s maximum</span>}
+          {elapsed >= WARN_MS ? (
+            <span className="ml-3 font-semibold">{remaining}s left, then it sends</span>
+          ) : (
+            <span className="ml-3 text-ink-200">30s maximum</span>
+          )}
         </p>
       ) : hint ? (
         <p className="text-body-sm text-ink-200">{hint}</p>
       ) : (
-        <p className="text-body-sm text-ink-200">Hold the button, ask, and let go. Space or Enter also works.</p>
+        <p className="text-body-sm text-ink-200">
+          Hold the button, ask, and let go. Space or Enter also works.
+        </p>
       )}
       <p className="sr-only" role="status" aria-live="polite">
         {announcement}
@@ -231,7 +259,10 @@ function MicProblem({ phase, onRetry }: { phase: Phase; onRetry: () => void }) {
     },
     'no-mic': {
       title: 'No microphone was found',
-      steps: ['Plug in or enable a microphone, then try again.', 'Check that another app is not holding it exclusively.'],
+      steps: [
+        'Plug in or enable a microphone, then try again.',
+        'Check that another app is not holding it exclusively.',
+      ],
     },
     unsupported: {
       title: 'This browser cannot record audio',

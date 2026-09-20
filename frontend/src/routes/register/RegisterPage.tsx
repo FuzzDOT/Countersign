@@ -1,17 +1,17 @@
-import { useState, useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../auth/useAuth";
-import { request } from "../../api/client";
-import { isApiError, fieldErrors } from "../../api/errors";
-import type { AuthResponse } from "../../api/types";
-import { Input } from "../../components/primitives/Input";
-import { Button } from "../../components/primitives/Button";
+import { useState, useMemo } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../auth/useAuth';
+import { request } from '../../api/client';
+import { isApiError, fieldErrors } from '../../api/errors';
+import type { AuthResponse } from '../../api/types';
+import { Input } from '../../components/primitives/Input';
+import { Button } from '../../components/primitives/Button';
 
 // GAP: no api.auth.register wrapper exists yet in endpoints.ts — confirm
 // this exact path/shape with Faaz before relying on it further.
 function registerAccount(email: string, password: string, orgName: string) {
-  return request<AuthResponse>("/auth/register", {
-    method: "POST",
+  return request<AuthResponse>('/auth/register', {
+    method: 'POST',
     json: { email, password, org_name: orgName },
     auth: false,
   });
@@ -27,10 +27,10 @@ export default function RegisterPage() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [orgName, setOrgName] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [orgName, setOrgName] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -52,14 +52,14 @@ export default function RegisterPage() {
     try {
       const response = await registerAccount(email, password, orgName);
       await signIn(response);
-      navigate("/app/feed", { replace: true });
+      navigate('/app/feed', { replace: true });
     } catch (err) {
-      if (isApiError(err) && err.code === "VALIDATION_FAILED") {
+      if (isApiError(err) && err.code === 'VALIDATION_FAILED') {
         setErrors(fieldErrors(err));
       } else if (isApiError(err)) {
         setFormError(err.message);
       } else {
-        setFormError("Something went wrong. Try again.");
+        setFormError('Something went wrong. Try again.');
       }
     } finally {
       setPending(false);
@@ -67,22 +67,27 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-ink-900 px-6">
+    <div className="relative flex min-h-screen items-center justify-center bg-ink-900 px-6">
       {/* Decoration only. Kept in its own layer because .grid-floor applies a
           mask-image that would otherwise fade the card itself. */}
-      <div className="hero-glow grid-floor pointer-events-none absolute inset-0" aria-hidden="true" />
-      <div className="relative z-10 w-full max-w-[420px] rounded-panel border border-card-border
-                      bg-card p-8 flex flex-col gap-5
-                      shadow-[0_28px_70px_-20px_rgba(0,0,0,0.75)]">
-                <Link
+      <div
+        className="hero-glow grid-floor pointer-events-none absolute inset-0"
+        aria-hidden="true"
+      />
+      <div className="relative z-10 flex w-full max-w-[420px] flex-col gap-5 rounded-panel border border-card-border bg-card p-8 shadow-[0_28px_70px_-20px_rgba(0,0,0,0.75)]">
+        <Link
           to="/"
-          className="mb-2 inline-flex items-center gap-2 self-start rounded-input
-                     border border-ctl-border bg-ctl-alt px-3.5 py-2
-                     font-mono text-micro uppercase tracking-[0.14em] text-ctl-alt-fg
-                     transition-colors duration-quick ease-out
-                     hover:border-verify hover:bg-ctl-alt-hover"
+          className="mb-2 inline-flex items-center gap-2 self-start rounded-input border border-ctl-border bg-ctl-alt px-3.5 py-2 font-mono text-micro uppercase tracking-[0.14em] text-ctl-alt-fg transition-colors duration-quick ease-out hover:border-verify hover:bg-ctl-alt-hover"
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            aria-hidden="true"
+          >
             <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           Back to home
@@ -123,9 +128,9 @@ export default function RegisterPage() {
             required
           />
 
-          <ul className="text-body-sm flex flex-col gap-1">
-            <li className={requirements.length ? "text-verify" : "text-ink-200"}>
-              {requirements.length ? "✓" : "○"} At least 12 characters
+          <ul className="flex flex-col gap-1 text-body-sm">
+            <li className={requirements.length ? 'text-verify' : 'text-ink-200'}>
+              {requirements.length ? '✓' : '○'} At least 12 characters
             </li>
           </ul>
 
@@ -145,7 +150,7 @@ export default function RegisterPage() {
         </form>
 
         <p className="text-body-sm text-ink-200">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <Link to="/login" className="text-verify hover:underline">
             Sign in
           </Link>

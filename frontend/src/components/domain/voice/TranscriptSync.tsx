@@ -54,7 +54,9 @@ export function TranscriptSync({ segments, activeId, playing, onSeek }: Transcri
                 !active && 'hover:bg-ink-700/40',
               )}
             >
-              <span className="nums w-10 shrink-0 pt-0.5 text-body-sm text-ink-200">{formatClock(segment.start_ms)}</span>
+              <span className="nums w-10 shrink-0 pt-0.5 text-body-sm text-ink-200">
+                {formatClock(segment.start_ms)}
+              </span>
               <span className={cn('text-body', active ? 'text-ink-50' : 'text-ink-200')}>
                 {segment.text}
                 {cites ? <span className="sr-only"> (cites an insight)</span> : null}

@@ -2,7 +2,11 @@ import type { TrustScores } from '@/api/types';
 import { Meter } from '@/components/primitives/Meter';
 import { formatScore } from '@/lib/format';
 
-const ROWS: { key: 'confidence' | 'vacuity' | 'dissonance' | 'fragility'; label: string; hint: string }[] = [
+const ROWS: {
+  key: 'confidence' | 'vacuity' | 'dissonance' | 'fragility';
+  label: string;
+  hint: string;
+}[] = [
   { key: 'confidence', label: 'Confidence', hint: 'How strongly the model backs this relation' },
   { key: 'vacuity', label: 'Vacuity', hint: 'How much the model does not know' },
   { key: 'dissonance', label: 'Dissonance', hint: 'How much the evidence conflicts' },
@@ -35,7 +39,10 @@ export function TrustPanel({ trust }: { trust: TrustScores }) {
               </td>
               <td className="py-2 text-right">
                 {value === null ? (
-                  <div aria-hidden="true" className="ml-auto h-1 w-[120px] rounded-input bg-ink-500/40" />
+                  <div
+                    aria-hidden="true"
+                    className="ml-auto h-1 w-[120px] rounded-input bg-ink-500/40"
+                  />
                 ) : (
                   <Meter value={value} label={row.label} className="inline-block" />
                 )}

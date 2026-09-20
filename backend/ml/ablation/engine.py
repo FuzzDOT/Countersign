@@ -218,8 +218,7 @@ def ablate(
 
     delta = after.confidence - before.confidence
     load_bearing = (
-        abs(delta) > settings.ablation_load_bearing_delta
-        or routing_before != routing_after
+        abs(delta) > settings.ablation_load_bearing_delta or routing_before != routing_after
     )
     interpretation = templates.render(
         templates.Verdict(
@@ -294,7 +293,10 @@ def _graph_context(db: Session, org_id: uuid.UUID) -> GraphContext:
         .all()
     )
     return GraphContext.build(
-        [ClaimContext(subject, obj, relation, confidence) for subject, obj, relation, confidence in rows]
+        [
+            ClaimContext(subject, obj, relation, confidence)
+            for subject, obj, relation, confidence in rows
+        ]
     )
 
 
