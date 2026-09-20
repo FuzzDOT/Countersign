@@ -118,8 +118,7 @@ export function HeroSection() {
           <div className="mt-3 flex flex-col gap-1">
             <div className="flex items-baseline gap-2">
               <span className="text-h1 text-verify font-mono">
-                <CountUp from={0} to={81} durationMs={500} decimals={0} suffix="%" />
-              </span>
+<CountUp value={81} from={0} duration={500} format={(n) => `${Math.round(n)}%`} />              </span>
               <span className="text-body-sm text-ink-200">confidence</span>
             </div>
             {stage >= 6 && (

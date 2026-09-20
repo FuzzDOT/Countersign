@@ -9,7 +9,9 @@ import SettingsPage from "./routes/settings/SettingsPage";
 import LandingPage from "./routes/Landing/LandingPage";
 import LoginPage from "./routes/login/LoginPage";
 import RegisterPage from "./routes/register/RegisterPage"; 
-import SecurityPage from "./routes/security/SecurityPage";
+import SecurityPage from "./routes/Security/SecurityPage"; 
+import ProductPage from "./routes/product/ProductPage";
+
 
 
 // Frontend dev 2 screens are code-split so d3 (graph chunk) and Recharts
@@ -37,7 +39,8 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} /> 
-        <Route path="/security" element={<SecurityPage />} />
+        <Route path="/security" element={<SecurityPage />} /> 
+        <Route path="/product" element={<ProductPage />} />
 
         <Route path="/app" element={<RequireAuth />}>
           <Route element={<AppShell />}>
