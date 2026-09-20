@@ -1,9 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/endpoints';
 import { isApiError, retryAfterSeconds } from '@/api/errors';
 import { queryKeys } from '@/api/queries';
-import type { AblationHistoryItem, AblationMode, AblationResponse, InsightDetail } from '@/api/types';
+import type {
+  AblationHistoryItem,
+  AblationMode,
+  AblationResponse,
+  InsightDetail,
+} from '@/api/types';
 import { useAuth } from '@/auth/useAuth';
 import { Button } from '@/components/primitives/Button';
 import { Meter } from '@/components/primitives/Meter';
@@ -24,7 +29,10 @@ const VERDICT_FALSE =
   'Removing this connection barely changed the result \u2014 the flag does not depend on it.';
 
 /** Server history plus runs made in this session, deduplicated, newest first. */
-function mergeHistory(server: readonly AblationHistoryItem[], local: readonly AblationHistoryItem[]) {
+function mergeHistory(
+  server: readonly AblationHistoryItem[],
+  local: readonly AblationHistoryItem[],
+) {
   const seen = new Set<string>();
   const merged: AblationHistoryItem[] = [];
   for (const item of [...local, ...server]) {
@@ -44,12 +52,34 @@ function mergeHistory(server: readonly AblationHistoryItem[], local: readonly Ab
  * Failure handling: nothing changes on screen until a response arrives, so an
  * error leaves the before-state intact. There is no half-ablated visual state.
  */
+/**
+ * The two heaviest attention edges, as the panel's opening selection.
+ *
+ * `scripts/ablation_report.py --demo` reports the minimum edge count at which
+ * the pinned demo insight becomes load-bearing, and for the seeded corpus that
+ * is two: one edge moves confidence 0.03 and changes nothing, two moves it
+ * 0.10 and flips the routing bucket. Opening on an empty selection meant the
+ * first thing anyone tried was a single edge, i.e. the one result that makes
+ * the causal claim look weak. This is a starting point, not a lock — clearing
+ * or changing the selection works exactly as before.
+ */
+const DEFAULT_MASK_SIZE = 2;
+
+function defaultMask(insight: InsightDetail): ReadonlySet<string> {
+  return new Set(
+    [...insight.attention]
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, DEFAULT_MASK_SIZE)
+      .map((edge) => edge.edge_id),
+  );
+}
+
 export function AblationPanel({ insight }: { insight: InsightDetail }) {
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const cooldown = useCooldown();
 
-  const [masked, setMasked] = useState<ReadonlySet<string>>(new Set());
+  const [masked, setMasked] = useState<ReadonlySet<string>>(() => defaultMask(insight));
   const [mode, setMode] = useState<AblationMode>('zero');
   const [result, setResult] = useState<AblationResponse | null>(null);
   const [localRuns, setLocalRuns] = useState<AblationHistoryItem[]>([]);
@@ -57,7 +87,8 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
   const canRun = can('ablation:run');
 
   const mutation = useMutation({
-    mutationFn: (body: { masked_edges: string[]; mode: AblationMode }) => api.ablation.run(insight.id, body),
+    mutationFn: (body: { masked_edges: string[]; mode: AblationMode }) =>
+      api.ablation.run(insight.id, body),
     onSuccess: (response) => {
       setResult(response);
       setLocalRuns((runs) => [
@@ -108,6 +139,22 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
     mutation.reset();
   };
 
+  // The sheet keeps this component mounted when the selected insight changes,
+  // so the mask has to follow the insight rather than only the first one.
+  //
+  // Keyed on the id, never on the object: a successful run invalidates
+  // `queryKeys.insight(id)`, the refetch hands down a new `insight` reference
+  // for the same insight, and depending on the object would reset the result
+  // that run had just produced — the numbers would snap back to the baseline
+  // a beat after landing on the ablated values.
+  const insightId = insight.id;
+  useEffect(() => {
+    setMasked(defaultMask(insight));
+    setResult(null);
+    // `insight` is deliberately excluded; see above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [insightId]);
+
   const run = () => {
     if (masked.size === 0) return;
     mutation.mutate({ masked_edges: Array.from(masked), mode });
@@ -123,7 +170,8 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
     if (!error) return null;
     if (isApiError(error)) {
       if (error.code === 'FORBIDDEN') return null; // gating bug on our side; logged by the client
-      if (error.code === 'RATE_LIMITED') return 'Ablation is rate limited. It will be available again shortly.';
+      if (error.code === 'RATE_LIMITED')
+        return 'Ablation is rate limited. It will be available again shortly.';
       return error.message;
     }
     return 'The ablation did not run.';
@@ -133,14 +181,18 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
   const buttonLabel = cooldown.active ? `Try again in ${cooldown.remaining}s` : 'Run ablation';
 
   if (insight.attention.length === 0) {
-    return <p className="text-body-sm text-ink-200">No attention links were recorded for this insight.</p>;
+    return (
+      <p className="text-body-sm text-ink-200">
+        No attention links were recorded for this insight.
+      </p>
+    );
   }
 
   return (
     <div className="flex flex-col gap-4">
       <p className="max-w-prose text-body-sm text-ink-200">
-        Mark the links you think drive this result, then run the ablation to see whether the flag really
-        depends on them.
+        Mark the links you think drive this result, then run the ablation to see whether the flag
+        really depends on them.
       </p>
 
       <AttentionArcs
@@ -206,9 +258,16 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
         <div>
           <p className="text-body-sm text-ink-200">Confidence</p>
           <p className="nums text-h1 text-ink-50">{formatScore(confidence)}</p>
-          <Meter value={confidence} label="Confidence after ablation" width={140} className="mt-1" />
+          <Meter
+            value={confidence}
+            label="Confidence after ablation"
+            width={140}
+            className="mt-1"
+          />
           {result ? (
-            <p className="mt-1 text-body-sm text-ink-200">was {formatScore(result.before.confidence)}</p>
+            <p className="mt-1 text-body-sm text-ink-200">
+              was {formatScore(result.before.confidence)}
+            </p>
           ) : null}
         </div>
         <div>
@@ -216,7 +275,9 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
           <p className="nums text-h1 text-ink-50">{formatScore(vacuity)}</p>
           <Meter value={vacuity} label="Vacuity after ablation" width={140} className="mt-1" />
           {result ? (
-            <p className="mt-1 text-body-sm text-ink-200">was {formatScore(result.before.vacuity)}</p>
+            <p className="mt-1 text-body-sm text-ink-200">
+              was {formatScore(result.before.vacuity)}
+            </p>
           ) : null}
         </div>
       </div>
@@ -233,7 +294,8 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
         {result ? (
           <>
             <p className="text-body-sm text-ink-200">
-              Confidence {formatSigned(result.delta.confidence)}, vacuity {formatSigned(result.delta.vacuity)}
+              Confidence {formatSigned(result.delta.confidence)}, vacuity{' '}
+              {formatSigned(result.delta.vacuity)}
               {result.delta.routing_changed ? ', routing changed' : ', routing unchanged'}.
             </p>
             <p className="max-w-prose text-body text-ink-50">{result.interpretation}</p>
@@ -249,9 +311,14 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
           <h4 className="mb-2 text-body-sm font-semibold text-card-fg">Ablation history</h4>
           <ol className="flex flex-col divide-y divide-ink-500/30 rounded-panel border border-ink-500/40">
             {history.map((run) => (
-              <li key={run.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-3 py-2 text-body-sm">
+              <li
+                key={run.id}
+                className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-3 py-2 text-body-sm"
+              >
                 <span className="text-ink-200">{formatDateTime(run.created_at)}</span>
-                <span className="font-mono text-micro text-ink-200">{run.masked_edges.join(', ')}</span>
+                <span className="font-mono text-micro text-ink-200">
+                  {run.masked_edges.join(', ')}
+                </span>
                 <span className="nums text-ink-50">
                   {formatScore(run.confidence_before)} to {formatScore(run.confidence_after)} (
                   {formatSigned(run.confidence_after - run.confidence_before)})

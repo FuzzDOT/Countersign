@@ -7,6 +7,14 @@ import { buttonClasses } from '@/lib/buttonStyles';
  *  document and proves where it came from. Runs once, then offers replay. */
 const STAGE_TIMES = [0, 350, 800, 1200, 1550, 1800, 2500];
 
+/**
+ * The numbers in this hero are the seeded demo insight's real ones, not
+ * decoration: confidence 0.59, routing flag_for_review, citation chars
+ * 411–498 of INV-4471. Re-check them against
+ * `GET /insights?q=Advent Holdings on behalf` after any retrain or re-seed —
+ * a landing page quoting a score the app does not show is the one
+ * inconsistency a judge can spot from the back of the room.
+ */
 function InsightChipCard() {
   return (
     <div
@@ -16,17 +24,19 @@ function InsightChipCard() {
     >
       <div className="panel p-4">
         <div className="mb-3 flex items-center justify-between">
-          <span className="font-mono text-micro uppercase tracking-widest text-ink-200">INV-4471</span>
-          <span className="h-1.5 w-1.5 rounded-full bg-stamp-red" />
+          <span className="font-mono text-micro uppercase tracking-widest text-ink-200">
+            INV-4471
+          </span>
+          <span className="h-1.5 w-1.5 rounded-full bg-stamp-amber" />
         </div>
         <div className="flex flex-col gap-1.5">
-          <div className="h-1.5 w-full rounded-full bg-ink-50/12" />
-          <div className="h-1.5 w-4/5 rounded-full bg-ink-50/12" />
-          <div className="h-1.5 w-2/3 rounded-full bg-stamp-red/35" />
+          <div className="bg-ink-50/12 h-1.5 w-full rounded-full" />
+          <div className="bg-ink-50/12 h-1.5 w-4/5 rounded-full" />
+          <div className="h-1.5 w-2/3 rounded-full bg-stamp-amber/35" />
         </div>
         <div className="mt-4 flex items-baseline justify-between">
-          <span className="font-mono text-micro text-ink-200">escalate</span>
-          <span className="font-mono text-body-sm text-verify">0.81</span>
+          <span className="font-mono text-micro text-ink-200">flagged</span>
+          <span className="font-mono text-body-sm text-verify">0.59</span>
         </div>
       </div>
     </div>
@@ -65,12 +75,60 @@ function CycleCard() {
     >
       <div className="panel p-4">
         <svg viewBox="0 0 100 80" className="w-full" aria-hidden="true">
-          <line x1="50" y1="16" x2="22" y2="60" stroke="var(--stamp-red)" strokeWidth="1.5" opacity="0.6" />
-          <line x1="50" y1="16" x2="78" y2="60" stroke="var(--stamp-red)" strokeWidth="1.5" opacity="0.6" />
-          <line x1="22" y1="60" x2="78" y2="60" stroke="var(--stamp-red)" strokeWidth="1.5" opacity="0.6" strokeDasharray="3 3" />
-          <circle cx="50" cy="16" r="7" fill="var(--ink-500)" stroke="var(--ink-200)" strokeWidth="1" />
-          <circle cx="22" cy="60" r="7" fill="var(--ink-500)" stroke="var(--ink-200)" strokeWidth="1" />
-          <rect x="71" y="53" width="14" height="14" rx="2" fill="var(--ink-500)" stroke="var(--ink-200)" strokeWidth="1" />
+          <line
+            x1="50"
+            y1="16"
+            x2="22"
+            y2="60"
+            stroke="var(--stamp-red)"
+            strokeWidth="1.5"
+            opacity="0.6"
+          />
+          <line
+            x1="50"
+            y1="16"
+            x2="78"
+            y2="60"
+            stroke="var(--stamp-red)"
+            strokeWidth="1.5"
+            opacity="0.6"
+          />
+          <line
+            x1="22"
+            y1="60"
+            x2="78"
+            y2="60"
+            stroke="var(--stamp-red)"
+            strokeWidth="1.5"
+            opacity="0.6"
+            strokeDasharray="3 3"
+          />
+          <circle
+            cx="50"
+            cy="16"
+            r="7"
+            fill="var(--ink-500)"
+            stroke="var(--ink-200)"
+            strokeWidth="1"
+          />
+          <circle
+            cx="22"
+            cy="60"
+            r="7"
+            fill="var(--ink-500)"
+            stroke="var(--ink-200)"
+            strokeWidth="1"
+          />
+          <rect
+            x="71"
+            y="53"
+            width="14"
+            height="14"
+            rx="2"
+            fill="var(--ink-500)"
+            stroke="var(--ink-200)"
+            strokeWidth="1"
+          />
         </svg>
         <p className="mt-2 font-mono text-micro text-ink-200">ownership cycle</p>
       </div>
@@ -160,7 +218,9 @@ export function HeroSection() {
                   backgroundRepeat: 'no-repeat',
                   backgroundSize: stage >= 2 ? '100% 100%' : '0% 100%',
                   borderBottom:
-                    stage >= 2 ? '2px solid color-mix(in srgb, var(--stamp-amber) 65%, transparent)' : 'none',
+                    stage >= 2
+                      ? '2px solid color-mix(in srgb, var(--stamp-amber) 65%, transparent)'
+                      : 'none',
                   transition: 'background-size var(--dur-move) var(--ease-out)',
                 }}
               >
@@ -189,7 +249,7 @@ export function HeroSection() {
             >
               <div className="flex items-baseline gap-2">
                 <span className="font-mono text-[2.5rem] font-semibold leading-none text-verify">
-                  <CountUp value={81} from={0} duration={600} format={(n) => `${Math.round(n)}`} />
+                  <CountUp value={59} from={0} duration={600} format={(n) => `${Math.round(n)}`} />
                   <span className="text-h3">%</span>
                 </span>
                 <span className="text-body-sm text-ink-200">confidence</span>
@@ -199,7 +259,7 @@ export function HeroSection() {
                 className="font-mono text-micro text-ink-200 transition-opacity duration-move ease-out"
                 style={{ opacity: stage >= 6 ? 1 : 0 }}
               >
-                line 14 · chars 412–501
+                chars 411–498
               </span>
             </div>
           </div>
