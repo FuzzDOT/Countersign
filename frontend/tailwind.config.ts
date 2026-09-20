@@ -25,10 +25,18 @@ import type { Config } from 'tailwindcss';
  * expects. One documented cast beats a dozen suppressions.
  */
 function token(name: string): string {
-  const fn = ({ opacityValue }: { opacityValue?: string | undefined }): string =>
-    opacityValue === undefined
-      ? `var(--${name})`
-      : `color-mix(in srgb, var(--${name}) ${Number(opacityValue) * 100}%, transparent)`;
+  const fn = ({ opacityValue }: { opacityValue?: string | undefined }): string => {
+    // Tailwind calls this twice per colour. For `bg-ink-700/40` it passes the
+    // literal `0.4`. For the bare `bg-ink-700` it passes the *string*
+    // `var(--tw-bg-opacity)`, not undefined — and `Number()` of that is NaN,
+    // which produced `color-mix(in srgb, var(--ink-700) NaN%, transparent)`:
+    // an invalid declaration, so every bare ink utility in the app rendered
+    // transparent. The bare utility always sets `--tw-bg-opacity: 1`, so the
+    // fully opaque token is the correct answer for it.
+    const ratio = Number(opacityValue);
+    if (opacityValue === undefined || !Number.isFinite(ratio)) return `var(--${name})`;
+    return `color-mix(in srgb, var(--${name}) ${ratio * 100}%, transparent)`;
+  };
   return fn as unknown as string;
 }
 
