@@ -21,7 +21,7 @@ export function Select({ label, options, value, onChange, className, ...rest }: 
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className={cn(
-          'h-9 rounded-input border border-ink-500 bg-ink-900 px-2 text-body-sm text-ink-50 focus-visible:border-verify',
+          'h-9 rounded-input border border-ink-200/40 bg-ink-700 px-3 text-body-sm text-ink-50 focus-visible:border-verify',
           className,
         )}
         {...rest}

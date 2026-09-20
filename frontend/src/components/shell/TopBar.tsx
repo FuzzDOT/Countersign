@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState } from 'react';
+import { ThemeToggle } from '@/components/primitives/ThemeToggle';
 
 export function TopBar({
   orgName,
@@ -11,15 +12,15 @@ export function TopBar({
   jobProgress: number | null;
   onSearch: (q: string) => void;
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
 
   return (
     <div className="relative w-full">
-      <div className="flex items-center justify-between px-6 py-3 bg-ink-700 text-ink-50">
-        <div className="flex items-center gap-3">
-          <span className="font-semibold">{orgName}</span>
-          <span className="text-ink-200">/</span>
-          <span className="text-ink-200">{scenarioName}</span>
+      <div className="flex items-center justify-between gap-6 border-b border-ink-500/40 bg-ink-700/70 px-6 py-3 text-ink-50 backdrop-blur-xl">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="truncate font-semibold tracking-tight">{orgName}</span>
+          <span className="text-ink-200/60">/</span>
+          <span className="truncate font-mono text-body-sm text-ink-200">{scenarioName}</span>
         </div>
 
         <input
@@ -27,17 +28,25 @@ export function TopBar({
           placeholder="Search insights…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onSearch(query)}
-          className="rounded-input px-3 py-1 bg-ink-900 text-ink-50 w-64"
+          onKeyDown={(e) => e.key === 'Enter' && onSearch(query)}
+          className="h-9 w-64 rounded-input border border-ink-200/35 bg-ink-900 px-4 text-body-sm text-ink-50
+                     placeholder:text-ink-200 focus-visible:border-verify"
         />
 
-        <button aria-label="Account menu" className="text-ink-200 hover:text-verify">
-          Account
-        </button>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <button
+            aria-label="Account menu"
+            className="rounded-input border border-ink-200/40 bg-ink-700 px-3 py-1.5 text-body-sm text-ink-50
+                       transition-colors duration-quick ease-out hover:border-verify hover:bg-ink-500/70"
+          >
+            Account
+          </button>
+        </div>
       </div>
 
       {jobProgress != null && (
-        <div className="absolute left-0 bottom-0 w-full h-[2px] bg-ink-900">
+        <div className="absolute bottom-0 left-0 h-[2px] w-full bg-ink-900">
           <div
             className="h-full bg-verify transition-[width] duration-quick ease-out"
             style={{ width: `${jobProgress}%` }}

@@ -21,6 +21,24 @@
     />
     <link rel="preload" href="/fonts/Literata-Variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Set the theme before first paint so there's no flash of the wrong
+         one. Reads the same cookie useTheme() writes; falls back to the OS
+         preference, then dark. Kept inline and tiny on purpose. -->
+    <script>
+      (function () {
+        try {
+          var m = document.cookie.match(/(?:^|; )cs_theme=([^;]*)/);
+          var t = m && decodeURIComponent(m[1]);
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          }
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

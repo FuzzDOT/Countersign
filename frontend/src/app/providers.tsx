@@ -4,6 +4,7 @@ import { isApiError, isRetryable } from '@/api/errors';
 import { AuthProvider } from '@/auth/AuthProvider';
 import { ToastViewport } from '@/components/primitives/Toast';
 import { pushToast } from '@/lib/toastBus';
+import { useTheme } from '@/hooks/useTheme';
 
 function makeClient(): QueryClient {
   return new QueryClient({
@@ -35,6 +36,9 @@ function makeClient(): QueryClient {
 
 export function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(makeClient);
+  // Mounted here so `data-theme` is applied once at the app root and every
+  // token-driven surface follows, rather than each screen managing it.
+  useTheme();
   return (
     <QueryClientProvider client={client}>
       <AuthProvider>

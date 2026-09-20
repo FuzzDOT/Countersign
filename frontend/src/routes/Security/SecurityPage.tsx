@@ -1,3 +1,6 @@
+import { Link } from "react-router-dom";
+import { MarketingHeader } from "@/components/shell/MarketingHeader";
+
 type SecurityControl = {
   control: string;
   whatItDoes: string;
@@ -40,9 +43,10 @@ const CONTROLS: SecurityControl[] = [
 export default function SecurityPage() {
   return (
     <div className="bg-ink-900 min-h-screen">
-      <div className="max-w-3xl mx-auto px-6 py-16 flex flex-col gap-10">
+      <MarketingHeader title="Security" />
+      <div className="max-w-3xl mx-auto px-6 py-20 flex flex-col gap-12">
         <div>
-          <h1 className="text-display-2 text-ink-50">Security &amp; data posture</h1>
+          <h1 className="display-serif text-[2.5rem] text-ink-50">Security &amp; data posture</h1>
           <p className="text-body text-ink-200 mt-3 max-w-prose">
             All data in this demo is synthetic or drawn from public sources. No real account
             numbers, credentials, or financial records are used anywhere in this system.
@@ -68,10 +72,23 @@ export default function SecurityPage() {
           </tbody>
         </table>
 
-        <div className="pt-6 border-t border-ink-500/40">
-          <a href="/" className="text-verify hover:underline text-body-sm">
-            ← Back to home
-          </a>
+        <div className="flex flex-wrap gap-3 border-t border-ink-500/40 pt-8">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 rounded-input border border-ink-200/40 bg-ink-700 px-5 py-2.5
+                       text-body-sm font-semibold text-ink-50 transition-colors duration-quick ease-out
+                       hover:border-verify hover:bg-ink-500/70"
+          >
+            Back to home
+          </Link>
+          <Link
+            to="/product"
+            className="inline-flex items-center gap-2 rounded-input border border-ink-200/40 bg-ink-700 px-5 py-2.5
+                       text-body-sm font-semibold text-ink-50 transition-colors duration-quick ease-out
+                       hover:border-verify hover:bg-ink-500/70"
+          >
+            See the walkthrough
+          </Link>
         </div>
       </div>
     </div>

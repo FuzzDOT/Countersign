@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { MarketingHeader } from "@/components/shell/MarketingHeader";
 import { PaperSurface } from "../../components/primitives/PaperSurface";
 import { CountUp } from "../../components/primitives/CountUp";
 import { Badge } from "../../components/primitives/Badge";
@@ -10,12 +12,12 @@ const DOCUMENT_TEXT =
   "Payment of $48,200 was routed through Advent Holdings on behalf of Meridian Supply LLC, dated September 14th. The transfer settled against invoice INV-4471, issued to a shared registered address in Wilmington, Delaware.";
 
 // Entity spans for step 1 — char offsets into DOCUMENT_TEXT, illustrative for the demo.
-const ENTITY_SPANS = [
-  { start: 11, end: 18, type: "MONEY", label: "$48,200" },
-  { start: 39, end: 55, type: "ORG", label: "Advent Holdings" },
-  { start: 74, end: 92, type: "ORG", label: "Meridian Supply LLC" },
-  { start: 98, end: 112, type: "DATE", label: "September 14th" },
-];
+// const ENTITY_SPANS = [
+//   { start: 11, end: 18, type: "MONEY", label: "$48,200" },
+//   { start: 39, end: 55, type: "ORG", label: "Advent Holdings" },
+//   { start: 74, end: 92, type: "ORG", label: "Meridian Supply LLC" },
+//   { start: 98, end: 112, type: "DATE", label: "September 14th" },
+// ];
 
 const ENTITY_COLORS: Record<string, string> = {
   MONEY: "text-verify",
@@ -28,7 +30,24 @@ const INSIGHTS = [
   { id: "2", subject: "Advent Holdings", relation: "shares address with", object: "Meridian Supply LLC", vacuity: 0.58, routing: "flag_for_review" as const },
   { id: "3", subject: "INV-4471", relation: "invoiced by", object: "Meridian Supply LLC", vacuity: 0.08, routing: "auto_file" as const },
   { id: "4", subject: "Wilmington, DE", relation: "registered address of", object: "Advent Holdings", vacuity: 0.05, routing: "auto_file" as const },
+]; 
+const ENTITY_LABELS: { text: string; type: string }[] = [
+  { text: "$48,200", type: "MONEY" },
+  { text: "Advent Holdings", type: "ORG" },
+  { text: "Meridian Supply LLC", type: "ORG" },
+  { text: "September 14th", type: "DATE" },
 ];
+
+function buildSpans(text: string) {
+  const found = ENTITY_LABELS
+    .map((entity) => {
+      const start = text.indexOf(entity.text);
+      return start === -1 ? null : { start, end: start + entity.text.length, type: entity.type };
+    })
+    .filter((s): s is { start: number; end: number; type: string } => s !== null)
+    .sort((a, b) => a.start - b.start);
+  return found;
+}
 
 const AUTO_FILED_COUNT = 186;
 
@@ -37,22 +56,25 @@ export default function ProductPage() {
 
   return (
     <div className="bg-ink-900 min-h-screen">
-      <div className="max-w-5xl mx-auto px-6 py-16 flex flex-col gap-8">
+      <MarketingHeader title="Product" />
+      <div className="max-w-5xl mx-auto px-6 py-20 flex flex-col gap-10">
         <div>
-          <h1 className="text-display-2 text-ink-50">See it on real documents</h1>
-          <p className="text-body text-ink-200 mt-2 max-w-prose">
+          <h1 className="display-serif text-[2.5rem] text-ink-50">See it on real documents</h1>
+          <p className="text-body text-ink-200 mt-3 max-w-prose">
             One real case, four stages. Jump to any step — nothing here autoplays.
           </p>
         </div>
 
-        {/* Segmented control, not dots, per the brief */}
-        <div className="inline-flex rounded-input border border-ink-500/40 overflow-hidden self-start">
+        {/* Segmented control, not dots, per the brief. Solid fills so the
+            inactive steps stay legible against the navy ground. */}
+        <div className="inline-flex self-start overflow-hidden rounded-input border border-ink-200/40 bg-ink-700">
           {STEPS.map((s) => (
             <button
               key={s}
               onClick={() => setStep(s)}
-              className={`px-4 py-2 text-body-sm transition-colors duration-quick ease-out
-                          ${step === s ? "bg-verify text-ink-900" : "text-ink-200 hover:text-ink-50"}`}
+              aria-pressed={step === s}
+              className={`px-5 py-2.5 text-body-sm font-medium transition-colors duration-quick ease-out
+                          ${step === s ? "bg-ink-50 text-ink-900" : "text-ink-50/80 hover:bg-ink-500/60 hover:text-ink-50"}`}
             >
               {s}
             </button>
@@ -65,15 +87,35 @@ export default function ProductPage() {
           {step === "Gate" && <GateStep />}
           {step === "Prove it" && <ProveItStep />}
         </div>
+
+        <div className="flex flex-wrap gap-3 border-t border-ink-500/40 pt-8">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 rounded-input border border-ink-200/40 bg-ink-700 px-5 py-2.5
+                       text-body-sm font-semibold text-ink-50 transition-colors duration-quick ease-out
+                       hover:border-verify hover:bg-ink-500/70"
+          >
+            Back to home
+          </Link>
+          <Link
+            to="/register"
+            className="inline-flex items-center gap-2 rounded-input bg-ink-50 px-5 py-2.5 text-body-sm
+                       font-semibold text-ink-900 transition-all duration-quick ease-out
+                       hover:-translate-y-0.5 hover:brightness-105"
+          >
+            Try it on your documents
+          </Link>
+        </div>
       </div>
     </div>
   );
 }
 
 function IngestStep() {
+  const spans = buildSpans(DOCUMENT_TEXT);
   const segments: { text: string; type: string | null }[] = [];
   let cursor = 0;
-  for (const span of [...ENTITY_SPANS].sort((a, b) => a.start - b.start)) {
+  for (const span of spans) {
     if (span.start > cursor) segments.push({ text: DOCUMENT_TEXT.slice(cursor, span.start), type: null });
     segments.push({ text: DOCUMENT_TEXT.slice(span.start, span.end), type: span.type });
     cursor = span.end;
@@ -197,12 +239,17 @@ function ProveItStep() {
       <div className="panel p-6 flex flex-col gap-4">
         <p className="text-body text-ink-50">
           Meridian Supply LLC{" "}
-          <span
+          <button
+            type="button"
             onClick={() => !ran && setMasked((m) => !m)}
-            className={`cursor-pointer underline ${masked ? "text-ink-200 line-through" : "text-verify"}`}
+            aria-pressed={masked}
+            disabled={ran}
+            className={`underline underline-offset-2 transition-colors duration-quick ease-out disabled:cursor-default ${
+              masked ? "text-ink-200 line-through" : "text-verify hover:brightness-110"
+            }`}
           >
             wired funds to
-          </span>{" "}
+          </button>{" "}
           Advent Holdings
         </p>
 
@@ -218,13 +265,13 @@ function ProveItStep() {
 
         <div className="flex items-baseline gap-2">
           <span className="text-h1 text-verify font-mono">
-            <CountUp
-                value={ran ? after : before}
-                from={before}
-                duration={600}
-                format={(n) => n.toFixed(2)}
-                replayKey={ran}
-                />
+                        <CountUp
+            value={ran ? after : before}
+            from={before}
+            duration={600}
+            format={(n) => n.toFixed(2)}
+            replayKey={ran ? "ablated" : "before"}
+            />
           </span>
           <span className="text-body-sm text-ink-200">confidence</span>
         </div>

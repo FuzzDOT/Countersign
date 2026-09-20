@@ -6,6 +6,7 @@ import { RailNav } from "./RailNav";
 import { TopBar } from "./TopBar";
 import { RouteTransition } from "./RouteTransition";
 import { useFeedStats } from "../../hooks/useFeedStats";
+import { useAuth } from "@/auth/useAuth";
 // import { useIngestJobSocket } from "../../hooks/useIngestJobSocket"; // build once ws setup is confirmed
 
 export function AppShell() {
@@ -16,6 +17,7 @@ export function AppShell() {
     void prefetchVoiceFallback(queryClient);
   }, [queryClient]);
   const escalateCount = useFeedStats();
+  const { me } = useAuth();
   const jobProgress = null; // wire to websocket hook once that's built
 
   return (
@@ -23,7 +25,7 @@ export function AppShell() {
       <RailNav escalateCount={escalateCount} />
       <div className="flex flex-col flex-1 min-w-0">
         <TopBar
-          orgName="Countersign"
+          orgName={me?.org_name ?? "—"}
           scenarioName="—"
           jobProgress={jobProgress}
           onSearch={(q) => navigate(`/app/feed?q=${encodeURIComponent(q)}`)}

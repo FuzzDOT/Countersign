@@ -1,38 +1,118 @@
 /* ────────────────────────────────────────────────────────────────────────────
    COUNTERSIGN design tokens — single source of truth.
 
-   The concept: the application chrome is ink, the evidence is paper.
-   Everything that is the system's opinion sits on ink. Opening a source
-   document flips the surface to paper. That flip is the one place the visual
-   system inverts, and it is also the moment the product proves itself.
+   v3 direction: navy-black, white, and texture. Two themes, both real:
+     dark  — deep navy-black chrome, paper-white type, fine grain overlay
+     light — warm off-white chrome, navy type, same grain
 
-   Discipline (frontend brief §2.2):
+   Every surface/text token below is redefined under [data-theme='light'],
+   so switching themes is a single attribute on <html> and every component
+   follows automatically — no component reads a hex directly.
+
+   Discipline carried from v1/v2:
      --stamp-*  routing severity ONLY. Never a delete button, never an error.
      --verify   interactive or confirmed ONLY. Never decorative.
      Confidence and vacuity are NEVER encoded in colour — position and number.
    ──────────────────────────────────────────────────────────────────────────── */
 
-:root {
-  /* ink — the system's surfaces */
-  --ink-900: #0d1b2a;
-  --ink-700: #16293c;
-  --ink-500: #2c4a64;
-  --ink-200: #a8bdd0;
-  --ink-050: #e8eff5;
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
 
-  /* paper — the evidence surface */
+  /* ink — chrome surfaces, deep navy-black */
+  --ink-900: #05070d;
+  --ink-900-rgb: 5 7 13;
+  --ink-700: #0b1018;
+  --ink-700-rgb: 11 16 24;
+  --ink-500: #1e2733;
+  --ink-500-rgb: 30 39 51;
+  --ink-200: #8c97a8;
+  --ink-200-rgb: 140 151 168;
+  --ink-050: #f4f6f9;
+  --ink-050-rgb: 244 246 249;
+
+  /* paper — the evidence surface. In dark theme it's the one warm
+     inversion; in light theme it settles closer to the page. */
   --paper: #f7f4ed;
-  --paper-text: #1a1712;
-  --paper-rule: #d8d0c0;
+  --paper-text: #14181f;
+  --paper-rule: #d5d0c4;
 
   /* routing severity */
-  --stamp-red: #a8324a;
-  --stamp-amber: #b9782c;
-  --stamp-slate: #5b7386;
+  --stamp-red: #c8384f;
+  --stamp-amber: #c47f34;
+  --stamp-slate: #6d7d91;
 
-  /* the one interactive accent */
-  --verify: #1f9c8b;
+  /* the one interactive accent — a cold, expensive blue-white */
+  --verify: #6ea8fe;
+  --verify-rgb: 110 168 254;
 
+  /* editorial alternating surfaces, from the Framer direction: a warm
+     ivory band and a deep sage band that break up the navy. These are
+     surfaces, not accents — nothing semantic is encoded in them. */
+  --ivory: #f2ece1;
+  --ivory-text: #14181f;
+  --ivory-rule: #ddd5c6;
+  --sage: #7d8c74;
+  --sage-text: #f6f7f4;
+
+  /* texture + glow */
+  --grain-opacity: 0.035;
+  --glow-a: #1e3a8a;
+  --glow-b: #3b82f6;
+  --glow-c: #64748b;
+  --glow-strength: 0.5;
+
+  --shadow-overlay: 0 32px 64px -16px rgba(0, 0, 0, 0.7);
+  --shadow-panel: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset;
+  --hairline: rgba(244, 246, 249, 0.1);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  /* ink token names are kept, values inverted: 900 is now the lightest
+     page ground and 050 the darkest text, so every existing
+     `bg-ink-900` / `text-ink-050` class keeps meaning the right thing. */
+  --ink-900: #f6f5f2;
+  --ink-900-rgb: 246 245 242;
+  --ink-700: #ffffff;
+  --ink-700-rgb: 255 255 255;
+  --ink-500: #d9d7d1;
+  --ink-500-rgb: 217 215 209;
+  --ink-200: #5c6472;
+  --ink-200-rgb: 92 100 114;
+  --ink-050: #080c14;
+  --ink-050-rgb: 8 12 20;
+
+  --paper: #ffffff;
+  --paper-text: #14181f;
+  --paper-rule: #e3e0d8;
+
+  --stamp-red: #b02a41;
+  --stamp-amber: #a8682a;
+  --stamp-slate: #5c6a7d;
+
+  --verify: #1c4ed8;
+  --verify-rgb: 28 78 216;
+
+  --ivory: #ece5d8;
+  --ivory-text: #14181f;
+  --ivory-rule: #d3cabb;
+  --sage: #6e7d66;
+  --sage-text: #f6f7f4;
+
+  --grain-opacity: 0.025;
+  --glow-a: #93c5fd;
+  --glow-b: #bfdbfe;
+  --glow-c: #e2e8f0;
+  --glow-strength: 0.55;
+
+  --shadow-overlay: 0 32px 64px -16px rgba(8, 12, 20, 0.18);
+  --shadow-panel: 0 1px 2px 0 rgba(8, 12, 20, 0.05);
+  --hairline: rgba(8, 12, 20, 0.1);
+}
+
+:root {
   /* motion */
   --dur-instant: 120ms;
   --dur-quick: 220ms;
@@ -51,40 +131,26 @@
   --space-12: 3rem;
   --space-16: 4rem;
 
-  --radius-input: 2px;
-  --radius-panel: 6px;
-
-  --shadow-overlay: 0 24px 48px -12px rgba(6, 14, 22, 0.55);
+  /* radii — soft, editorial. Not pills: pills read as consumer SaaS,
+     and this is meant to read as an expensive instrument. */
+  --radius-input: 10px;
+  --radius-panel: 14px;
 
   /* layout */
   --rail-collapsed: 72px;
   --rail-expanded: 224px;
   --sheet-width: 560px;
-  --filter-width: 240px; 
-  --ink-900: #0D1B2A;
-  --ink-900-rgb: 13 27 42;
-
-  --ink-700: #16293C;
-  --ink-700-rgb: 22 41 60;
-
-  --ink-500: #2C4A64;
-  --ink-500-rgb: 44 74 100;
-
-  --ink-200: #A8BDD0;
-  --ink-200-rgb: 168 189 208;
-
-  --ink-050: #E8EFF5;
-  --ink-050-rgb: 232 239 245;
-
-  /* ... paper, stamp values stay as they are for now ... */
-
-  --verify: #1F9C8B;
-  --verify-rgb: 31 156 139;
+  --filter-width: 240px;
 }
 
-/* Reduced motion collapses everything except short opacity crossfades.
-   The hero sequence must render in its final state — test this, a judge
-   may have it enabled. */
+/* Theme transition: colour only, and only on the chrome. Kept short so
+   toggling feels instant rather than laggy. */
+html {
+  transition:
+    background-color var(--dur-quick) var(--ease-out),
+    color var(--dur-quick) var(--ease-out);
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-instant: 0ms;

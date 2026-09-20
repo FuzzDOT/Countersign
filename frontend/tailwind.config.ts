@@ -17,12 +17,20 @@ import type { Config } from 'tailwindcss';
  * not exist; `color-mix` gives the same result while the token stays the single
  * source of truth.
  */
-const token =
-  (name: string) =>
-  ({ opacityValue }: { opacityValue?: string | undefined }) =>
+/**
+ * Tailwind accepts a function here at runtime, but its published types only
+ * model `string | RecursiveKeyValuePair`. Rather than reach for `any` (which
+ * trips no-unsafe-assignment on every call site), the function is declared
+ * with its true signature and cast once, here, to the shape the theme
+ * expects. One documented cast beats a dozen suppressions.
+ */
+function token(name: string): string {
+  const fn = ({ opacityValue }: { opacityValue?: string | undefined }): string =>
     opacityValue === undefined
       ? `var(--${name})`
       : `color-mix(in srgb, var(--${name}) ${Number(opacityValue) * 100}%, transparent)`;
+  return fn as unknown as string;
+}
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
@@ -47,9 +55,22 @@ export default {
           slate: token('stamp-slate'),
         },
         verify: token('verify'),
+        ivory: {
+          DEFAULT: token('ivory'),
+          text: token('ivory-text'),
+          rule: token('ivory-rule'),
+        },
+        sage: {
+          DEFAULT: token('sage'),
+          text: token('sage-text'),
+        },
       },
       fontFamily: {
         sans: ['Instrument Sans', 'system-ui', 'sans-serif'],
+        // Editorial display serif. Literata is already self-hosted and has a
+        // real optical-size axis, so it doubles as the display face rather
+        // than pulling in a fourth font file for the hero alone.
+        display: ['Literata', 'Georgia', 'serif'],
         reader: ['Literata', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
@@ -66,12 +87,14 @@ export default {
         'reader-body': ['1.125rem', { lineHeight: '1.7' }],
       },
       borderRadius: {
-        input: '2px',
-        panel: '6px',
+        input: '9999px',
+        panel: '20px',
       },
       boxShadow: {
-        // The only shadow. Overlays only, never inline cards.
-        overlay: '0 24px 48px -12px rgba(6, 14, 22, 0.55)',
+        // Overlays only, never inline cards.
+        overlay: '0 24px 48px -12px rgba(0, 0, 0, 0.6)',
+        // The soft violet glow behind the primary CTA and the hero card.
+        glow: '0 0 40px -8px color-mix(in srgb, var(--verify) 45%, transparent)',
       },
       transitionDuration: {
         instant: '120ms',

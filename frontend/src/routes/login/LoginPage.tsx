@@ -50,8 +50,8 @@ export default function LoginPage() {
   const isLocked = lockedUntil ? new Date(lockedUntil) > new Date() : false;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-ink-900">
-      <div className="w-[420px] panel p-8 flex flex-col gap-4">
+    <div className="hero-glow grid-floor min-h-screen flex items-center justify-center bg-ink-900 px-6">
+      <div className="panel w-full max-w-[420px] p-8 flex flex-col gap-5">
         <h1 className="text-h1 text-ink-50">Sign in</h1>
 
         {notice && (
@@ -65,7 +65,7 @@ export default function LoginPage() {
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
           <Input
             label="Email"
             type="email"
