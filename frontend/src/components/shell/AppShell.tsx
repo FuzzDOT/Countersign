@@ -1,13 +1,14 @@
-import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Outlet, useNavigate } from "react-router-dom";
-import { prefetchVoiceFallback } from "../../api/queries";
-import { RailNav } from "./RailNav";
-import { TopBar } from "./TopBar";
-import { RouteTransition } from "./RouteTransition";
-import { useFeedStats } from "../../hooks/useFeedStats";
-import { useAuth } from "@/auth/useAuth";
-// import { useIngestJobSocket } from "../../hooks/useIngestJobSocket"; // build once ws setup is confirmed
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { prefetchVoiceFallback } from '../../api/queries';
+import { RailNav } from './RailNav';
+import { TopBar } from './TopBar';
+import { RouteTransition } from './RouteTransition';
+import { useFeedStats } from '../../hooks/useFeedStats';
+import { useAuth } from '@/auth/useAuth';
+import { jobProgressRatio, useIngestJobSocket } from '../../hooks/useIngestJobSocket';
+import { useActiveIngestJob } from '../../hooks/useActiveIngestJob';
 
 export function AppShell() {
   const navigate = useNavigate();
@@ -18,14 +19,20 @@ export function AppShell() {
   }, [queryClient]);
   const escalateCount = useFeedStats();
   const { me } = useAuth();
-  const jobProgress = null; // wire to websocket hook once that's built
+  // The shell shows a hairline for whatever job is running, wherever you are:
+  // the ingest screen starts one, then you navigate to the graph to watch it
+  // land. `null` hides the bar, which is the idle state.
+  const activeJobId = useActiveIngestJob();
+  const { job } = useIngestJobSocket(activeJobId);
+  const ratio = jobProgressRatio(job);
+  const jobProgress = ratio === null ? null : Math.round(ratio * 100);
 
   return (
     <div className="flex h-screen">
       <RailNav escalateCount={escalateCount} />
-      <div className="flex flex-col flex-1 min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
-          orgName={me?.org_name ?? "—"}
+          orgName={me?.org_name ?? '—'}
           scenarioName="—"
           jobProgress={jobProgress}
           onSearch={(q) => navigate(`/app/feed?q=${encodeURIComponent(q)}`)}

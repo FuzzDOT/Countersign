@@ -18,13 +18,7 @@ export type RoutingBucket = 'auto_file' | 'flag_for_review' | 'escalate_now';
 export type Resolver = 'classical' | 'nemotron';
 export type UserRole = 'owner' | 'analyst' | 'viewer';
 export type DocSource =
-  | 'invoice'
-  | 'email'
-  | 'press_release'
-  | 'rss'
-  | 'gdelt'
-  | 'note'
-  | 'transaction_log';
+  'invoice' | 'email' | 'press_release' | 'rss' | 'gdelt' | 'note' | 'transaction_log';
 
 export type RelationType =
   | 'WIRED_FUNDS_TO'
@@ -34,13 +28,7 @@ export type RelationType =
   | 'SIGNATORY_OF'
   | 'NO_RELATION';
 
-export type EntityType =
-  | 'ORG'
-  | 'PERSON'
-  | 'MONEY'
-  | 'DATE'
-  | 'ACCOUNT_REF'
-  | 'TRANSACTION_TYPE';
+export type EntityType = 'ORG' | 'PERSON' | 'MONEY' | 'DATE' | 'ACCOUNT_REF' | 'TRANSACTION_TYPE';
 
 /** Permission strings from GET /auth/me. Gate on these, never on `role`. */
 export type Permission =
@@ -137,14 +125,7 @@ export interface DocumentDetail {
 // ── ingest ──────────────────────────────────────────────────────────────────
 
 export type JobStateName =
-  | 'queued'
-  | 'tagging'
-  | 'parsing'
-  | 'relating'
-  | 'scoring'
-  | 'routing'
-  | 'done'
-  | 'failed';
+  'queued' | 'tagging' | 'parsing' | 'relating' | 'scoring' | 'routing' | 'done' | 'failed';
 
 export interface JobOut {
   id: UUID;
@@ -156,6 +137,37 @@ export interface JobOut {
   started_at?: ISODateTime | null;
   finished_at?: ISODateTime | null;
   error?: string | null;
+}
+
+export interface DocumentSummary {
+  id: UUID;
+  title: string;
+  source: DocSource;
+  received_at: ISODateTime;
+  chars: number;
+  insight_count: number;
+}
+
+export interface DocumentIngested {
+  id: UUID;
+  title: string;
+  source: DocSource;
+  chars: number;
+}
+
+export interface UploadResponse {
+  job_id: UUID;
+  documents: DocumentIngested[];
+  duplicates_skipped: number;
+}
+
+// ── org ─────────────────────────────────────────────────────────────────────
+
+export interface MemberOut {
+  id: UUID;
+  email: string;
+  role: UserRole;
+  created_at: ISODateTime;
 }
 
 // ── insights ────────────────────────────────────────────────────────────────

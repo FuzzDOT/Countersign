@@ -7,18 +7,23 @@ import type {
   BriefingRequest,
   BriefingResponse,
   CalibrationEval,
+  DocSource,
   DocumentDetail,
+  DocumentSummary,
   EntityDetail,
   FragilityEval,
   GraphResponse,
   InsightDetail,
   InsightOut,
   InsightStats,
+  JobOut,
+  MemberOut,
   MeResponse,
   NemotronRunOut,
   Paginated,
   RecalibrateResponse,
   RoutingEval,
+  UploadResponse,
 } from './types';
 
 /** Typed wrappers over the endpoints, so components never build URLs. */
@@ -27,7 +32,11 @@ export const api = {
   auth: {
     me: () => request<MeResponse>('/auth/me'),
     login: (email: string, password: string) =>
-      request<AuthResponse>('/auth/login', { method: 'POST', json: { email, password }, auth: false }),
+      request<AuthResponse>('/auth/login', {
+        method: 'POST',
+        json: { email, password },
+        auth: false,
+      }),
     logout: () => request<void>('/auth/logout', { method: 'POST' }),
   },
 
@@ -45,6 +54,29 @@ export const api = {
 
   documents: {
     get: (id: string) => request<DocumentDetail>(`/documents/${encodeURIComponent(id)}`),
+    list: (cursor: string | undefined, limit = 25) =>
+      request<Paginated<DocumentSummary>>('/documents', { query: { cursor, limit } }),
+    /**
+     * 202 with a job id; follow the job over the websocket. `source` is a
+     * required form field and the server rejects anything outside DocSource —
+     * it is a routing signal for the tagger, not a label.
+     */
+    upload: (files: readonly File[], source: DocSource) => {
+      const form = new FormData();
+      for (const file of files) form.append('files', file, file.name);
+      form.append('source', source);
+      return request<UploadResponse>('/documents', { method: 'POST', form, timeoutMs: 60_000 });
+    },
+  },
+
+  ingest: {
+    /** The websocket is primary; this is the 2s poll the contract notes call for. */
+    job: (id: string) => request<JobOut>(`/ingest/jobs/${encodeURIComponent(id)}`),
+    jobs: (limit = 10) => request<Paginated<JobOut>>('/ingest/jobs', { query: { limit } }),
+  },
+
+  org: {
+    members: () => request<MemberOut[]>('/org/members'),
   },
 
   ablation: {
