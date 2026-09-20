@@ -1,5 +1,13 @@
 import { useMemo, useRef, useState } from 'react';
-import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/endpoints';
 import { isApiError, retryAfterSeconds } from '@/api/errors';
@@ -29,7 +37,13 @@ export function CalibrationTab() {
   const post = query.data?.snapshots.find((s) => s.label === 'post_recalibration');
 
   if (query.isError && !query.data) {
-    return <ErrorState error={query.error} onRetry={() => void query.refetch()} title="The calibration results did not load" />;
+    return (
+      <ErrorState
+        error={query.error}
+        onRetry={() => void query.refetch()}
+        title="The calibration results did not load"
+      />
+    );
   }
   if (!query.data) {
     return (
@@ -40,7 +54,11 @@ export function CalibrationTab() {
     );
   }
   if (!baseline && !result) {
-    return <EmptyState title="No calibration snapshot yet">Run the calibration script on the backend to create the baseline.</EmptyState>;
+    return (
+      <EmptyState title="No calibration snapshot yet">
+        Run the calibration script on the backend to create the baseline.
+      </EmptyState>
+    );
   }
 
   // What the page shows: the fresh recalibration if there is one, otherwise what the server has stored.
@@ -64,7 +82,12 @@ export function CalibrationTab() {
 
       {before ? (
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-          <ReliabilityDiagram before={before.bins} after={after?.bins ?? null} dimmed={pending} replayKey={result?.snapshot_id ?? null} />
+          <ReliabilityDiagram
+            before={before.bins}
+            after={after?.bins ?? null}
+            dimmed={pending}
+            replayKey={result?.snapshot_id ?? null}
+          />
           <MetricsTable before={before} after={after} />
         </div>
       ) : null}
@@ -91,7 +114,13 @@ function EceHeadline({
       </h2>
       <p className="flex items-baseline gap-4 text-ink-50">
         <span className="text-display-1">
-          <CountUp value={target} from={before.ece} duration={900} replayKey={result?.snapshot_id ?? null} format={(v) => v.toFixed(3)} />
+          <CountUp
+            value={target}
+            from={before.ece}
+            duration={900}
+            replayKey={result?.snapshot_id ?? null}
+            format={(v) => v.toFixed(3)}
+          />
         </span>
         {after ? (
           <span className="nums text-body text-ink-200">was {before.ece.toFixed(3)}</span>
@@ -103,8 +132,8 @@ function EceHeadline({
         </p>
       ) : (
         <p className="max-w-prose text-body-sm text-ink-200">
-          This is the baseline. Recalibrating fits a temperature that pulls stated confidence toward how often the model is
-          actually right.
+          This is the baseline. Recalibrating fits a temperature that pulls stated confidence toward
+          how often the model is actually right.
         </p>
       )}
       <div aria-live="polite">
@@ -173,7 +202,8 @@ function RecalibrateControl({
         Recalibrate
       </h2>
       <p className="text-body-sm text-ink-200">
-        Refits the confidence temperature using {hardCases} logged hard {hardCases === 1 ? 'case' : 'cases'}.
+        Refits the confidence temperature using {hardCases} logged hard{' '}
+        {hardCases === 1 ? 'case' : 'cases'}.
       </p>
       <Button
         variant="primary"
@@ -183,7 +213,11 @@ function RecalibrateControl({
         disabled={cooldown.active}
         onClick={press}
       >
-        {cooldown.active ? `Try again in ${cooldown.remaining}s` : result ? 'Recalibrate again' : 'Recalibrate now'}
+        {cooldown.active
+          ? `Try again in ${cooldown.remaining}s`
+          : result
+            ? 'Recalibrate again'
+            : 'Recalibrate now'}
       </Button>
       {slow ? (
         <div className="flex flex-col gap-1">
@@ -195,17 +229,23 @@ function RecalibrateControl({
             aria-valuenow={Math.round(progress * 100)}
             className="h-1.5 w-full overflow-hidden rounded-input bg-ink-500"
           >
-            <div className="h-full bg-verify transition-[width] duration-quick ease-out" style={{ width: `${progress * 100}%` }} />
+            <div
+              className="h-full bg-verify transition-[width] duration-quick ease-out"
+              style={{ width: `${progress * 100}%` }}
+            />
           </div>
           <p className="nums text-body-sm text-ink-200">Still fitting, {elapsed}s so far.</p>
         </div>
       ) : null}
       {mutation.isError ? (
         <div role="alert" className="text-body-sm text-ink-50">
-          <p>{isApiError(mutation.error) ? mutation.error.message : 'Recalibration did not run.'}</p>
+          <p>
+            {isApiError(mutation.error) ? mutation.error.message : 'Recalibration did not run.'}
+          </p>
           {isApiError(mutation.error) && mutation.error.requestId ? (
             <p className="text-ink-200">
-              Request id <span className="select-all font-mono text-ink-50">{mutation.error.requestId}</span>
+              Request id{' '}
+              <span className="select-all font-mono text-ink-50">{mutation.error.requestId}</span>
             </p>
           ) : null}
         </div>
@@ -233,7 +273,10 @@ function ReliabilityDiagram({
   dimmed: boolean;
   replayKey: string | null;
 }) {
-  const maxCount = useMemo(() => Math.max(1, ...before.map((b) => b.count), ...(after ?? []).map((b) => b.count)), [before, after]);
+  const maxCount = useMemo(
+    () => Math.max(1, ...before.map((b) => b.count), ...(after ?? []).map((b) => b.count)),
+    [before, after],
+  );
   const withRadius = (bins: readonly CalibrationBin[]): BinPoint[] =>
     bins.filter((b) => b.count > 0).map((b) => ({ ...b, r: dotRadius(b.count, maxCount) }));
   const beforePoints = useMemo(() => withRadius(before), [before, maxCount]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -246,7 +289,10 @@ function ReliabilityDiagram({
       </h2>
       <div className="panel relative p-4">
         {dimmed ? (
-          <p role="status" className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-body font-medium text-ink-50">
+          <p
+            role="status"
+            className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-body font-medium text-ink-50"
+          >
             Recalibrating…
           </p>
         ) : null}
@@ -259,9 +305,33 @@ function ReliabilityDiagram({
           <ResponsiveContainer width="100%" height={400}>
             <LineChart margin={{ top: 12, right: 24, bottom: 40, left: 16 }}>
               <CartesianGrid stroke={GRID_STROKE} strokeOpacity={0.4} />
-              <XAxis type="number" dataKey="avg_conf" domain={[0, 1]} tick={AXIS_TICK} stroke={AXIS_LINE} label={axisLabel('average stated confidence', 'insideBottom', { offset: -24 })} />
-              <YAxis type="number" domain={[0, 1]} tick={AXIS_TICK} stroke={AXIS_LINE} label={axisLabel('observed accuracy', 'insideLeft', { angle: -90, style: { textAnchor: 'middle' } })} />
-              <ReferenceLine segment={[{ x: 0, y: 0 }, { x: 1, y: 1 }]} stroke="var(--ink-500)" strokeWidth={1.5} strokeDasharray="8 6" />
+              <XAxis
+                type="number"
+                dataKey="avg_conf"
+                domain={[0, 1]}
+                tick={AXIS_TICK}
+                stroke={AXIS_LINE}
+                label={axisLabel('average stated confidence', 'insideBottom', { offset: -24 })}
+              />
+              <YAxis
+                type="number"
+                domain={[0, 1]}
+                tick={AXIS_TICK}
+                stroke={AXIS_LINE}
+                label={axisLabel('observed accuracy', 'insideLeft', {
+                  angle: -90,
+                  style: { textAnchor: 'middle' },
+                })}
+              />
+              <ReferenceLine
+                segment={[
+                  { x: 0, y: 0 },
+                  { x: 1, y: 1 },
+                ]}
+                stroke="var(--ink-500)"
+                strokeWidth={1.5}
+                strokeDasharray="8 6"
+              />
               <Line
                 data={beforePoints}
                 dataKey="accuracy"
@@ -270,11 +340,19 @@ function ReliabilityDiagram({
                 strokeWidth={1.5}
                 strokeDasharray="2 5"
                 isAnimationActive={false}
-                dot={(props: { cx?: number; cy?: number; payload?: BinPoint }) =>
+                dot={(props: { cx?: number; cy?: number; payload?: BinPoint; index?: number }) =>
                   props.cx === undefined || props.cy === undefined || !props.payload ? (
-                    <g />
+                    <g key={`before-empty-${props.index ?? 0}`} />
                   ) : (
-                    <circle cx={props.cx} cy={props.cy} r={props.payload.r} fill="var(--ink-900)" stroke="var(--ink-200)" strokeWidth={1.5} />
+                    <circle
+                      key={`before-${props.index ?? 0}`}
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={props.payload.r}
+                      fill="var(--ink-900)"
+                      stroke="var(--ink-200)"
+                      strokeWidth={1.5}
+                    />
                   )
                 }
               />
@@ -289,11 +367,12 @@ function ReliabilityDiagram({
                   isAnimationActive
                   animationDuration={900}
                   animationEasing="ease-out"
-                  dot={(props: { cx?: number; cy?: number; payload?: BinPoint }) =>
+                  dot={(props: { cx?: number; cy?: number; payload?: BinPoint; index?: number }) =>
                     props.cx === undefined || props.cy === undefined || !props.payload ? (
-                      <g />
+                      <g key={`after-empty-${props.index ?? 0}`} />
                     ) : (
                       <rect
+                        key={`after-${props.index ?? 0}`}
                         x={props.cx - props.payload.r}
                         y={props.cy - props.payload.r}
                         width={props.payload.r * 2}
@@ -312,21 +391,51 @@ function ReliabilityDiagram({
         <ul className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-body-sm text-ink-200">
           <li className="flex items-center gap-2">
             <svg width="30" height="10" aria-hidden="true">
-              <line x1="0" y1="5" x2="30" y2="5" stroke="var(--ink-200)" strokeWidth="1.5" strokeDasharray="2 5" />
-              <circle cx="15" cy="5" r="3.5" fill="var(--ink-900)" stroke="var(--ink-200)" strokeWidth="1.5" />
+              <line
+                x1="0"
+                y1="5"
+                x2="30"
+                y2="5"
+                stroke="var(--ink-200)"
+                strokeWidth="1.5"
+                strokeDasharray="2 5"
+              />
+              <circle
+                cx="15"
+                cy="5"
+                r="3.5"
+                fill="var(--ink-900)"
+                stroke="var(--ink-200)"
+                strokeWidth="1.5"
+              />
             </svg>
             Before recalibration (dotted line, hollow circles)
           </li>
           <li className="flex items-center gap-2">
             <svg width="30" height="10" aria-hidden="true">
               <line x1="0" y1="5" x2="30" y2="5" stroke="var(--ink-050)" strokeWidth="2" />
-              <rect x="11.5" y="1.5" width="7" height="7" transform="rotate(45 15 5)" fill="var(--ink-050)" />
+              <rect
+                x="11.5"
+                y="1.5"
+                width="7"
+                height="7"
+                transform="rotate(45 15 5)"
+                fill="var(--ink-050)"
+              />
             </svg>
             After recalibration (solid line, filled diamonds)
           </li>
           <li className="flex items-center gap-2">
             <svg width="30" height="10" aria-hidden="true">
-              <line x1="0" y1="5" x2="30" y2="5" stroke="var(--ink-500)" strokeWidth="1.5" strokeDasharray="8 6" />
+              <line
+                x1="0"
+                y1="5"
+                x2="30"
+                y2="5"
+                stroke="var(--ink-500)"
+                strokeWidth="1.5"
+                strokeDasharray="8 6"
+              />
             </svg>
             Perfect calibration
           </li>
@@ -341,17 +450,31 @@ function ReliabilityDiagram({
   );
 }
 
-function BinsTable({ before, after }: { before: readonly CalibrationBin[]; after: readonly CalibrationBin[] | null }) {
+function BinsTable({
+  before,
+  after,
+}: {
+  before: readonly CalibrationBin[];
+  after: readonly CalibrationBin[] | null;
+}) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-body-sm">
         <caption className="sr-only">Reliability bins before and after recalibration</caption>
         <thead className="text-ink-200">
           <tr>
-            <th scope="col" className="py-1 pr-3 font-medium">Confidence bin</th>
-            <th scope="col" className="py-1 pr-3 text-right font-medium">Predictions</th>
-            <th scope="col" className="py-1 pr-3 text-right font-medium">Accuracy before</th>
-            <th scope="col" className="py-1 text-right font-medium">Accuracy after</th>
+            <th scope="col" className="py-1 pr-3 font-medium">
+              Confidence bin
+            </th>
+            <th scope="col" className="py-1 pr-3 text-right font-medium">
+              Predictions
+            </th>
+            <th scope="col" className="py-1 pr-3 text-right font-medium">
+              Accuracy before
+            </th>
+            <th scope="col" className="py-1 text-right font-medium">
+              Accuracy after
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -363,7 +486,9 @@ function BinsTable({ before, after }: { before: readonly CalibrationBin[]; after
                   {formatScore(bin.bin_lo)} to {formatScore(bin.bin_hi)}
                 </td>
                 <td className="nums py-1 pr-3 text-right text-ink-50">{bin.count}</td>
-                <td className="nums py-1 pr-3 text-right text-ink-50">{bin.count ? formatScore(bin.accuracy) : 'no data'}</td>
+                <td className="nums py-1 pr-3 text-right text-ink-50">
+                  {bin.count ? formatScore(bin.accuracy) : 'no data'}
+                </td>
                 <td className="nums py-1 text-right text-ink-50">
                   {post ? (post.count ? formatScore(post.accuracy) : 'no data') : 'not run'}
                 </td>
@@ -378,11 +503,25 @@ function BinsTable({ before, after }: { before: readonly CalibrationBin[]; after
 
 // ── before/after metrics ───────────────────────────────────────────────────
 
-function MetricsTable({ before, after }: { before: CalibrationMetrics; after: CalibrationMetrics | undefined }) {
+function MetricsTable({
+  before,
+  after,
+}: {
+  before: CalibrationMetrics;
+  after: CalibrationMetrics | undefined;
+}) {
   const rows: { key: 'ece' | 'mce' | 'brier'; label: string; help: string }[] = [
-    { key: 'ece', label: 'ECE', help: 'Expected calibration error: the average gap between stated confidence and accuracy.' },
+    {
+      key: 'ece',
+      label: 'ECE',
+      help: 'Expected calibration error: the average gap between stated confidence and accuracy.',
+    },
     { key: 'mce', label: 'MCE', help: 'Maximum calibration error: the worst single bin.' },
-    { key: 'brier', label: 'Brier score', help: 'Mean squared error of the probabilities. Lower is better.' },
+    {
+      key: 'brier',
+      label: 'Brier score',
+      help: 'Mean squared error of the probabilities. Lower is better.',
+    },
   ];
   return (
     <section aria-labelledby="calibration-metrics" className="flex flex-col gap-3">
@@ -390,13 +529,23 @@ function MetricsTable({ before, after }: { before: CalibrationMetrics; after: Ca
         Before and after
       </h2>
       <table className="w-full text-left text-body-sm">
-        <caption className="sr-only">Calibration metrics before and after recalibration. Lower is better for all three.</caption>
+        <caption className="sr-only">
+          Calibration metrics before and after recalibration. Lower is better for all three.
+        </caption>
         <thead className="text-ink-200">
           <tr>
-            <th scope="col" className="py-2 pr-3 font-medium">Metric</th>
-            <th scope="col" className="py-2 pr-3 text-right font-medium">Before</th>
-            <th scope="col" className="py-2 pr-3 text-right font-medium">After</th>
-            <th scope="col" className="py-2 text-right font-medium">Change</th>
+            <th scope="col" className="py-2 pr-3 font-medium">
+              Metric
+            </th>
+            <th scope="col" className="py-2 pr-3 text-right font-medium">
+              Before
+            </th>
+            <th scope="col" className="py-2 pr-3 text-right font-medium">
+              After
+            </th>
+            <th scope="col" className="py-2 text-right font-medium">
+              Change
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -409,19 +558,33 @@ function MetricsTable({ before, after }: { before: CalibrationMetrics; after: Ca
                 <th scope="row" className="py-2 pr-3 font-medium text-ink-50">
                   <span title={row.help}>{row.label}</span>
                 </th>
-                <td className={`nums py-2 pr-3 text-right text-ink-50 ${big ? 'text-h3' : ''}`}>{b.toFixed(3)}</td>
-                <td className={`nums py-2 pr-3 text-right text-ink-50 ${big ? 'text-h3 font-semibold' : ''}`}>
+                <td className={`nums py-2 pr-3 text-right text-ink-50 ${big ? 'text-h3' : ''}`}>
+                  {b.toFixed(3)}
+                </td>
+                <td
+                  className={`nums py-2 pr-3 text-right text-ink-50 ${big ? 'text-h3 font-semibold' : ''}`}
+                >
                   {a === undefined ? <span className="text-ink-200">not run</span> : a.toFixed(3)}
                 </td>
-                <td className="nums py-2 text-right text-ink-200">{a === undefined ? '' : formatSigned(a - b, 3)}</td>
+                <td className="nums py-2 text-right text-ink-200">
+                  {a === undefined ? '' : formatSigned(a - b, 3)}
+                </td>
               </tr>
             );
           })}
           <tr className="border-t border-ink-500/30">
-            <th scope="row" className="py-2 pr-3 font-medium text-ink-50">Temperature</th>
-            <td className="py-2 pr-3 text-right font-mono text-ink-50">{before.temperature.toFixed(2)}</td>
+            <th scope="row" className="py-2 pr-3 font-medium text-ink-50">
+              Temperature
+            </th>
             <td className="py-2 pr-3 text-right font-mono text-ink-50">
-              {after ? after.temperature.toFixed(2) : <span className="font-sans text-ink-200">not run</span>}
+              {before.temperature.toFixed(2)}
+            </td>
+            <td className="py-2 pr-3 text-right font-mono text-ink-50">
+              {after ? (
+                after.temperature.toFixed(2)
+              ) : (
+                <span className="font-sans text-ink-200">not run</span>
+              )}
             </td>
             <td />
           </tr>
