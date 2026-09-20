@@ -30,16 +30,33 @@ from ml.fuzzer.synonym import SynonymFamily, candidates
 from ml.tagger.infer import get_tagger
 from ml.text.parse import parse
 
+# Both companies are from `data/synth/names.py::TRAIN_ORGS` — names the
+# tagger has actually seen.
+#
+# This document used to name `Meridian Supply LLC` and `Advent Holdings`,
+# and `test_rename_replaces_parties_with_names_from_no_corpus` failed on it:
+# "Advent Holdings" survived the rename. Not a bug in `RenameFamily` —
+# it builds its `Edit` list from `tagging.mentions`, i.e. only the spans the
+# tagger *detected*, and both of those names are in `HELDOUT_ORGS`, which
+# `names.py` deliberately keeps out of the tagger's training data. An
+# undetected mention gets no edit, so that occurrence passed through
+# verbatim. Same root cause as the `SENTENCE` constant in
+# `tests/test_relations.py`; the long version is documented there.
+#
+# Using in-vocabulary names means the tagger finds every occurrence, which
+# is the precondition this test is actually trying to exercise: that the
+# rename is *complete and consistent* across a document, and that it draws
+# from `FUZZ_ORGS` rather than from any pool the corpus already uses.
 DOCUMENT = (
     "Invoice INV-4471\n"
-    "Meridian Supply LLC\n"
+    "Brightwater Industrial LLC\n"
     "Issued: 2026-09-14\n"
-    "Bill to: Advent Holdings\n\n"
-    "Meridian Supply LLC wired $48,200 to Advent Holdings on 2026-09-08.\n"
+    "Bill to: Calderon Freight Co\n\n"
+    "Brightwater Industrial LLC wired $48,200 to Calderon Freight Co on 2026-09-08.\n"
     "The settlement was recorded against the account in the usual way.\n"
     "Questions about this document should be directed to accounts payable.\n"
 )
-TARGET = "Meridian Supply LLC wired $48,200 to Advent Holdings on 2026-09-08."
+TARGET = "Brightwater Industrial LLC wired $48,200 to Calderon Freight Co on 2026-09-08."
 
 
 @pytest.fixture(scope="module")
@@ -145,8 +162,8 @@ def test_rename_replaces_parties_with_names_from_no_corpus(parsed, target) -> No
     doc, tagging = parsed
     variant = RenameFamily().build(doc, tagging, target, random.Random(5))
 
-    assert "Meridian Supply LLC" not in variant.text
-    assert "Advent Holdings" not in variant.text
+    assert "Brightwater Industrial LLC" not in variant.text
+    assert "Calderon Freight Co" not in variant.text
     assert variant.renames
     assert any(org in variant.text for org in names.FUZZ_ORGS)
 

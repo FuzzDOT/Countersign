@@ -124,11 +124,44 @@ class Settings(BaseSettings):
     elevenlabs_api_key: str = ""
     elevenlabs_voice_id: str = ""
     elevenlabs_model: str = "eleven_turbo_v2_5"
+    # Scribe v2. A one-line env change if this account's key only has access
+    # to scribe_v1, or if ElevenLabs moves the default again — see the
+    # Nemotron model string earlier in this file for exactly this failure
+    # mode with a different provider.
+    elevenlabs_stt_model: str = "scribe_v2"
     elevenlabs_timeout_seconds: float = Field(default=8.0, gt=0)
-    voice_fallback_audio: str = "data/fixtures/audio/fallback_briefing.mp3"
-    voice_fallback_transcript: str = "data/fixtures/voice.fallback.json"
+    # NOT under data/fixtures/ — that directory is `gen_fixtures.py`'s alone,
+    # and it used to collide exactly here: the mock fixture "voice.fallback
+    # .json" and this real, ElevenLabs-recorded transcript both resolved to
+    # `data/fixtures/voice.fallback.json`, so whichever of `make fixtures` /
+    # `make record-fallback` ran last silently overwrote the other with no
+    # warning either way. `data/voice/` is `record_fallback.py`'s alone now,
+    # the same separation `data/audio/` (per-request, gitignored) already
+    # has from `data/fixtures/audio/` (committed fixtures).
+    voice_fallback_audio: str = "data/voice/fallback_briefing.mp3"
+    voice_fallback_transcript: str = "data/voice/fallback_briefing.json"
     audio_dir: str = "data/audio"
     audio_url_ttl_seconds: int = Field(default=600, ge=30)
+    # Below this, the intent classifier's own top choice is discarded in
+    # favour of `unknown` — brief §11: never a confident guess. Chance on a
+    # 6-class problem is ~0.167. This was 0.40 until a real test run showed
+    # "purple elephant migratory soup" — lexically unrelated to every
+    # training utterance — scoring 0.432 toward `dismiss`, clearing that
+    # gate outright (`tests/test_intent.py::test_gibberish_becomes_unknown`,
+    # a measured failure, not a hypothetical one). Raised to 0.60, above the
+    # observed failure with real margin, not re-derived from a tuning
+    # script — there is no persisted checkpoint or held-out split for a
+    # classifier this small, so there is nothing to tune it against that
+    # would not just be re-deriving the same ~120 hand-written utterances.
+    # Still worth re-checking once this runs again: one observed failure
+    # fixed with margin is not the same claim as "no input scores this high
+    # for the wrong reason anymore."
+    voice_intent_min_confidence: float = Field(default=0.60, ge=0.0, le=1.0)
+    # `FileResponse` reads the whole file into memory in one go; a hand-rolled
+    # 206 responder should not. 1 MiB is generous for anything this project
+    # ever serves (briefings are under a minute of speech) and small enough
+    # that a seek-heavy client doesn't stall waiting on one chunk.
+    audio_chunk_bytes: int = Field(default=1_048_576, ge=1_024)
 
     # ── pipeline tuning ──────────────────────────────────────────────────────
     relation_model: RelationBackend = RelationBackend.gat

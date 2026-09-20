@@ -58,6 +58,22 @@ NETWORK_MODULES = frozenset({"httpx", "requests", "aiohttp", "urllib.request", "
 AUDIO_ONLY_MODULES = frozenset({"elevenlabs"})
 AUDIO_ALLOWED_UNDER = ("ml/voice",)
 
+# The raw-HTTP ban exists to stop a generative call from sailing past the
+# module allowlist above by going straight to an HTTP client instead of an
+# SDK — which is exactly what `ml/voice/tts.py` and `ml/voice/stt.py` do,
+# deliberately, to reach ElevenLabs (the same reasoning `ml/cascade/nemotron.py`
+# already established for the real generative call this project makes: a
+# pinned `httpx` version drifts less than a hosted-model SDK's method names
+# do, and this build has been bitten by exactly that twice this session).
+#
+# The carve-out is these two *files*, not the whole `ml/voice` directory —
+# unlike the SDK-import allowlist above, where any file under `ml/voice`
+# importing `elevenlabs` is fine, a raw HTTP call sneaking into
+# `ml/voice/answer.py` or `ml/voice/intent.py` would be exactly the
+# injection risk this test guards against: it could reach anywhere, not
+# only ElevenLabs. Narrower than the module-level allowlist, on purpose.
+NETWORK_ALLOWED_FILES = frozenset({"ml/voice/tts.py", "ml/voice/stt.py"})
+
 
 def _modules_under(path: str) -> list[Path]:
     target = BACKEND_ROOT / path
@@ -99,9 +115,13 @@ def test_no_generative_import_on_the_explanation_paths(path: str) -> None:
 @pytest.mark.parametrize("path", NO_GENERATION_PATHS)
 def test_no_raw_http_on_the_explanation_paths(path: str) -> None:
     """A generative call made with httpx directly would sail past a module
-    allowlist, so the transport is banned as well as the client."""
+    allowlist, so the transport is banned as well as the client — except
+    the two files that *are* the audited ElevenLabs transport, see
+    `NETWORK_ALLOWED_FILES`."""
     offenders: list[str] = []
     for module in _modules_under(path):
+        if module.relative_to(BACKEND_ROOT).as_posix() in NETWORK_ALLOWED_FILES:
+            continue
         for name in _imported_names(ast.parse(module.read_text(encoding="utf-8"))):
             if name in NETWORK_MODULES or _root(name) in NETWORK_MODULES:
                 offenders.append(f"{module.relative_to(BACKEND_ROOT)} imports {name}")
@@ -122,14 +142,31 @@ def test_audio_synthesis_only_appears_in_the_voice_path(path: str) -> None:
     assert not offenders, "\n  ".join(offenders)
 
 
+def test_the_network_carve_out_is_exactly_these_two_files() -> None:
+    """`NETWORK_ALLOWED_FILES` is meant to be as narrow as possible — this
+    fails the day someone adds raw HTTP to a third file under `ml/voice`
+    and "fixes" the resulting failure by widening the allowlist instead of
+    asking why a raw socket showed up in, say, `answer.py`."""
+    actually_importing_http: set[str] = set()
+    for module in _modules_under("ml/voice"):
+        for name in _imported_names(ast.parse(module.read_text(encoding="utf-8"))):
+            if name in NETWORK_MODULES or _root(name) in NETWORK_MODULES:
+                actually_importing_http.add(module.relative_to(BACKEND_ROOT).as_posix())
+    assert actually_importing_http == NETWORK_ALLOWED_FILES
+
+
 def test_the_guard_covers_paths_that_exist() -> None:
-    """A renamed package would make every assertion above vacuous."""
+    """A renamed package would make every assertion above vacuous.
+
+    No exemption anymore: `ml/voice` was allowed to be absent before Stage 8
+    landed (a stub-stage tolerance, `docs/STATE.md`) — now that it exists,
+    the tripwire should catch it disappearing again just as hard as it
+    catches `ml/ablation` disappearing.
+    """
     found = {path for path in NO_GENERATION_PATHS if _modules_under(path)}
     missing = set(NO_GENERATION_PATHS) - found
-    # `ml/voice` and `api/v1/voice.py` land in Stage 8; everything else must
-    # exist now, and the voice paths are asserted once they do.
-    assert missing <= {"ml/voice"}, f"these paths vanished: {sorted(missing)}"
-    assert len(found) >= 3
+    assert not missing, f"these paths vanished: {sorted(missing)}"
+    assert len(found) == len(NO_GENERATION_PATHS)
 
 
 def test_the_guard_would_catch_a_violation(tmp_path: Path) -> None:

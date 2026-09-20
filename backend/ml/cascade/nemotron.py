@@ -131,10 +131,11 @@ class NemotronClient:
         return bool(self.settings.nemotron_api_key) or self._transport is not None
 
     def _guard(self) -> None:
+        # `nemotron_force_fail` is checked earlier, in `decide`, above the
+        # cache lookup — see the comment there for why. It stays checked here
+        # too so that any future caller reaching `_guard` directly cannot
+        # accidentally sidestep the drill.
         if self.settings.nemotron_force_fail:
-            # The Stage 10 drill. Deliberately not `retryable`: the point is
-            # to exercise the degraded path, not to spend three attempts
-            # getting there.
             raise NemotronUnavailable("NEMOTRON_FORCE_FAIL is set", retryable=False)
         if not self.configured:
             raise NemotronUnavailable("no NEMOTRON_API_KEY configured", retryable=False)
@@ -181,6 +182,25 @@ class NemotronClient:
 
     async def decide(self, request: NemotronRequest) -> NemotronResult:
         system, user, prompt_sha = request.render(self.settings)
+
+        # `NEMOTRON_FORCE_FAIL` is checked before the cache, not after.
+        #
+        # It used to sit below the cache lookup, which quietly defeated the
+        # whole drill: once a scenario's prompts had been answered for real
+        # once (`make baseline`), every subsequent run served them from
+        # `data/cache/nemotron/` and returned before the guard was ever
+        # reached — so `NEMOTRON_FORCE_FAIL=1` produced `"succeeded": 6,
+        # degraded: 0, cached: 6` and exercised nothing. The Stage 10
+        # rehearsal would have reported a clean degraded path it never
+        # actually took.
+        #
+        # A missing key still falls through to the cache below, deliberately:
+        # serving a previously-paid-for answer with no key is correct and is
+        # what makes the demo work offline. "Pretend the upstream is down"
+        # and "we have no key" are different requests, and only the first
+        # one has any business bypassing a valid cache entry.
+        if self.settings.nemotron_force_fail:
+            raise NemotronUnavailable("NEMOTRON_FORCE_FAIL is set", retryable=False)
 
         cached = self._cached(prompt_sha)
         if cached is not None:

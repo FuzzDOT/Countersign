@@ -53,12 +53,24 @@ class BuildResult:
         return self.matched
 
 
-def _gold_entity_ids(org_id: uuid.UUID, relation: GoldRelation) -> tuple[uuid.UUID, uuid.UUID]:
+def gold_entity_ids(org_id: uuid.UUID, relation: GoldRelation) -> tuple[uuid.UUID, uuid.UUID]:
+    """The deterministic entity UUIDs a gold relation's two parties resolve to.
+
+    Public because `ml/evidential/calibration.py` needs exactly this mapping
+    to pair insights with gold relations, and two copies of the
+    PERSON-subject special case would be one copy too many — that rule
+    (`SIGNATORY_OF` takes a person as subject) is easy to get silently wrong
+    and would produce mismatched pairs rather than an error.
+    """
     subject_type = "PERSON" if relation.relation in PERSON_SUBJECT_RELATIONS else "ORG"
     return (
         entity_uuid(org_id, relation.subject_canonical, subject_type),
         entity_uuid(org_id, relation.object_canonical, "ORG"),
     )
+
+
+# Retained so existing call sites in this module keep working unchanged.
+_gold_entity_ids = gold_entity_ids
 
 
 def build(db: Session, org_id: uuid.UUID, settings: Settings | None = None) -> BuildResult:

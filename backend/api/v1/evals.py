@@ -21,9 +21,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from api.deps import PERM_CALIBRATION_RUN, PERM_EVALS_READ, ScopeDep, require_perm
-from api.mock import NotImplementedYet, contract
+from api.mock import contract
 from api.v1.schemas import (
     CalibrationEval,
+    CalibrationSnapshotOut,
     CascadeBaseline,
     ConfusionMatrix,
     Correlation,
@@ -39,12 +40,14 @@ from api.v1.schemas import (
 from core.logging import get_logger
 from core.ratelimit import LIMIT_FUZZER_RUN, limiter
 from db.models import (
+    CalibrationSnapshot,
     FragilityTrial,
     Insight,
     Resolver,
     RoutingBucket,
     RoutingEvalCase,
 )
+from ml.evidential import calibration as calib
 from ml.fuzzer import fragility as scoring
 from ml.fuzzer.base import FAMILIES
 from ml.fuzzer.runner import run_fuzzer_job
@@ -453,11 +456,43 @@ def _failure_note(case: RoutingEvalCase, insight: Insight | None) -> str:
     dependencies=[Depends(require_perm(PERM_EVALS_READ))],
     summary="Calibration snapshots and reliability-diagram bins",
 )
-@contract("evals.calibration.json", stage=9, pending=True)
+@contract("evals.calibration.json", stage=9)
 def calibration_eval(scope: ScopeDep) -> CalibrationEval:
     """Ten equal-width bins. `bins` drives the reliability diagram: `avg_conf`
     on x, `accuracy` on y, with the y=x diagonal as the perfect-calibration
     reference and `count` as point size. Bin counts sum to the total case count,
     which is asserted in the Stage 9 exit tests.
+
+    Snapshots are returned oldest-first so the diagram can draw the baseline
+    series under the post-recalibration one in the order they were produced.
+    `hard_negatives_logged` is recomputed live rather than stored: it is a
+    property of the current insights, and a stale count next to a fresh
+    reliability curve would be the kind of quiet inconsistency this endpoint
+    exists to rule out.
     """
-    raise NotImplementedYet(stage=9)
+    snapshots = list(
+        scope.db.execute(
+            scope.query(CalibrationSnapshot).order_by(CalibrationSnapshot.created_at.asc())
+        ).scalars()
+    )
+    current = next((s for s in snapshots if s.is_current), None)
+
+    return CalibrationEval(
+        snapshots=[
+            CalibrationSnapshotOut(
+                id=snapshot.id,
+                label=snapshot.label,
+                temperature=snapshot.temperature,
+                ece=snapshot.ece,
+                mce=snapshot.mce,
+                brier=snapshot.brier,
+                bins=snapshot.bins,
+                created_at=snapshot.created_at,
+            )
+            for snapshot in snapshots
+        ],
+        current_snapshot_id=current.id if current else None,
+        hard_negatives_logged=len(
+            calib.hard_negatives(calib.load_cases(scope.db, scope.org_id))
+        ),
+    )

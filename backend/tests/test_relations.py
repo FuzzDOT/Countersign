@@ -31,7 +31,28 @@ from ml.relations.rules import FEATURE_DIM, RuleRelationModel, extract_features,
 from ml.tagger.infer import get_tagger
 from ml.text.parse import parse
 
-SENTENCE = "Meridian Supply LLC wired $48,200 to Advent Holdings on 14 September 2026."
+# `Brightwater Industrial LLC` and `Calderon Freight Co` are both from
+# `data/synth/names.py::TRAIN_ORGS` — names the tagger has actually seen.
+#
+# This used to read "Meridian Supply LLC wired $48,200 to Advent Holdings on
+# 14 September 2026." and every test in this file that needs a candidate
+# pair errored out with "the demo sentence must produce at least one
+# candidate pair", because those two companies are in `HELDOUT_ORGS`:
+# `names.py`'s entire design is that the tagger never sees them, so band D
+# can measure generalization to unseen names. Inspecting the committed
+# checkpoint's stored vocabulary confirms it directly — "meridian",
+# "advent", "supply" and "holdings" are not in it, while "brightwater",
+# "calderon", "freight" and "wired" all are.
+#
+# The full 34-document ingest still tags the held-out names fine (358
+# mentions, 141 entities) because band D is only ~10% of that corpus and
+# the char-CNN has surrounding in-vocabulary context to work with. One
+# isolated sentence built *entirely* from held-out names is its worst case,
+# and these tests are about graph construction and edge masking, not about
+# OOD generalization — making them depend on it tests the wrong thing in
+# the wrong place. Band-D generalization has its own measurement:
+# `scripts/train_tagger.py`'s `heldout` block, which reports it explicitly.
+SENTENCE = "Brightwater Industrial LLC wired $48,200 to Calderon Freight Co on 14 September 2026."
 
 
 @pytest.fixture(scope="module")

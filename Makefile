@@ -149,7 +149,7 @@ fixtures-check:  ## Fail if committed fixtures are stale (used by CI)
 # ── models ───────────────────────────────────────────────────────────────────
 
 .PHONY: train-tagger train-relations train tune-gate vacuity fuzz eval baseline offsets \
-        ablation ablation-demo
+        ablation ablation-demo record-fallback
 
 train-tagger:  ## Train the BiLSTM-CRF and write ml/checkpoints/tagger.pt (~60s)
 	$(BE) python -m scripts.train_tagger
@@ -179,6 +179,9 @@ ablation:  ## Sweep ablation intervention size over the demo corpus and write th
 
 ablation-demo:  ## Find the minimal edge count for the pinned demo insight
 	$(BE) python -m scripts.ablation_report --demo
+
+record-fallback:  ## Record the prerecorded voice briefing (needs ELEVENLABS_API_KEY, one real call)
+	$(BE) python -m scripts.record_fallback
 
 offsets:  ## Run the offset-integrity suite on its own (the load-bearing invariant)
 	$(BE) pytest -q tests/test_offsets.py

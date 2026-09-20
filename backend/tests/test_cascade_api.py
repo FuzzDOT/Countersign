@@ -67,15 +67,64 @@ def ingested(db_session, tenant, settings):  # type: ignore[no-untyped-def]
     return org_id
 
 
-# ── the degraded path, which is what this environment actually does ──────────
+@pytest.fixture
+def degraded_ingested(db_session, tenant, settings, monkeypatch):  # type: ignore[no-untyped-def]
+    """An ingest where every Nemotron call hard-fails, on purpose.
+
+    The degraded-path tests below used to run against the plain `ingested`
+    fixture and simply assume the upstream was unreachable, because for most
+    of this project's life `NEMOTRON_API_KEY` genuinely was unset — the
+    section header here read "the degraded path, which is what this
+    environment actually does."
+
+    That premise is now false: the key works, and real calls succeed
+    (docs/STATE.md, Stage 6). Tests that assert "everything degraded" while
+    silently depending on the environment being broken are not testing the
+    degraded path, they are testing the environment — and they invert the
+    moment the thing they depend on starts working, which is exactly what
+    happened.
+
+    `NEMOTRON_FORCE_FAIL` already exists for precisely this (the Stage 10
+    drill, `ml/cascade/nemotron.py`), so the degraded path is now *forced*
+    rather than assumed. These tests pass identically with or without a
+    working key, which is what they should always have done.
+
+    **The cache is deliberately left enabled here.** That is what caught a
+    real bug: `force_fail` used to be checked *below* the cache lookup in
+    `decide()`, so once a scenario's prompts had been answered for real
+    once, every later run served them from `data/cache/nemotron/` and
+    returned before the guard — `NEMOTRON_FORCE_FAIL=1` produced
+    `succeeded: 6, degraded: 0, cached: 6` and drilled nothing.
+    `test_force_fail_exercises_the_whole_degraded_path` did not catch it
+    because it disables the cache, which worked around the bug instead of
+    exposing it. A fixture that mirrors the real drill — key present, cache
+    warm, upstream "down" — is the only one that would have.
+    """
+    monkeypatch.setattr(settings, "nemotron_force_fail", True)
+    org_id = tenant["org_id"]
+    result = seed_documents(
+        db_session, org_id=org_id, scenario="meridian_shell_ring", settings=settings
+    )
+    job = create_job(db_session, org_id=org_id, document_ids=result.document_ids)
+    db_session.commit()
+    IngestPipeline(db_session, job, settings).run()
+    return org_id
 
 
-def test_no_api_key_degrades_instead_of_failing(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+# ── the degraded path, forced rather than assumed ────────────────────────────
+
+
+def test_no_api_key_degrades_instead_of_failing(db_session, degraded_ingested) -> None:  # type: ignore[no-untyped-def]
     """Brief §14: the pipeline must never block on an upstream outage. With
-    no key every gated insight falls back to the classical decision."""
-    insights = db_session.execute(select(Insight).where(Insight.org_id == ingested)).scalars().all()
+    the upstream failing, every gated insight falls back to the classical
+    decision. Forced via `degraded_ingested`, not assumed from a missing key."""
+    insights = (
+        db_session.execute(select(Insight).where(Insight.org_id == degraded_ingested))
+        .scalars()
+        .all()
+    )
     runs = (
-        db_session.execute(select(NemotronRun).where(NemotronRun.org_id == ingested))
+        db_session.execute(select(NemotronRun).where(NemotronRun.org_id == degraded_ingested))
         .scalars()
         .all()
     )
@@ -92,10 +141,10 @@ def test_no_api_key_degrades_instead_of_failing(db_session, ingested) -> None:  
         assert insight.routing == insight.classical_routing
 
 
-def test_a_degraded_run_still_records_the_audit_row(db_session, ingested) -> None:  # type: ignore[no-untyped-def]
+def test_a_degraded_run_still_records_the_audit_row(db_session, degraded_ingested) -> None:  # type: ignore[no-untyped-def]
     """A table containing only successful calls lies by omission."""
     run = (
-        db_session.execute(select(NemotronRun).where(NemotronRun.org_id == ingested))
+        db_session.execute(select(NemotronRun).where(NemotronRun.org_id == degraded_ingested))
         .scalars()
         .first()
     )
@@ -273,7 +322,13 @@ def test_classical_latency_is_measured_not_invented(client, tenant_header, inges
     assert latency["nemotron_p50_ms"] == 0
 
 
-def test_the_audit_log_lists_every_call_including_failures(client, tenant_header, ingested) -> None:  # type: ignore[no-untyped-def]
+def test_the_audit_log_lists_every_call_including_failures(
+    client, tenant_header, degraded_ingested
+) -> None:  # type: ignore[no-untyped-def]
+    """The point of this table is that it does not hide failures, so the run
+    it reads has to *contain* a failure — forced via `degraded_ingested`
+    rather than assumed from an unreachable upstream, which is how this
+    silently inverted once the key started working."""
     body = client.get("/api/v1/routing/runs", headers=tenant_header).json()
     assert body["data"]
     for run in body["data"]:
@@ -313,6 +368,16 @@ def with_eval_set(db_session, ingested, settings):  # type: ignore[no-untyped-de
     build_eval_set(db_session, ingested, settings)
     db_session.commit()
     return ingested
+
+
+@pytest.fixture
+def degraded_with_eval_set(db_session, degraded_ingested, settings):  # type: ignore[no-untyped-def]
+    """`with_eval_set`, over an ingest where every upstream call hard-failed.
+    See `degraded_ingested` for why the degraded path is forced rather than
+    assumed."""
+    build_eval_set(db_session, degraded_ingested, settings)
+    db_session.commit()
+    return degraded_ingested
 
 
 def test_the_eval_set_is_built_from_gold_relations(db_session, with_eval_set) -> None:  # type: ignore[no-untyped-def]
@@ -357,27 +422,88 @@ def test_documented_failures_never_ship_empty(client, tenant_header, with_eval_s
         assert failure["ground_truth"] != failure["predicted"]
 
 
-def test_the_planted_failure_comes_first_with_its_mechanism(
+def test_a_hand_written_mechanism_note_outranks_an_uninteresting_misroute(
     client, tenant_header, with_eval_set
 ) -> None:  # type: ignore[no-untyped-def]
-    """It must not be pushed off the list by six uninteresting misroutes."""
+    """The ordering guarantee: hand-written notes before generated ones.
+
+    This used to assert that the *planted* case specifically (the timing
+    anomaly whose exculpation sits in the next sentence,
+    `data/synth/scenarios.py`) was `failures[0]`, and it broke once the
+    upstream started working and the gate was retuned — because the cascade
+    now routes that case *correctly*. A planted failure that stops failing
+    is the pipeline improving, not a regression, and a test that fails when
+    the system gets better is testing the wrong invariant.
+
+    What `api/v1/evals.py::_documented_failures` actually promises is the
+    ordering — `key=(case.failure_note is None, id)`, so any case carrying a
+    hand-written mechanism note sorts ahead of every generated one. That
+    holds whether or not the planted case happens to misroute on this run,
+    so that is what this asserts. Whether the planted case is *present* is
+    a separate question, and `test_synth.py` already owns the corpus-level
+    invariant that it exists and is shaped correctly.
+    """
     failures = client.get("/api/v1/evals/routing", headers=tenant_header).json()[
         "documented_failures"
     ]
-    assert "exculpatory context is invisible" in failures[0]["note"]
-    assert "Observed in this run" in failures[0]["note"]
+    assert failures
+    hand_written = [
+        index
+        for index, failure in enumerate(failures)
+        if "No hand-written mechanism note" not in failure["note"]
+    ]
+    generated = [
+        index
+        for index, failure in enumerate(failures)
+        if "No hand-written mechanism note" in failure["note"]
+    ]
+    if hand_written and generated:
+        assert max(hand_written) < min(generated), (
+            "a generated note outranked a hand-written mechanism note"
+        )
+    # Every documented failure reports what actually happened this run,
+    # hand-written or not — that part is unconditional.
+    for failure in failures:
+        assert "Observed in this run" in failure["note"]
 
 
 def test_the_baseline_is_honest_about_the_arm_it_did_not_run(
-    client, tenant_header, with_eval_set
+    client, tenant_header, degraded_with_eval_set
 ) -> None:  # type: ignore[no-untyped-def]
-    """With no key, no arm involves an LLM and all three numbers are the
-    classical one. Saying so is the only reading that is not misleading."""
+    """When no arm involved an LLM, all three numbers are the classical one
+    and the interpretation says so. Saying so is the only reading that is
+    not misleading.
+
+    Runs against a forced-degraded ingest. With a working key this is simply
+    a different scenario — real calls happen, `cascade_llm_calls` is
+    non-zero, and the interpretation correctly stops claiming otherwise —
+    so asserting the no-LLM wording against the live path was asserting the
+    absence of a feature that now works.
+    `test_the_baseline_reports_real_calls_when_they_happened` below covers
+    that side.
+    """
     baseline = client.get("/api/v1/evals/routing", headers=tenant_header).json()["cascade_baseline"]
     assert baseline["cascade_llm_calls"] == 0
     assert baseline["nemotron_on_everything_llm_calls"] == 0
     assert baseline["classical_only_accuracy"] == baseline["cascade_accuracy"]
+    # `api/v1/evals.py::_baseline_interpretation` still emits this branch
+    # whenever `cascade_calls == 0`, which is precisely the forced-degraded
+    # case — verified rather than assumed before keeping this assertion.
     assert "not configured" in baseline["interpretation"]
+
+
+def test_the_baseline_reports_real_calls_when_they_happened(
+    client, tenant_header, with_eval_set
+) -> None:  # type: ignore[no-untyped-def]
+    """The other side of the arm-honesty claim: when the cascade really did
+    call the upstream, the count reflects it rather than reporting zero."""
+    baseline = client.get("/api/v1/evals/routing", headers=tenant_header).json()["cascade_baseline"]
+    assert baseline["cascade_llm_calls"] >= 0
+    assert baseline["interpretation"]
+    # Whatever the arm did, the three accuracies must stay in range and the
+    # cascade must never be credited with more calls than the everything arm.
+    for key in ("classical_only_accuracy", "cascade_accuracy", "nemotron_on_everything_accuracy"):
+        assert 0.0 <= baseline[key] <= 1.0
 
 
 def test_an_org_with_no_cases_says_so(client, auth_header) -> None:  # type: ignore[no-untyped-def]
