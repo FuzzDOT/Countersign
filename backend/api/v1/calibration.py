@@ -32,7 +32,7 @@ from api.v1.schemas import (
     RecalibrateResponse,
 )
 from core.logging import get_logger
-from core.ratelimit import LIMIT_RECALIBRATE, limiter
+from core.ratelimit import LIMIT_RECALIBRATE, limiter, org_rate_limit_key
 from db.models import CalibrationSnapshot
 from ml.evidential import calibration as calib
 from ml.evidential import temperature as temperature_mod
@@ -96,7 +96,10 @@ def _snapshot_response(
     dependencies=[Depends(require_perm(PERM_CALIBRATION_RUN))],
     summary="Fit temperature scaling and report ECE before/after",
 )
-@limiter.limit(LIMIT_RECALIBRATE)
+# Keyed per org, not per user: brief §13 specifies 5/hour/org, and a refit
+# mutates tenant-wide state (the served temperature) rather than anything
+# belonging to the caller.
+@limiter.limit(LIMIT_RECALIBRATE, key_func=org_rate_limit_key)
 @contract("calibration.recalibrate.json", stage=9)
 def recalibrate(
     request: Request,

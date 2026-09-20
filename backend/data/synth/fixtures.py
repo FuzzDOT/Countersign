@@ -1309,6 +1309,14 @@ class FixtureSet:
             "insight_ids": [str(i.insight_id) for i in ranked],
             "generated_at": GENERATED_AT.isoformat(),
             "is_fallback": fallback,
+            # Explicit rather than left to the model default: the fixtures are
+            # what the frontend builds its player against, and "there is audio"
+            # is the interesting half of this flag. The live degraded path sets
+            # it to False when a briefing has to be assembled from templates
+            # with no recording on disk (api/v1/voice._degraded_briefing), and
+            # a fixture that silently inherited True would never exercise the
+            # transcript-only rendering.
+            "audio_available": True,
         }
 
     def voice_ask(self) -> dict[str, Any]:

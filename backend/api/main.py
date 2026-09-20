@@ -14,13 +14,16 @@ from __future__ import annotations
 import random
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
-from api.errors import register_exception_handlers
+from api.errors import NotFound, register_exception_handlers
 from api.middleware import (
     RequestContextMiddleware,
     RequestSizeLimitMiddleware,
@@ -71,6 +74,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         database_reachable=check_database(),
         nemotron_configured=bool(settings.nemotron_api_key),
         elevenlabs_configured=bool(settings.elevenlabs_api_key),
+        serve_static=settings.serve_static,
+        voice_fallback_recorded=settings.path(settings.voice_fallback_audio).is_file(),
     )
 
     # Loud about missing upstream keys at boot rather than at hour 20. Not
@@ -138,8 +143,108 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(api_router)
     _register_health(app, settings)
+    # Must come last: the SPA catch-all matches everything, and Starlette
+    # resolves routes in registration order, so the API and health routes have
+    # to be in place before it.
+    _register_static(app, settings)
 
     return app
+
+
+# Paths the SPA catch-all must never answer for. Without this, a typo'd API
+# call would get 200 text/html instead of the error envelope the frontend
+# switches on (brief §3), which is a genuinely confusing way to lose an hour.
+_API_PREFIXES = ("api/", "health")
+
+
+def _register_static(app: FastAPI, settings: Settings) -> None:
+    """Serve the built frontend from this process when SERVE_STATIC is set.
+
+    `docker-compose.prod.yml` builds the frontend to a volume, mounts it at
+    `STATIC_DIR` in this container and publishes only port 8000, so the whole
+    app is one origin — which is what makes brief §16's "`docker compose up`
+    ... serves the frontend build" and plan §4 Stage 10's "`make prod`
+    single-origin build serving the frontend bundle" true rather than
+    aspirational. Until this function existed, `SERVE_STATIC` was read in
+    exactly one place (the CSP in `api/middleware.py`) and the bundle was
+    mounted, copied and never served: the API answered and `/` returned 404.
+
+    Deliberately non-fatal when the bundle is missing. A backend that refuses
+    to boot because a frontend build is absent is useless for backend work,
+    and `MOCK_MODE`/dev never set this flag at all.
+    """
+    if not settings.serve_static:
+        return
+
+    root = Path(settings.static_dir).resolve()
+    index = root / "index.html"
+
+    # Everything below resolves paths *per request*, not at startup. The
+    # frontend container builds for a minute or two and then copies into the
+    # shared volume, and it cannot be a compose `depends_on` of the backend
+    # (the base file already has the frontend depending on the backend, so
+    # that would be a cycle). A startup-time existence check would therefore
+    # lose the race on a cold `make prod` and strand the bundle: files
+    # present, routes never registered, `/` 404 until someone restarted the
+    # API. Checking per request also means a rebuilt bundle is picked up
+    # without a restart.
+    if index.is_file():
+        log.info("serving_static_bundle", static_dir=str(root))
+    else:
+        log.warning(
+            "static_bundle_not_ready",
+            static_dir=str(root),
+            effect="/ returns 404 until the frontend build lands; API is unaffected",
+            hint="expected during a cold `make prod` while the frontend image builds",
+        )
+
+    # Vite emits absolute `/assets/...` URLs with content-hashed filenames, so
+    # they are safe to cache hard. StaticFiles handles conditional GETs and
+    # ranges for them, and is mounted lazily for the same race reason: a
+    # `StaticFiles(directory=...)` constructed against a missing directory
+    # raises at startup.
+    assets = root / "assets"
+    if assets.is_dir():
+        app.mount("/assets", StaticFiles(directory=assets), name="assets")
+    else:
+        # Fall through to the catch-all below, which serves any real file it
+        # finds — including `assets/*` — just without StaticFiles' caching
+        # niceties. Correct output either way.
+        log.info("static_assets_dir_absent_using_catch_all", assets_dir=str(assets))
+
+    @app.get("/{spa_path:path}", include_in_schema=False)
+    def spa(spa_path: str) -> FileResponse:
+        """Real file if one exists, else `index.html` for client-side routing.
+
+        Frontend brief §3 requires every app screen to be deep-linkable
+        (`/app/feed/:insightId`, `/app/document/:docId?span=…`) so the demo
+        can jump straight to any surface if something breaks live. Those paths
+        exist only in the router, so a hard reload has to return the shell and
+        let React resolve them.
+        """
+        if spa_path.startswith(_API_PREFIXES):
+            # Past the real API routes and still starting with /api — this is
+            # a 404 on the API, not a page.
+            raise NotFound("No such endpoint.", details={"path": f"/{spa_path}"})
+
+        if spa_path:
+            candidate = (root / spa_path).resolve()
+            # `resolve()` collapses `..` before this check, so a traversal
+            # attempt lands outside `root` and is rejected rather than
+            # reaching the filesystem.
+            if candidate.is_relative_to(root) and candidate.is_file():
+                return FileResponse(candidate)
+
+        if not index.is_file():
+            raise NotFound(
+                "The frontend bundle is not built yet.",
+                details={"static_dir": str(root), "hint": "make prod"},
+            )
+
+        # `index.html` names hashed assets, so caching it would pin a browser
+        # to a stale bundle across a rebuild — exactly the failure that looks
+        # like "the fix didn't deploy" at hour 23.
+        return FileResponse(index, headers={"Cache-Control": "no-cache"})
 
 
 def _register_health(app: FastAPI, settings: Settings) -> None:

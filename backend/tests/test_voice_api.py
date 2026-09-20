@@ -424,9 +424,23 @@ def test_fallback_briefing_endpoint_returns_the_recorded_shape(
     assert body["briefing_id"] == str(fallback.briefing_id)
 
 
-def test_fallback_briefing_with_nothing_recorded_yet_is_voice_unavailable(
-    client, tenant_header, monkeypatch
+def test_fallback_briefing_with_nothing_recorded_degrades_to_text_only(
+    client, tenant_header, ingested, monkeypatch
 ) -> None:  # type: ignore[no-untyped-def]
+    """Nothing recorded is not a dead end any more, and that is the fix.
+
+    This test previously asserted 503 here. That was the honest description
+    of the old behaviour and the behaviour was wrong: the frontend wires this
+    endpoint as the *automatic* fallback for a failed live briefing
+    (frontend brief §12.3), so a 503 meant the wifi-failure path terminated
+    in an error toast — on the one path brief §11 promises "Conference wifi
+    will fail. The demo will not."
+
+    The contract now has two tiers (`api/v1/voice._degraded_briefing`): the
+    prerecorded briefing if one exists, else a text-only briefing built from
+    templates over live insights. So the assertion is that the response is a
+    real briefing which is honest about having no audio — not that it errors.
+    """
     from api.errors import VoiceUnavailable
 
     def _raise(settings):  # type: ignore[no-untyped-def]
@@ -434,7 +448,51 @@ def test_fallback_briefing_with_nothing_recorded_yet_is_voice_unavailable(
 
     monkeypatch.setattr(voice_module, "_fallback_response", _raise)
     response = client.get("/api/v1/voice/fallback/briefing", headers=tenant_header)
-    assert response.status_code == 503, response.text
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["is_fallback"] is True
+    assert body["audio_available"] is False
+    # The transcript is the whole point of tier 2 — an empty one would be a
+    # 200 that degrades to nothing, which is the failure this replaced.
+    assert len(body["transcript"]) >= 1
+    # Segment-to-insight sync is what sells the voice track and it does not
+    # need audio to work, so every non-opening segment still carries an id
+    # from this org's own insights.
+    for segment in body["transcript"][1:]:
+        assert segment["insight_id"] in body["insight_ids"]
+
+
+def test_a_recorded_fallback_wins_over_the_text_only_path(
+    client, tenant_header, ingested, monkeypatch
+) -> None:  # type: ignore[no-untyped-def]
+    """Tier 2 is a fallback, not a replacement for recording the real thing."""
+    from api.v1.schemas import BriefingResponse
+
+    recorded = BriefingResponse(
+        briefing_id=uuid.uuid4(),
+        audio_url="/api/v1/voice/fallback/briefing.mp3",
+        duration_ms=41200,
+        transcript=[
+            {
+                "segment_id": "s0",
+                "start_ms": 0,
+                "end_ms": 3100,
+                "text": "Three things need your attention.",
+                "insight_id": None,
+            }
+        ],
+        insight_ids=[],
+        generated_at="2026-01-01T00:00:00Z",
+        is_fallback=True,
+        audio_available=True,
+    )
+    monkeypatch.setattr(voice_module, "_fallback_response", lambda settings: recorded)
+
+    response = client.get("/api/v1/voice/fallback/briefing", headers=tenant_header)
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["briefing_id"] == str(recorded.briefing_id)
+    assert body["audio_available"] is True
 
 
 # ── audio serving ────────────────────────────────────────────────────────────

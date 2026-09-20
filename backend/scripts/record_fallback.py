@@ -32,9 +32,52 @@ from core import ids
 from core.config import get_settings
 from core.logging import configure_logging, get_logger
 from db.session import db_session
-from ml.voice.briefing import build_briefing
+from ml.voice.briefing import build_briefing, build_text_only_briefing
 
 log = get_logger(__name__)
+
+
+def _write_transcript_only(org_id, args, settings) -> int:  # type: ignore[no-untyped-def]
+    """The `--no-audio` path: transcript on disk, no upstream call.
+
+    Uses `build_text_only_briefing`, the same function the live degraded path
+    falls through to, so a committed transcript and an on-the-fly one cannot
+    say different things about the same corpus. `audio_available` is not
+    written here on purpose — `api/v1/voice._load_fallback_payload` recomputes
+    it from whether the mp3 actually exists, so dropping a real recording in
+    later flips it without rewriting this file.
+    """
+    with db_session() as db:
+        response = build_text_only_briefing(
+            db,
+            org_id,
+            scope=args.scope,
+            max_items=args.max_items,
+            settings=settings,
+        )
+
+    payload = response.model_dump(mode="json")
+    payload["is_fallback"] = True
+    payload["briefing_id"] = str(ids.stable_uuid("briefing", "fallback"))
+    payload["audio_url"] = "/api/v1/voice/fallback/briefing.mp3"
+
+    transcript_path = settings.path(settings.voice_fallback_transcript)
+    transcript_path.parent.mkdir(parents=True, exist_ok=True)
+    transcript_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    log.info(
+        "fallback_transcript_recorded",
+        transcript_path=str(transcript_path),
+        segments=len(payload["transcript"]),
+        insight_ids=len(payload["insight_ids"]),
+        audio="skipped (--no-audio)",
+    )
+    print(
+        f"wrote {transcript_path} ({len(payload['transcript'])} segments, "
+        f"{len(payload['insight_ids'])} insights) with NO audio. "
+        "Re-run without --no-audio once ELEVENLABS_API_KEY works to add the mp3."
+    )
+    return 0
 
 
 def main() -> int:
@@ -42,11 +85,26 @@ def main() -> int:
     parser.add_argument("--org", default=None, help="Defaults to the demo tenant.")
     parser.add_argument("--scope", default="flagged", choices=("flagged", "escalated", "all_new"))
     parser.add_argument("--max-items", type=int, default=3)
+    parser.add_argument(
+        "--no-audio",
+        action="store_true",
+        help=(
+            "Write only the transcript, with no ElevenLabs call. Produces a "
+            "committable fallback artifact from a machine that has a seeded "
+            "database but no API key or no character credits. The audio is "
+            "still worth recording for real later — this makes the degraded "
+            "path serve a correct transcript in the meantime rather than "
+            "nothing."
+        ),
+    )
     args = parser.parse_args()
 
     settings = get_settings()
     configure_logging(level=settings.log_level)
     org_id = uuid.UUID(args.org) if args.org else ids.DEMO_ORG_ID
+
+    if args.no_audio:
+        return _write_transcript_only(org_id, args, settings)
 
     with db_session() as db:
         response, audio_bytes = build_briefing(

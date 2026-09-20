@@ -165,11 +165,23 @@ class Settings(BaseSettings):
 
     # ── pipeline tuning ──────────────────────────────────────────────────────
     relation_model: RelationBackend = RelationBackend.gat
-    # Tuned by scripts/tune_gate.py, not guessed. The brief's 0.45 escalated
-    # nothing on this corpus; 0.20 puts the cascade's LLM call rate at ~10% of
-    # insights, inside the 8-20% band the definition of done specifies.
-    # Re-run `make tune-gate` after any change to the corpus or the head.
-    vacuity_gate_threshold: float = Field(default=0.225, ge=0.0, le=1.0)
+    # Tuned by scripts/tune_gate.py, not guessed, and re-tuned whenever the
+    # head changes. History, because getting this wrong is silent and
+    # expensive:
+    #
+    #   0.45   the brief's guess. Escalated nothing on this corpus.
+    #   0.225  correct for the *pre*-retrain head.
+    #   0.625  correct for the head actually committed in ml/checkpoints/,
+    #          after the Stage 7 residual-connection fix retrained it.
+    #
+    # The Stage 7 retrain compressed the vacuity distribution, so 0.225
+    # against the shipped checkpoints escalates ~83% of insights (measured:
+    # 48/58) instead of the 8-20% the definition of done requires — which
+    # inverts the cascade's whole thesis, in public, on a machine that only
+    # ever ran `make init`. This default and .env.example must move together
+    # after every `make tune-gate`; `make tune-gate` prints the recommended
+    # value, it does not write it back.
+    vacuity_gate_threshold: float = Field(default=0.625, ge=0.0, le=1.0)
     # Classical routing bands over the composite risk score in
     # ml/cascade/routing.py. Tuned in Stage 4 against the definition of
     # done's 8-20% escalation rate rather than guessed, and kept in config so

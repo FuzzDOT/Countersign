@@ -19,7 +19,7 @@ from slowapi.util import get_remote_address
 from starlette.requests import Request
 
 from core.config import get_settings
-from core.security import peek_token_subject
+from core.security import peek_token_org, peek_token_subject
 
 # ── limit table (brief §13) ──────────────────────────────────────────────────
 # Kept as named constants rather than inline strings so that a limit appears
@@ -33,6 +33,8 @@ LIMIT_UPLOAD = "20/minute"
 LIMIT_SEED = "10/minute"
 LIMIT_ABLATION = "30/minute"
 LIMIT_VOICE = "20/minute"
+# Per **org**, not per user — see `org_rate_limit_key`. The decorator on
+# api/v1/calibration.py passes that key function explicitly.
 LIMIT_RECALIBRATE = "5/hour"
 LIMIT_FUZZER_RUN = "3/hour"
 
@@ -55,6 +57,26 @@ def rate_limit_key(request: Request) -> str:
     # shares one bucket; trusting the header instead would let a caller spoof a
     # new bucket per request. If this ever runs behind a real load balancer,
     # configure uvicorn's --forwarded-allow-ips and revisit.
+    return f"ip:{get_remote_address(request)}"
+
+
+def org_rate_limit_key(request: Request) -> str:
+    """`org:<uuid>` when a valid bearer token is present, else `ip:<addr>`.
+
+    Brief §13 gives one endpoint a per-**org** limit rather than a per-user
+    one: `/calibration/recalibrate` at 5/hour/org. It refits the org's
+    temperature and writes snapshot rows, so the budget belongs to the tenant
+    — keying it on `sub` like everything else gave an org with three owners
+    fifteen refits an hour against a documented five.
+
+    Same verification discipline as `rate_limit_key`: the token's signature
+    is checked, so the bucket cannot be forged.
+    """
+    header = request.headers.get("authorization", "")
+    if header.lower().startswith("bearer "):
+        token = header[7:].strip()
+        if token and (org := peek_token_org(token)):
+            return f"org:{org}"
     return f"ip:{get_remote_address(request)}"
 
 

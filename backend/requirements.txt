@@ -24,7 +24,14 @@ slowapi==0.1.9
 
 # ── ml ───────────────────────────────────────────────────────────────────────
 # torch is installed separately in the Dockerfile (CPU wheel index).
-torch-geometric==2.6.1
+#
+# torch-geometric is deliberately absent (plan §1.2, removed in the Stage 10
+# cleanup that section schedules). The GAT is hand-rolled in ml/relations/gat.py
+# because ablation needs to mask *named edges at inference time* and read
+# per-edge, per-layer attention back out; PyG's GATConv would mean either
+# mutating edge_index — a different counterfactual than the one claim 4 makes —
+# or forking its forward pass. Nothing imports it, and it was one more thing
+# that had to install correctly inside a slim image.
 numpy==2.2.0
 scipy==1.14.1
 scikit-learn==1.6.0

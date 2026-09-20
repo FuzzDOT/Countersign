@@ -665,6 +665,17 @@ class BriefingResponse(Schema):
     # True when this is the prerecorded fallback rather than live synthesis, so
     # the frontend can show its honest "playing recorded briefing" note.
     is_fallback: bool = False
+    # False when there is no audio to play and `transcript` is all there is:
+    # live synthesis failed AND no briefing was ever recorded. The frontend
+    # should skip the player and render the transcript with its insight sync
+    # intact (frontend brief §12.1 — that sync is the beat that sells the
+    # track, and it does not need audio to work).
+    #
+    # Additive with a default of True, deliberately: making `audio_url`
+    # nullable would break the generated TypeScript for every existing
+    # consumer, exactly as adding `degraded` did not. Old clients that ignore
+    # this field behave as before.
+    audio_available: bool = True
 
 
 VoiceIntent = Literal[

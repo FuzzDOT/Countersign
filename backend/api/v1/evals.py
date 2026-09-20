@@ -17,11 +17,12 @@ from collections import defaultdict
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request, Response, status
-from sqlalchemy import select
+from sqlalchemy import case, select
 from sqlalchemy.orm import Session
 
 from api.deps import PERM_CALIBRATION_RUN, PERM_EVALS_READ, ScopeDep, require_perm
 from api.mock import contract
+from api.v1.calibration import LABEL_BASELINE
 from api.v1.schemas import (
     CalibrationEval,
     CalibrationSnapshotOut,
@@ -470,9 +471,18 @@ def calibration_eval(scope: ScopeDep) -> CalibrationEval:
     reliability curve would be the kind of quiet inconsistency this endpoint
     exists to rule out.
     """
+    # `created_at` defaults to `now()`, which in Postgres is the *transaction*
+    # timestamp — a recalibration writes its baseline and post rows in one
+    # transaction, so the pair is an exact tie and `ORDER BY created_at` alone
+    # leaves their relative order up to the scan. The label is the tiebreaker
+    # because the ordering it encodes is real: within a transaction the
+    # baseline is always measured before the refit it is compared against.
     snapshots = list(
         scope.db.execute(
-            scope.query(CalibrationSnapshot).order_by(CalibrationSnapshot.created_at.asc())
+            scope.query(CalibrationSnapshot).order_by(
+                CalibrationSnapshot.created_at.asc(),
+                case((CalibrationSnapshot.label == LABEL_BASELINE, 0), else_=1).asc(),
+            )
         ).scalars()
     )
     current = next((s for s in snapshots if s.is_current), None)

@@ -243,6 +243,36 @@ def peek_token_subject(token: str, settings: Settings | None = None) -> str | No
     return str(sub) if sub else None
 
 
+def peek_token_org(token: str, settings: Settings | None = None) -> str | None:
+    """Best-effort `org` extraction for rate-limit keying only.
+
+    Same contract and same caveats as `peek_token_subject`: the signature is
+    verified so a caller cannot forge a bucket, expiry is not so an expired
+    token is still limited, and the result must never be used for
+    authorization — `get_principal` is the only thing allowed to decide which
+    org a request belongs to.
+
+    Exists because brief §13 specifies `/calibration/recalibrate` at
+    **5/hour/org**, not per user. Recalibration is expensive and
+    state-mutating for the whole tenant, so two owners in one org should share
+    the budget rather than get one each.
+    """
+    settings = settings or get_settings()
+    try:
+        claims = jwt.decode(
+            token,
+            settings.jwt_secret,
+            algorithms=[settings.jwt_algorithm],
+            audience=settings.jwt_audience,
+            issuer=settings.jwt_issuer,
+            options={"verify_exp": False, "require": ["org"]},
+        )
+    except jwt.InvalidTokenError:
+        return None
+    org = claims.get("org")
+    return str(org) if org else None
+
+
 # ── refresh tokens ───────────────────────────────────────────────────────────
 
 REFRESH_TOKEN_BYTES = 48

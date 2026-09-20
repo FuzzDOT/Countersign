@@ -6,6 +6,11 @@ the defense is a helper you cannot forget to call rather than a `.where()` you
 have to remember in forty places. `Scope.query()` is typed to accept only
 models inheriting `OrgScoped`, so a missing tenant filter is a type error at
 lint time, not a data breach at demo time.
+
+`scoped_query(scope, Model)` is the free-function name both brief §13 and
+plan §4 Stage 0 specify; it delegates to `Scope.query()` so there is one
+implementation under two names rather than two implementations that can
+disagree.
 """
 
 from __future__ import annotations
@@ -239,6 +244,32 @@ class Scope:
         means those tables cannot be read unfiltered by accident.
         """
         return select(model).join(parent, join_condition).where(parent.org_id == self.org_id)
+
+
+def scoped_query(scope: Scope, model: type[ScopedModel]) -> Select[tuple[ScopedModel]]:
+    """The tenant-scoped read helper named in brief §13 and plan §4 Stage 0.
+
+    Both documents specify "a `scoped_query()` helper in `api/deps.py`". The
+    implementation lives on `Scope.query()` because a bound session and a
+    permission check belong with the org id rather than being three arguments
+    every call site threads separately — but the contract names this symbol,
+    so it exists, and it is the same code path rather than a second one that
+    could drift.
+
+    Prefer `scope.query(Model)` in new route code; this function is here so
+    the name in the contract resolves, and for callers holding a `Scope` that
+    read better left-to-right:
+
+        stmt = scoped_query(scope, Insight).where(Insight.routing == bucket)
+
+    `ScopedModel` is bound to `OrgScoped`, so passing a model without an
+    `org_id` is a type error at lint time rather than a cross-tenant read at
+    demo time. For tables reachable only through an org-scoped parent
+    (mentions, ablation runs, fragility trials, Nemotron runs) use
+    `Scope.child_query()` instead — it forces the join through the parent's
+    `org_id` and there is deliberately no unscoped equivalent.
+    """
+    return scope.query(model)
 
 
 def get_scope(

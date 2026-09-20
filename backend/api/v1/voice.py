@@ -13,7 +13,12 @@ the claim stays true at hour 23 when someone is tired.
 **A live synthesis failure degrades, it does not error.** `POST /voice/briefing`
 catches `VoiceUnavailable` and returns the prerecorded fallback's exact JSON
 shape instead of a 503 — a judge asking for a briefing should hear *something*
-regardless of ElevenLabs' mood that afternoon. `POST /voice/ask` degrades the
+regardless of ElevenLabs' mood that afternoon. And when nothing has been
+recorded either, it degrades once more to a text-only briefing built from
+templates over live insights (`_degraded_briefing`): same response shape,
+`audio_available: false`, transcript-to-insight sync intact. There is no input
+to this endpoint that produces a dead end, which is the point — brief §11's
+line about this path is "Conference wifi will fail. The demo will not." `POST /voice/ask` degrades the
 same way at each of its two upstream calls (STT, then TTS): a failed
 transcription still returns a valid 200 asking the user to try again; a failed
 synthesis still returns the text answer with `audio_url: null` rather than
@@ -29,7 +34,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, Query, Request, Response, UploadFile
 
-from api.deps import PERM_VOICE_USE, ScopeDep, get_principal, require_perm
+from api.deps import PERM_VOICE_USE, Scope, ScopeDep, get_principal, require_perm
 from api.errors import Forbidden, NotFound, Unauthenticated, ValidationFailed, VoiceUnavailable
 from api.mock import contract
 from api.v1.schemas import AskResponse, BriefingRequest, BriefingResponse
@@ -41,7 +46,7 @@ from ml.voice import answer as answer_mod
 from ml.voice import intent as intent_mod
 from ml.voice import stt as stt_mod
 from ml.voice import tts as tts_mod
-from ml.voice.briefing import build_briefing
+from ml.voice.briefing import build_briefing, build_text_only_briefing
 from ml.voice.briefing_templates import estimated_duration_ms
 
 log = get_logger(__name__)
@@ -71,11 +76,19 @@ def _signed_audio_url(file_id: uuid.UUID, settings: Settings) -> str:
 def _load_fallback_payload(settings: Settings) -> dict:
     path = settings.path(settings.voice_fallback_transcript)
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        payload = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
         raise VoiceUnavailable(
             "no fallback briefing recorded — run scripts.record_fallback"
         ) from exc
+
+    # The transcript and the mp3 are two files and can exist independently:
+    # `scripts.record_fallback --no-audio` writes only the transcript, so the
+    # artifact can be committed from a machine with a database but no
+    # ElevenLabs key. Report what is actually on disk rather than trusting a
+    # flag baked in at record time.
+    payload["audio_available"] = settings.path(settings.voice_fallback_audio).is_file()
+    return payload
 
 
 # ── briefing ─────────────────────────────────────────────────────────────────
@@ -130,7 +143,7 @@ def briefing(
         )
     except VoiceUnavailable:
         log.warning("briefing_synthesis_failed_using_fallback")
-        return _fallback_response(settings)
+        return _degraded_briefing(scope, settings)
     return response
 
 
@@ -151,8 +164,11 @@ def fallback_briefing(scope: ScopeDep) -> BriefingResponse:
     identical to live mode, with `is_fallback: true` so the UI can show its
     honest note. Segment `insight_id` values are deterministic UUID5s that
     survive a database reset (core/ids.py).
+
+    Falls through to a live, text-only briefing when nothing has been
+    recorded yet, rather than 503-ing — see `_degraded_briefing`.
     """
-    return _fallback_response(get_settings())
+    return _degraded_briefing(scope, get_settings())
 
 
 @router.get(
@@ -178,8 +194,38 @@ def fallback_briefing_audio(request: Request, scope: ScopeDep) -> Response:
 
 
 def _fallback_response(settings: Settings) -> BriefingResponse:
+    """The prerecorded briefing. Raises `VoiceUnavailable` if none exists."""
     payload = _load_fallback_payload(settings)
     return BriefingResponse.model_validate(payload)
+
+
+def _degraded_briefing(scope: Scope, settings: Settings) -> BriefingResponse:
+    """Two tiers, so the voice path has no dead end.
+
+    1. The prerecorded briefing, if `make record-fallback` has been run. Real
+       audio, hand-checked transcript, deterministic insight ids that survive
+       `make nuke && make seed` (plan §1.10, §1.11).
+    2. Otherwise a text-only briefing built live from this org's insights —
+       templates only, no upstream call, `audio_available: false`.
+
+    Tier 2 exists because the combination "live synthesis down AND nothing
+    recorded" used to return 503, which made the automatic fallback the
+    frontend wires up (§12.3) terminate in an error. Brief §11's promise about
+    that path is "Conference wifi will fail. The demo will not." — a 503 there
+    is the demo failing. A transcript with its insight sync intact is not the
+    full beat, but it is a briefing, and it is honest about lacking audio.
+
+    Tier 2 is a genuine fallback, not a substitute for tier 1: it has no
+    audio, and the demo wants audio. Record the real one.
+    """
+    try:
+        return _fallback_response(settings)
+    except VoiceUnavailable:
+        log.warning(
+            "no_recorded_fallback_building_text_only",
+            hint="run `make record-fallback` to get audio on this path",
+        )
+        return build_text_only_briefing(scope.db, scope.org_id, settings=settings)
 
 
 # ── ask ──────────────────────────────────────────────────────────────────────
