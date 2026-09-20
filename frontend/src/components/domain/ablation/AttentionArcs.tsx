@@ -163,7 +163,7 @@ export function AttentionArcs({ tokens, edges, masked, broken, interactive, onTo
                 tokenRefs.current[index] = el;
               }}
               className={cn(
-                'rounded-input px-1.5 py-1 text-ink-50',
+                'rounded-soft px-1.5 py-1 text-ink-50',
                 linked.has(index) ? 'bg-ink-500/40' : 'text-ink-200',
               )}
             >

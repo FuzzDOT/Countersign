@@ -246,8 +246,8 @@ export function GraphCanvas({ nodes, edges, cycles, selectedId, onSelectNode, on
     const k = clamp(Math.min(GRAPH_WIDTH / bw, GRAPH_HEIGHT / bh, 1.5), SCALE_MIN, SCALE_MAX);
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
-    select(svgEl).call(
-      behavior.transform,
+    behavior.transform(
+      select(svgEl),
       zoomIdentity.translate(GRAPH_WIDTH / 2 - k * cx, GRAPH_HEIGHT / 2 - k * cy).scale(k),
     );
   }, [layout]);
@@ -268,8 +268,8 @@ export function GraphCanvas({ nodes, edges, cycles, selectedId, onSelectNode, on
     const at = selectedId ? layout.positions.get(selectedId) : undefined;
     if (!svgEl || !behavior || !at) return;
     const k = Math.max(zoomTransform(svgEl).k, 1);
-    select(svgEl).call(
-      behavior.transform,
+    behavior.transform(
+      select(svgEl),
       zoomIdentity.translate(GRAPH_WIDTH / 2 - k * at.x, GRAPH_HEIGHT / 2 - k * at.y).scale(k),
     );
   }, [selectedId, layout]);
@@ -352,7 +352,7 @@ export function GraphCanvas({ nodes, edges, cycles, selectedId, onSelectNode, on
       {hovered && hover && (hover.x !== 0 || hover.y !== 0) ? (
         <div
           role="tooltip"
-          className="pointer-events-none absolute z-10 max-w-64 rounded-input border border-ink-500 bg-ink-900 px-3 py-2 text-body-sm text-ink-50 shadow-overlay"
+          className="pointer-events-none absolute z-10 max-w-64 rounded-soft border border-ctl-border bg-ink-900 px-3 py-2 text-body-sm text-ink-50 shadow-overlay"
           style={{ left: Math.min(hover.x + 14, (containerRef.current?.clientWidth ?? 600) - 260), top: hover.y + 14 }}
         >
           <p className="font-semibold">{hovered.canonical}</p>

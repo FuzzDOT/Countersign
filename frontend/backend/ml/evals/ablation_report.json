@@ -1,0 +1,80 @@
+{
+  "threshold": 0.1,
+  "by_edge_count": [
+    {
+      "edges_masked": 1,
+      "mode": "zero",
+      "n_insights": 40,
+      "mean_abs_delta": 0.0123,
+      "max_abs_delta": 0.0806,
+      "load_bearing_share": 0.0,
+      "routing_flips": 1,
+      "relation_changes": 0,
+      "latency_p50_ms": 52,
+      "latency_p95_ms": 87
+    },
+    {
+      "edges_masked": 2,
+      "mode": "zero",
+      "n_insights": 40,
+      "mean_abs_delta": 0.0396,
+      "max_abs_delta": 0.4434,
+      "load_bearing_share": 0.05,
+      "routing_flips": 2,
+      "relation_changes": 1,
+      "latency_p50_ms": 43,
+      "latency_p95_ms": 62
+    },
+    {
+      "edges_masked": 4,
+      "mode": "zero",
+      "n_insights": 40,
+      "mean_abs_delta": 0.1422,
+      "max_abs_delta": 0.6558,
+      "load_bearing_share": 0.4,
+      "routing_flips": 9,
+      "relation_changes": 5,
+      "latency_p50_ms": 45,
+      "latency_p95_ms": 78
+    },
+    {
+      "edges_masked": 8,
+      "mode": "zero",
+      "n_insights": 40,
+      "mean_abs_delta": 0.2153,
+      "max_abs_delta": 0.7587,
+      "load_bearing_share": 0.5,
+      "routing_flips": 13,
+      "relation_changes": 10,
+      "latency_p50_ms": 47,
+      "latency_p95_ms": 71
+    }
+  ],
+  "by_mode": [
+    {
+      "edges_masked": 4,
+      "mode": "zero",
+      "n_insights": 40,
+      "mean_abs_delta": 0.1422,
+      "max_abs_delta": 0.6558,
+      "load_bearing_share": 0.4,
+      "routing_flips": 9,
+      "relation_changes": 5,
+      "latency_p50_ms": 54,
+      "latency_p95_ms": 86
+    },
+    {
+      "edges_masked": 4,
+      "mode": "uniform",
+      "n_insights": 40,
+      "mean_abs_delta": 0.2683,
+      "max_abs_delta": 0.7592,
+      "load_bearing_share": 0.625,
+      "routing_flips": 15,
+      "relation_changes": 14,
+      "latency_p50_ms": 50,
+      "latency_p95_ms": 86
+    }
+  ],
+  "interpretation": "A single dependency arc is not load-bearing: masking the top-attention edge moves confidence by 0.0123 on average and flips 1 routing decisions. That is the honest reading \u2014 one arc out of forty in a sentence is a small intervention and the model is appropriately robust to it. Masking the top four moves confidence by 0.1422 on average, exceeds the 0.10 load-bearing threshold on 40% of insights, and flips 9 routing decisions. So the attention is causal, and the unit of explanation is a small set of edges rather than a single one."
+}

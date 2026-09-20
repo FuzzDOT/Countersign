@@ -246,7 +246,7 @@ export function AblationPanel({ insight }: { insight: InsightDetail }) {
 
       {history.length > 0 ? (
         <div>
-          <h4 className="mb-2 text-body-sm font-medium text-ink-50">Ablation history</h4>
+          <h4 className="mb-2 text-body-sm font-semibold text-card-fg">Ablation history</h4>
           <ol className="flex flex-col divide-y divide-ink-500/30 rounded-panel border border-ink-500/40">
             {history.map((run) => (
               <li key={run.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-3 py-2 text-body-sm">

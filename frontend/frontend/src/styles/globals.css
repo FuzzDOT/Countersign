@@ -1,0 +1,386 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Self-hosted fonts. No render-blocking Google Fonts request — the hero must
+   paint immediately. Subsetted woff2 files live in /public/fonts/. */
+@layer base {
+  @font-face {
+    font-family: 'Instrument Sans';
+    src: url('/fonts/InstrumentSans-Variable.woff2') format('woff2-variations');
+    font-weight: 400 800;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Literata';
+    src: url('/fonts/Literata-Variable.woff2') format('woff2-variations');
+    font-weight: 400 600;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+    font-style: normal;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    background-color: var(--ink-900);
+  }
+
+  body {
+    @apply bg-ink-900 font-sans text-body text-ink-50 antialiased;
+    margin: 0;
+    position: relative;
+  }
+
+  /* ── The texture layer ──────────────────────────────────────────────────
+     A fixed, non-interactive fractal-noise film grain over the entire page.
+     This is what stops large flat navy areas from looking like dead CSS
+     and gives the whole thing a printed, physical quality. Opacity is a
+     token so the light theme can carry less of it. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Visible focus everywhere. Never `outline: none` without a replacement. */
+  :focus-visible {
+    outline: 2px solid var(--verify);
+    outline-offset: 2px;
+  }
+
+  .nums,
+  table,
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--verify) 30%, transparent);
+  }
+
+  /* Editorial display type: tight tracking, optical sizing on the serif. */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  /* ── surfaces ─────────────────────────────────────────────────────────── */
+
+  /* The evidence surface. Sharp corners: that's part of why it reads as
+     paper rather than as another panel. */
+  .paper-surface {
+    @apply bg-paper font-reader text-paper-text;
+    border-radius: 0;
+  }
+
+  /* Panels: a hairline, a whisper of elevation, and an inner top highlight.
+     No heavy drop shadows — those are the SaaS-kit tell. */
+  .panel {
+    position: relative;
+    border: 1px solid var(--hairline);
+    background: var(--ink-700);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ink-050) 4%, transparent),
+      transparent 40%
+    );
+  }
+
+  .panel-hover {
+    transition:
+      transform var(--dur-quick) var(--ease-out),
+      border-color var(--dur-quick) var(--ease-out),
+      box-shadow var(--dur-quick) var(--ease-out);
+  }
+  .panel-hover:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--verify) 40%, var(--hairline));
+    box-shadow: var(--shadow-overlay);
+  }
+
+  .hairline {
+    border-color: var(--hairline);
+  }
+
+  /* ── atmosphere ───────────────────────────────────────────────────────── */
+
+  /* A wide, slow, deep-navy wash. Decorative only — never carries meaning. */
+  .hero-glow {
+    position: relative;
+    isolation: isolate;
+  }
+  .hero-glow::before {
+    content: '';
+    position: absolute;
+    inset: -30% -20% auto -20%;
+    height: 180%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--glow-strength);
+    background:
+      radial-gradient(
+        ellipse 50% 45% at 50% 0%,
+        color-mix(in srgb, var(--glow-b) 70%, transparent),
+        transparent 65%
+      ),
+      radial-gradient(
+        ellipse 45% 40% at 12% 18%,
+        color-mix(in srgb, var(--glow-a) 60%, transparent),
+        transparent 68%
+      ),
+      radial-gradient(
+        ellipse 40% 35% at 90% 14%,
+        color-mix(in srgb, var(--glow-c) 45%, transparent),
+        transparent 68%
+      );
+    filter: blur(70px);
+    animation: glow-drift 18s var(--ease-inout) infinite alternate;
+  }
+
+  @keyframes glow-drift {
+    0% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+      transform: translate3d(2%, 1.5%, 0) scale(1.05);
+    }
+  }
+
+  /* A precise engineering grid, masked so it fades out rather than tiling
+     to a hard edge. Reads as blueprint, not as a default Tailwind demo. */
+  .grid-floor {
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--ink-050) 7%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--ink-050) 7%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 0%, black 30%, transparent 82%);
+    mask-image: radial-gradient(ellipse 75% 65% at 50% 0%, black 30%, transparent 82%);
+  }
+
+  /* Fine horizontal rule that fades at both ends — used between sections. */
+  .rule-fade {
+    height: 1px;
+    border: 0;
+    background: linear-gradient(90deg, transparent, var(--hairline) 15%, var(--hairline) 85%, transparent);
+  }
+
+  /* Small monospace eyebrow label in a hairline capsule. */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 font-mono text-micro uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-200);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    background: color-mix(in srgb, var(--ink-050) 3%, transparent);
+  }
+
+  /* Gradient text for a single display word. Used once, in the hero. */
+  .text-gradient {
+    background: linear-gradient(
+      180deg,
+      var(--ink-050) 0%,
+      color-mix(in srgb, var(--ink-050) 62%, var(--ink-200)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ── editorial surfaces (the Framer direction) ────────────────────────
+     Alternating full-bleed bands. Ivory is the warm "client-facing" band,
+     sage the quiet closing band. Both are surfaces only — no meaning is
+     encoded in them, so the --stamp-* discipline is untouched. */
+  .surface-ivory {
+    background: var(--ivory);
+    color: var(--ivory-text);
+  }
+  .surface-ivory .rule-fade {
+    background: linear-gradient(90deg, transparent, var(--ivory-rule) 15%, var(--ivory-rule) 85%, transparent);
+  }
+  .surface-ivory .eyebrow {
+    color: color-mix(in srgb, var(--ivory-text) 60%, transparent);
+    border-color: var(--ivory-rule);
+    background: color-mix(in srgb, var(--ivory-text) 3%, transparent);
+  }
+
+  .surface-sage {
+    background: var(--sage);
+    color: var(--sage-text);
+  }
+  .surface-sage .eyebrow {
+    color: color-mix(in srgb, var(--sage-text) 75%, transparent);
+    border-color: color-mix(in srgb, var(--sage-text) 30%, transparent);
+    background: color-mix(in srgb, var(--sage-text) 8%, transparent);
+  }
+
+  /* A dark inset card that sits ON the ivory band — the portfolio-dashboard
+     look from the reference. */
+  .card-ink {
+    background: var(--ink-700);
+    color: var(--ink-050);
+    border: 1px solid color-mix(in srgb, var(--ink-050) 12%, transparent);
+    border-radius: var(--radius-panel);
+  }
+
+  /* Editorial display type: the serif, tight, optically sized. Used for
+     hero and section headlines only — never for UI labels. */
+  .display-serif {
+    font-family: 'Literata', Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.06;
+    font-variation-settings: 'opsz' 36;
+  }
+
+  @keyframes float-card {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+/* ── range sliders (single and dual) ───────────────────────────────────── */
+@layer components {
+  .range {
+    position: relative;
+    height: 24px;
+  }
+  .range__track,
+  .range__fill {
+    position: absolute;
+    top: 10px;
+    height: 4px;
+    border-radius: 2px;
+  }
+  .range__track {
+    left: 0;
+    right: 0;
+    background: var(--ink-500);
+  }
+  .range__fill {
+    background: var(--verify);
+  }
+  .range input[type='range'] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 24px;
+    margin: 0;
+    background: transparent;
+    pointer-events: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .range input[type='range']::-webkit-slider-runnable-track {
+    background: transparent;
+    height: 24px;
+  }
+  .range input[type='range']::-moz-range-track {
+    background: transparent;
+  }
+  .range input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    margin-top: 4px;
+    border-radius: 50%;
+    background: var(--ink-050);
+    border: 2px solid var(--verify);
+    cursor: pointer;
+  }
+  .range input[type='range']::-moz-range-thumb {
+    pointer-events: auto;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--ink-050);
+    border: 2px solid var(--verify);
+    cursor: pointer;
+  }
+}
+
+/* ── paper reader ──────────────────────────────────────────────────────── */
+@layer components {
+  .cite-mark {
+    background: color-mix(in srgb, var(--span-color) 18%, transparent);
+    border-bottom: 2px solid color-mix(in srgb, var(--span-color) 60%, transparent);
+    cursor: pointer;
+  }
+  .cite-mark--pulse {
+    animation: cite-pulse 700ms var(--ease-inout) 1;
+  }
+  .mention-mark {
+    text-decoration: underline dotted var(--paper-rule);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+  }
+}
+
+@keyframes cite-pulse {
+  0%,
+  100% {
+    background: color-mix(in srgb, var(--span-color) 18%, transparent);
+  }
+  50% {
+    background: color-mix(in srgb, var(--span-color) 34%, transparent);
+  }
+}
+
+@keyframes stamp-land {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ── risk graph ────────────────────────────────────────────────────────── */
+@layer components {
+  .graph-label {
+    display: none;
+    pointer-events: none;
+  }
+  .graph-svg[data-labels='on'] .graph-label,
+  .graph-label--always {
+    display: block;
+  }
+}

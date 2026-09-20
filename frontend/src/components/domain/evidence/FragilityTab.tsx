@@ -107,7 +107,7 @@ function ScatterFragility({ data, onOpenInsight }: { data: FragilityEval; onOpen
         Does uncertainty predict fragility?
       </h2>
       <div className="panel relative p-4">
-        <div className="absolute left-20 top-6 z-10 rounded-input border border-ink-500/60 bg-ink-900/90 px-3 py-2">
+        <div className="absolute left-20 top-6 z-10 rounded-soft border border-ctl-border bg-ink-900/90 px-3 py-2">
           <p className="nums text-h1 text-ink-50">{formatScore(spearman)}</p>
           <p className="text-body-sm text-ink-200">Spearman rank correlation</p>
           <p className="nums text-body-sm text-ink-200">
@@ -244,7 +244,7 @@ function ScatterTip({ active, payload }: { active?: boolean; payload?: readonly 
   const datum = payload[0]?.payload as Datum | undefined;
   if (!datum) return null;
   return (
-    <div className="rounded-input border border-ink-500 bg-ink-900 px-3 py-2 text-body-sm text-ink-50 shadow-overlay">
+    <div className="rounded-soft border border-ctl-border bg-ink-900 px-3 py-2 text-body-sm text-ink-50 shadow-overlay">
       <p className="nums">Vacuity {formatScore(datum.x)}</p>
       <p className="nums">Fragility {formatScore(datum.y)}</p>
       <p className="text-ink-200">Click to open the insight</p>

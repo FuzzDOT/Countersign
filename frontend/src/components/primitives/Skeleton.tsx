@@ -6,5 +6,5 @@ import { cn } from '@/lib/cn';
  * Callers give it the same dimensions as the loaded content so nothing shifts.
  */
 export function Skeleton({ className }: { className?: string }) {
-  return <div aria-hidden="true" className={cn('animate-pulse rounded-input bg-ink-500/40', className)} />;
+  return <div aria-hidden="true" className={cn('animate-pulse rounded-soft bg-ink-500/40', className)} />;
 }

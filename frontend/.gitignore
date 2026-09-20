@@ -1,0 +1,55 @@
+# ── secrets ──────────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# ── python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ── node ─────────────────────────────────────────────────────────────────────
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+.eslintcache
+
+# ── ml artifacts ─────────────────────────────────────────────────────────────
+# Checkpoints are committed DELIBERATELY (docs/03-BACKEND-PLAN.md §1.7):
+# `docker compose up` has to work on a judge's machine, and a fresh clone with
+# no weights cannot serve an insight. Budget is ~30 MB total — tagger <=25 MB,
+# relation model <=3 MB, intent SVM <=1 MB. If a checkpoint blows past that,
+# fix the checkpoint rather than this file.
+*.pt
+*.pth
+*.onnx
+*.ckpt
+!backend/ml/checkpoints/*.pt
+!backend/ml/checkpoints/*.json
+backend/data/cache/
+backend/data/generated/
+
+# ── generated audio ──────────────────────────────────────────────────────────
+backend/data/audio/
+!backend/data/fixtures/audio/.gitkeep
+
+# ── os / editor ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json

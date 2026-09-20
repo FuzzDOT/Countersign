@@ -13,7 +13,7 @@ export function Select({ label, options, value, onChange, className, ...rest }: 
   const id = useId();
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-body-sm font-medium text-ink-50">
+      <label htmlFor={id} className="text-body-sm font-semibold text-card-fg">
         {label}
       </label>
       <select

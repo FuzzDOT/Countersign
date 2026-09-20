@@ -1,0 +1,210 @@
+{
+  "data": [
+    {
+      "id": "5206d34f-d6b2-59c5-bded-e978531573f8",
+      "title": "INV-4471 Meridian Supply",
+      "source": "invoice",
+      "received_at": "2026-09-14T09:14:00Z",
+      "chars": 880,
+      "insight_count": 3
+    },
+    {
+      "id": "98ec5fd9-4838-53b5-a5f7-8651ee7a3c3a",
+      "title": "PO 004430 Advent Holdings",
+      "source": "invoice",
+      "received_at": "2026-09-14T15:24:00Z",
+      "chars": 572,
+      "insight_count": 2
+    },
+    {
+      "id": "01caa46d-0b4c-5067-aa11-ade5ba9530ec",
+      "title": "AP-88806 Northgate Logistics",
+      "source": "invoice",
+      "received_at": "2026-09-14T21:17:00Z",
+      "chars": 563,
+      "insight_count": 2
+    },
+    {
+      "id": "edb27f8f-e9a2-52f2-b1a0-0942ee8fa1d5",
+      "title": "INV-54971 Kestrel Registry",
+      "source": "invoice",
+      "received_at": "2026-09-15T02:51:00Z",
+      "chars": 593,
+      "insight_count": 2
+    },
+    {
+      "id": "7ac75eec-bcd2-552f-9d78-e18ef1e2aa4b",
+      "title": "ACCT-33544-X Halcyon Tooling",
+      "source": "invoice",
+      "received_at": "2026-09-15T08:58:00Z",
+      "chars": 463,
+      "insight_count": 2
+    },
+    {
+      "id": "7928bbac-43f3-5836-9b59-3ee8c5b8698c",
+      "title": "REF/6905/B Meridian Supply",
+      "source": "invoice",
+      "received_at": "2026-09-15T15:12:00Z",
+      "chars": 545,
+      "insight_count": 2
+    },
+    {
+      "id": "1c714eb9-1f2a-5894-9b1e-2df0fcf999e9",
+      "title": "REF/11551/B Northgate Logistics",
+      "source": "invoice",
+      "received_at": "2026-09-15T20:59:00Z",
+      "chars": 468,
+      "insight_count": 2
+    },
+    {
+      "id": "f76743f2-6964-51fa-947a-7adf18022ad3",
+      "title": "INV-59504 Advent Holdings",
+      "source": "invoice",
+      "received_at": "2026-09-16T02:46:00Z",
+      "chars": 546,
+      "insight_count": 2
+    },
+    {
+      "id": "deeaa62e-2b48-5522-adea-df953d389ea5",
+      "title": "AP-66652 Halcyon Tooling",
+      "source": "invoice",
+      "received_at": "2026-09-16T09:24:00Z",
+      "chars": 446,
+      "insight_count": 2
+    },
+    {
+      "id": "79aba2df-a014-54c6-a0bc-3fbf4c4d45f6",
+      "title": "REF/2454/B Pinebrook Freight",
+      "source": "invoice",
+      "received_at": "2026-09-16T14:39:00Z",
+      "chars": 675,
+      "insight_count": 2
+    },
+    {
+      "id": "7f276f43-1dd4-5b40-a86a-263862f38d7b",
+      "title": "REF/79591/B Meridian Supply",
+      "source": "invoice",
+      "received_at": "2026-09-16T20:49:00Z",
+      "chars": 539,
+      "insight_count": 2
+    },
+    {
+      "id": "8bd65a8b-9190-590b-b613-ace04bc2c5a0",
+      "title": "AP-18407 Meridian Supply",
+      "source": "invoice",
+      "received_at": "2026-09-17T02:56:00Z",
+      "chars": 578,
+      "insight_count": 2
+    },
+    {
+      "id": "bb35dab6-6c37-5a1f-93ac-e1feeedcbf77",
+      "title": "Re: AP-83253 \u2014 Halcyon Tooling",
+      "source": "email",
+      "received_at": "2026-09-17T08:39:00Z",
+      "chars": 393,
+      "insight_count": 2
+    },
+    {
+      "id": "1d604afd-b25b-5e5c-bf8a-f00ba7fb3efe",
+      "title": "Re: REF/87102/B \u2014 Kestrel Registry",
+      "source": "email",
+      "received_at": "2026-09-17T15:23:00Z",
+      "chars": 551,
+      "insight_count": 2
+    },
+    {
+      "id": "afadcfdb-8a8f-5125-af1a-8e8eb219eb2f",
+      "title": "Re: REF/93268/B \u2014 Pinebrook Freight",
+      "source": "email",
+      "received_at": "2026-09-17T21:24:00Z",
+      "chars": 457,
+      "insight_count": 2
+    },
+    {
+      "id": "a97fbd88-bd25-53b7-81f3-fb661af1f1bf",
+      "title": "Re: PO 051581 \u2014 Pinebrook Freight",
+      "source": "email",
+      "received_at": "2026-09-18T02:52:00Z",
+      "chars": 505,
+      "insight_count": 2
+    },
+    {
+      "id": "a228f3e7-6be0-5d25-91f2-df38bd23f647",
+      "title": "Re: PO 001448 \u2014 Advent Holdings",
+      "source": "email",
+      "received_at": "2026-09-18T09:06:00Z",
+      "chars": 560,
+      "insight_count": 2
+    },
+    {
+      "id": "a5a60d81-d07c-5e40-adb7-0e859ec134ae",
+      "title": "Re: INV-0154 \u2014 Halcyon Tooling",
+      "source": "email",
+      "received_at": "2026-09-18T15:30:00Z",
+      "chars": 560,
+      "insight_count": 2
+    },
+    {
+      "id": "1b61d75b-b078-53bc-968e-e95fce28b7f0",
+      "title": "Re: ACCT-79327-X \u2014 Northgate Logistics",
+      "source": "email",
+      "received_at": "2026-09-18T21:19:00Z",
+      "chars": 478,
+      "insight_count": 2
+    },
+    {
+      "id": "7a022f58-4bd6-5a7a-907e-4d24e83921d3",
+      "title": "Re: ACCT-36542-X \u2014 Northgate Logistics",
+      "source": "email",
+      "received_at": "2026-09-19T03:16:00Z",
+      "chars": 466,
+      "insight_count": 2
+    },
+    {
+      "id": "358738cd-c9d5-5630-a2c3-6f8ae32257de",
+      "title": "Re: PO 071554 \u2014 Meridian Supply",
+      "source": "email",
+      "received_at": "2026-09-19T08:51:00Z",
+      "chars": 419,
+      "insight_count": 2
+    },
+    {
+      "id": "7d544d28-e054-5e9f-9a62-b0cc5d499d9e",
+      "title": "Re: ACCT-8356-X \u2014 Halcyon Tooling",
+      "source": "email",
+      "received_at": "2026-09-19T14:35:00Z",
+      "chars": 432,
+      "insight_count": 2
+    },
+    {
+      "id": "2fa9268c-3b40-54e1-842c-8827a7abfc70",
+      "title": "Kestrel Registry announcement",
+      "source": "press_release",
+      "received_at": "2026-09-19T21:12:00Z",
+      "chars": 485,
+      "insight_count": 2
+    },
+    {
+      "id": "7e56bee7-0f58-516b-9779-00caa21f4a72",
+      "title": "Northgate Logistics announcement",
+      "source": "press_release",
+      "received_at": "2026-09-20T02:32:00Z",
+      "chars": 472,
+      "insight_count": 2
+    },
+    {
+      "id": "d178e472-af2c-5049-811d-a4700ee41153",
+      "title": "Northgate Logistics announcement",
+      "source": "press_release",
+      "received_at": "2026-09-20T09:17:00Z",
+      "chars": 483,
+      "insight_count": 2
+    }
+  ],
+  "pagination": {
+    "cursor": null,
+    "next_cursor": "eyJ2IjoiMjAyNi0wOS0xNiIsImlkIjoiMDAwMCJ9",
+    "has_more": true,
+    "limit": 25
+  }
+}

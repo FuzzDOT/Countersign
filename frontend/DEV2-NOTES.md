@@ -23,3 +23,10 @@ run `npm run gen:types` against the live API and diff it.
 ## Shared layer I added (dev 1 may extend)
 `src/api/*` (fetch client with refresh handling, typed endpoints, query hooks), `src/auth/*`, `src/components/primitives/*`,
 `src/lib/*`, `src/hooks/*`. Ingest and Settings pages are still dev 1's stubs.
+
+## Design-system pass (theme-aware)
+The dev 2 screens were restyled to the navy/light theme system:
+- Controls use the `ctl-*`, `fld-*` and `card-*` role tokens (IconButton, Badge, Select labels, push-to-talk via `buttonClasses`, reader popovers and back control), so both themes stay legible.
+- `rounded-input` is now a pill, so blocks that are not controls (tooltips, popovers, skeletons, chart callouts, attention tokens) use a new `rounded-soft` radius added to `tailwind.config.ts`.
+- Removed `routes/dev1-placeholders/DevLogin.tsx`: the real Login and Register pages replace it.
+Still unverified by a real build: run `npm ci && npm run typecheck && npm run lint && npm test && npm run build`, then eyeball both themes on Feed, Graph, Reader, Evidence and Voice.

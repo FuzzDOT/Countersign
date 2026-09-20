@@ -112,6 +112,8 @@ export default {
       },
       borderRadius: {
         input: '9999px',
+        // Blocks that are not controls (tooltips, popovers, skeletons): a pill reads wrong on multi-line content.
+        soft: '10px',
         panel: '20px',
       },
       boxShadow: {

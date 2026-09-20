@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "TOKEN_EXPIRED",
+    "message": "The access token has expired.",
+    "status": 401,
+    "request_id": "01JBQ7X3K9M2N4P6R8T0V2W4Y6",
+    "details": {}
+  }
+}

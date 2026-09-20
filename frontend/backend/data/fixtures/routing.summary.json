@@ -1,0 +1,29 @@
+{
+  "gate": {
+    "vacuity_threshold": 0.45,
+    "policy": "vacuity_gate_v2"
+  },
+  "volume": {
+    "total_insights": 61,
+    "handled_classically": 47,
+    "escalated_to_nemotron": 14,
+    "escalation_rate": 0.2295,
+    "llm_calls_avoided": 47
+  },
+  "latency": {
+    "classical_p50_ms": 34,
+    "classical_p95_ms": 71,
+    "nemotron_p50_ms": 812,
+    "nemotron_p95_ms": 1640
+  },
+  "agreement": {
+    "nemotron_upheld_classical": 9,
+    "nemotron_overrode_classical": 5,
+    "override_rate": 0.3571
+  },
+  "distribution": {
+    "auto_file": 40,
+    "flag_for_review": 13,
+    "escalate_now": 8
+  }
+}

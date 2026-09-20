@@ -20,10 +20,10 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
       title={label}
       aria-pressed={active}
       className={cn(
-        'inline-flex size-9 items-center justify-center rounded-input text-ink-200',
-        'transition-colors duration-instant ease-out hover:bg-ink-700 hover:text-ink-50',
-        'disabled:cursor-not-allowed disabled:opacity-50',
-        active && 'bg-ink-500/50 text-ink-50',
+        'inline-flex size-9 items-center justify-center rounded-input border border-ctl-border bg-ctl-alt text-ctl-alt-fg',
+        'transition-colors duration-quick ease-out hover:border-verify hover:bg-ctl-alt-hover',
+        'disabled:cursor-not-allowed disabled:opacity-45',
+        active && 'border-verify',
         className,
       )}
       {...rest}

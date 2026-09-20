@@ -116,6 +116,7 @@ export function BriefingPlayer({ briefing, onActiveInsight }: BriefingPlayerProp
     <div className="flex flex-col gap-4">
       <div className="panel flex flex-col gap-3 p-4">
         {/* The audio element is hidden; the transport below drives it. */}
+        {/* eslint-disable-next-line jsx-a11y/media-has-caption -- the full transcript is always shown on the page */}
         <audio
           ref={audioRef}
           src={src ?? undefined}

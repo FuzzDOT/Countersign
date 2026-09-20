@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn';
 import { Button } from './Button';
 
 /** A human sentence for an error. Branches on `code`, never on the server's message. */
-export function describeError(error: unknown): string {
+function describeError(error: unknown): string {
   if (!isApiError(error)) return 'Something went wrong on our side.';
   switch (error.code) {
     case 'NETWORK_ERROR':

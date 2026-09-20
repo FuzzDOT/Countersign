@@ -23,7 +23,7 @@ export function Tooltip({ content, children }: TooltipProps) {
         role="tooltip"
         className={
           open
-            ? 'pointer-events-none absolute bottom-full left-1/2 z-40 mb-1 w-max max-w-64 -translate-x-1/2 rounded-input border border-ink-500 bg-ink-900 px-2 py-1 text-body-sm text-ink-50 shadow-overlay'
+            ? 'pointer-events-none absolute bottom-full left-1/2 z-40 mb-1 w-max max-w-64 -translate-x-1/2 rounded-soft border border-ctl-border bg-ink-900 px-2 py-1 text-body-sm text-ink-50 shadow-overlay'
             : 'sr-only'
         }
       >

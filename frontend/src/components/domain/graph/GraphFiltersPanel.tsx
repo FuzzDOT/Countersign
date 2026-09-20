@@ -71,7 +71,7 @@ export function GraphFiltersPanel({ filters, onChange, onClear, activeCount, roo
       ) : null}
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-body-sm font-medium text-ink-50">Entity type</legend>
+        <legend className="mb-1 text-body-sm font-semibold text-card-fg">Entity type</legend>
         {ENTITY_TYPES.map((type) => (
           <Checkbox
             key={type}
@@ -83,7 +83,7 @@ export function GraphFiltersPanel({ filters, onChange, onClear, activeCount, roo
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-body-sm font-medium text-ink-50">Relation</legend>
+        <legend className="mb-1 text-body-sm font-semibold text-card-fg">Relation</legend>
         {RELATION_TYPES.map((relation) => (
           <Checkbox
             key={relation}
@@ -95,7 +95,7 @@ export function GraphFiltersPanel({ filters, onChange, onClear, activeCount, roo
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-body-sm font-medium text-ink-50">Routing</legend>
+        <legend className="mb-1 text-body-sm font-semibold text-card-fg">Routing</legend>
         {ROUTING_ORDER.map((bucket: RoutingBucket) => (
           <Checkbox
             key={bucket}

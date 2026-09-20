@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
 import { MicIcon } from '@/components/primitives/icons';
 import { Button } from '@/components/primitives/Button';
+import { buttonClasses } from '@/lib/buttonStyles';
 import { cn } from '@/lib/cn';
 
 const MAX_MS = 30_000;
@@ -194,11 +195,7 @@ export function PushToTalk({ busy, onRecorded, buttonRef }: PushToTalkProps) {
         onKeyUp={onKeyUp}
         onBlur={stop}
         onContextMenu={(event) => event.preventDefault()}
-        className={cn(
-          'inline-flex h-14 touch-none select-none items-center gap-3 rounded-input px-6 text-body font-medium',
-          'transition-colors duration-instant ease-out disabled:cursor-not-allowed disabled:opacity-50',
-          recording ? 'bg-ink-50 text-ink-900' : 'bg-verify text-ink-900 hover:brightness-110',
-        )}
+        className={buttonClasses(recording ? 'secondary' : 'primary', 'lg', cn('touch-none', recording && 'border-verify'))}
       >
         <MicIcon />
         {busy ? 'Working on your answer…' : recording ? 'Recording. Release to send' : phase === 'starting' ? 'Getting the microphone…' : 'Hold to ask a question'}

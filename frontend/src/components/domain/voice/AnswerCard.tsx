@@ -124,6 +124,7 @@ function AnswerAudio({ url, autoplay }: { url: string; autoplay: boolean }) {
 
   return (
     <div className="flex flex-wrap items-center gap-3">
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption -- the full transcript is always shown on the page */}
       <audio
         ref={audioRef}
         src={src ?? undefined}

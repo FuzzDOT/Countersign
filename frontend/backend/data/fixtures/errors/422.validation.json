@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "message": "The request body failed validation.",
+    "status": 422,
+    "request_id": "01JBQ7X3K9M2N4P6R8T0V2W4Y6",
+    "details": {
+      "fields": {
+        "scenario": "not a known scenario"
+      }
+    }
+  }
+}

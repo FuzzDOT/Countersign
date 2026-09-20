@@ -82,7 +82,7 @@ export function FeedFiltersPanel({ filters, onChange, onClear, activeCount, stat
       />
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-body-sm font-medium text-ink-50">Routing</legend>
+        <legend className="mb-1 text-body-sm font-semibold text-card-fg">Routing</legend>
         {ROUTING_ORDER.map((bucket) => (
           <Checkbox
             key={bucket}
@@ -95,7 +95,7 @@ export function FeedFiltersPanel({ filters, onChange, onClear, activeCount, stat
       </fieldset>
 
       <div className="flex flex-col gap-1">
-        <span className="text-body-sm font-medium text-ink-50">Decided by</span>
+        <span className="text-body-sm font-semibold text-card-fg">Decided by</span>
         <SegmentedControl
           ariaLabel="Decided by"
           size="sm"
@@ -109,7 +109,7 @@ export function FeedFiltersPanel({ filters, onChange, onClear, activeCount, stat
       <RangeSlider label="Minimum vacuity" value={vacuity} onChange={setVacuity} />
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-body-sm font-medium text-ink-50">Relation</legend>
+        <legend className="mb-1 text-body-sm font-semibold text-card-fg">Relation</legend>
         {RELATION_TYPES.map((relation) => (
           <Checkbox
             key={relation}

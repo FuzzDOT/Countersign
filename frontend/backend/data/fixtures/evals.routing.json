@@ -1,0 +1,70 @@
+{
+  "n_cases": 61,
+  "confusion_matrix": {
+    "labels": [
+      "auto_file",
+      "flag_for_review",
+      "escalate_now"
+    ],
+    "matrix": [
+      [
+        40,
+        7,
+        0
+      ],
+      [
+        0,
+        4,
+        1
+      ],
+      [
+        0,
+        2,
+        7
+      ]
+    ]
+  },
+  "per_class": [
+    {
+      "bucket": "auto_file",
+      "precision": 1.0,
+      "recall": 0.8511,
+      "f1": 0.9195,
+      "support": 47
+    },
+    {
+      "bucket": "flag_for_review",
+      "precision": 0.3077,
+      "recall": 0.8,
+      "f1": 0.4444,
+      "support": 5
+    },
+    {
+      "bucket": "escalate_now",
+      "precision": 0.875,
+      "recall": 0.7778,
+      "f1": 0.8235,
+      "support": 9
+    }
+  ],
+  "macro_f1": 0.7291,
+  "accuracy": 0.8361,
+  "cascade_baseline": {
+    "classical_only_accuracy": 0.74,
+    "nemotron_on_everything_accuracy": 0.91,
+    "cascade_accuracy": 0.8361,
+    "cascade_llm_calls": 14,
+    "nemotron_on_everything_llm_calls": 61,
+    "interpretation": "The cascade recovers most of the accuracy gain of running Nemotron on everything, using 14/61 (23%) of the LLM calls."
+  },
+  "documented_failures": [
+    {
+      "case_id": "ab903b88-e814-5384-9763-7b92a30cd1af",
+      "insight_id": "771ae0af-979e-576a-a009-0f16f845694f",
+      "ground_truth": "flag_for_review",
+      "predicted": "escalate_now",
+      "sentence_text": "Invoice INV-4471 from Meridian Supply LLC to Northgate Logistics Inc was submitted 14 days ahead of the contracted schedule.",
+      "note": "Nemotron over-escalates on timing anomalies when the counterparty has any prior flag, even where a benign contractual explanation is present in the adjacent sentence. The cascade passes only the single citation sentence plus graph context, not neighbouring sentences, so the exculpatory context is invisible to it. The fix is a two-sentence citation window, which we would do with more time; we are reporting the failure rather than widening the window and quietly removing the evidence of it."
+    }
+  ]
+}

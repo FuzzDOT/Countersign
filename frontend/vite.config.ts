@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type UserConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
@@ -55,4 +55,4 @@ export default defineConfig({
       exclude: ['src/api/schema.d.ts', 'src/test-setup.ts', '**/*.d.ts'],
     },
   },
-});
+} as UserConfig);

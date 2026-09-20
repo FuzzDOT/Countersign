@@ -1,0 +1,17 @@
+{
+  "id": "3ca2cea4-a769-5c32-be59-20756efa1d21",
+  "state": "done",
+  "docs_total": 34,
+  "docs_done": 34,
+  "insights_found": 61,
+  "stage_progress": {
+    "tagging": 1.0,
+    "parsing": 1.0,
+    "relating": 1.0,
+    "scoring": 1.0,
+    "routing": 1.0
+  },
+  "started_at": "2026-09-19T21:06:02Z",
+  "finished_at": "2026-09-19T21:06:28Z",
+  "error": null
+}

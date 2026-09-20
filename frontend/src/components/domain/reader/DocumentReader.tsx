@@ -142,7 +142,6 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
   /* Pointer and click handlers on the highlighted text are a convenience for
      mouse and touch. The keyboard path is the first segment of each span,
      which is a focusable button that opens the same insight. */
-  /* eslint-disable jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */
   const renderSegment = (segment: Segment, index: number) => {
     if (segment.spanIds.length === 0 && segment.mentionIdx.length === 0) {
       return <Fragment key={index}>{segment.text}</Fragment>;
@@ -204,8 +203,6 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
     );
   };
 
-  /* eslint-enable jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */
-
   const mentionFor = popover?.kind === 'mention' ? doc.mentions[popover.index] : undefined;
 
   return (
@@ -221,7 +218,7 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
         <div
           role="group"
           aria-label="Citations at this position"
-          className="absolute z-20 w-64 rounded-input border border-ink-500 bg-ink-900 p-2 font-sans text-body-sm text-ink-50 shadow-overlay"
+          className="absolute z-20 w-64 rounded-soft border border-ctl-border bg-ink-900 p-2 font-sans text-body-sm text-ink-50 shadow-overlay"
           style={{ left: popover.x, top: popover.y }}
           onPointerEnter={() => window.clearTimeout(hideTimer.current)}
           onPointerLeave={hideSoon}
@@ -239,7 +236,7 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
                   </span>
                   <button
                     type="button"
-                    className="self-start rounded-input border border-ink-500 px-2 py-0.5 hover:bg-ink-500/40"
+                    className="self-start rounded-input border border-ctl-border bg-ctl-alt px-3 py-0.5 text-ctl-alt-fg hover:border-verify hover:bg-ctl-alt-hover"
                     onClick={() => onOpenInsight(id)}
                   >
                     Open insight
@@ -255,7 +252,7 @@ export function DocumentReader({ doc, showMentions, onlyEscalated, focusSpanId, 
       {popover?.kind === 'mention' && mentionFor ? (
         <div
           role="tooltip"
-          className="pointer-events-none absolute z-20 rounded-input border border-ink-500 bg-ink-900 px-2 py-1 font-sans text-body-sm text-ink-50 shadow-overlay"
+          className="pointer-events-none absolute z-20 rounded-soft border border-ctl-border bg-ink-900 px-2 py-1 font-sans text-body-sm text-ink-50 shadow-overlay"
           style={{ left: popover.x, top: popover.y }}
         >
           {entityTypeLabel(mentionFor.entity_type)}, tagger confidence{' '}

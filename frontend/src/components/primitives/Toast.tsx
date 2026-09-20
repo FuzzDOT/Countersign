@@ -41,7 +41,7 @@ export function ToastViewport() {
               <button
                 type="button"
                 aria-label="Copy request id"
-                className="rounded-input p-1 hover:bg-ink-500/40"
+                className="rounded-input border border-ctl-border bg-ctl-alt p-1 text-ctl-alt-fg hover:border-verify"
                 onClick={() => {
                   void navigator.clipboard?.writeText(toast.requestId ?? '');
                 }}

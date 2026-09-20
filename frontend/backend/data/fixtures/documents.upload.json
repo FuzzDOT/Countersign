@@ -1,0 +1,24 @@
+{
+  "job_id": "f50898c0-c91e-5293-8f3c-dae456946d09",
+  "documents": [
+    {
+      "id": "5206d34f-d6b2-59c5-bded-e978531573f8",
+      "title": "INV-4471 Meridian Supply",
+      "source": "invoice",
+      "chars": 880
+    },
+    {
+      "id": "98ec5fd9-4838-53b5-a5f7-8651ee7a3c3a",
+      "title": "PO 004430 Advent Holdings",
+      "source": "invoice",
+      "chars": 572
+    },
+    {
+      "id": "01caa46d-0b4c-5067-aa11-ade5ba9530ec",
+      "title": "AP-88806 Northgate Logistics",
+      "source": "invoice",
+      "chars": 563
+    }
+  ],
+  "duplicates_skipped": 1
+}

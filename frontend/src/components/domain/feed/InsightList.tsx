@@ -97,7 +97,7 @@ export function InsightList({
       else return;
       if (rows.length === 0) return;
       event.preventDefault();
-      const currentId = selectedId ?? (onRow ? (active as HTMLElement).dataset['insightId'] : cursorId) ?? null;
+      const currentId = selectedId ?? (onRow ? active.dataset['insightId'] : cursorId) ?? null;
       const currentIndex = currentId ? rows.findIndex((row) => row.id === currentId) : -1;
       const next = Math.min(rows.length - 1, Math.max(0, currentIndex + delta));
       focusRow(next, selectedId !== null);

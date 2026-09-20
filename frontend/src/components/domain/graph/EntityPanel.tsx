@@ -80,7 +80,7 @@ export function EntityPanel({ entityId, onClose, nodeHref, onOpenInsight, onShow
 
           {query.data.aliases.length > 0 ? (
             <section aria-labelledby="entity-aliases">
-              <h3 id="entity-aliases" className="mb-1 text-body-sm font-medium text-ink-50">
+              <h3 id="entity-aliases" className="mb-1 text-body-sm font-semibold text-card-fg">
                 Also written as
               </h3>
               <ul className="text-body-sm text-ink-200">
@@ -92,7 +92,7 @@ export function EntityPanel({ entityId, onClose, nodeHref, onOpenInsight, onShow
           ) : null}
 
           <section aria-labelledby="entity-neighbours">
-            <h3 id="entity-neighbours" className="mb-2 text-body-sm font-medium text-ink-50">
+            <h3 id="entity-neighbours" className="mb-2 text-body-sm font-semibold text-card-fg">
               Connected entities ({query.data.neighbors.length})
             </h3>
             <ul className="flex flex-col divide-y divide-ink-500/30">
@@ -118,7 +118,7 @@ export function EntityPanel({ entityId, onClose, nodeHref, onOpenInsight, onShow
           </section>
 
           <section aria-labelledby="entity-documents">
-            <h3 id="entity-documents" className="mb-2 text-body-sm font-medium text-ink-50">
+            <h3 id="entity-documents" className="mb-2 text-body-sm font-semibold text-card-fg">
               Documents ({query.data.documents.length})
             </h3>
             <ul className="flex flex-col gap-1 text-body-sm">

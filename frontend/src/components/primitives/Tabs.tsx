@@ -13,8 +13,8 @@ interface TabsProps<T extends string> {
   ariaLabel: string;
 }
 
-export const tabId = (id: string) => `tab-${id}`;
-export const panelId = (id: string) => `tabpanel-${id}`;
+const tabId = (id: string) => `tab-${id}`;
+const panelId = (id: string) => `tabpanel-${id}`;
 
 /** Tab list. The active tab lives in the URL, so `value` and `onChange` are wired to search params. */
 export function Tabs<T extends string>({ tabs, value, onChange, ariaLabel }: TabsProps<T>) {

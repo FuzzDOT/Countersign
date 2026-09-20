@@ -1,0 +1,27 @@
+{
+  "run_id": "c5015456-67b1-5e17-af18-3219b26e2fa3",
+  "insight_id": "96847b0b-29b4-54fe-a72e-e93ac8d29fe2",
+  "masked_edges": [
+    "e_0"
+  ],
+  "before": {
+    "confidence": 0.7401,
+    "vacuity": 0.5957,
+    "routing": "escalate_now",
+    "relation": "WIRED_FUNDS_TO"
+  },
+  "after": {
+    "confidence": 0.3301,
+    "vacuity": 0.8557,
+    "routing": "flag_for_review",
+    "relation": "WIRED_FUNDS_TO"
+  },
+  "delta": {
+    "confidence": -0.41,
+    "vacuity": 0.26,
+    "routing_changed": true
+  },
+  "load_bearing": true,
+  "interpretation": "The dependency link between 'Payment' and '$48,200' accounts for 41 points of confidence. Removing it downgrades the routing decision, so this edge is causally responsible for the flag.",
+  "latency_ms": 118
+}

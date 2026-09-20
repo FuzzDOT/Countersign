@@ -99,7 +99,7 @@ export default function DocumentRoute() {
               <button
                 type="button"
                 onClick={() => (canGoBack ? navigate(-1) : navigate('/app/feed'))}
-                className="mb-3 rounded-input px-2 py-1 text-body-sm text-paper-text/80 hover:bg-paper-rule/50"
+                className="mb-3 rounded-input border border-paper-text/40 px-4 py-1.5 text-body-sm font-semibold text-paper-text hover:border-verify hover:bg-paper-rule/50"
               >
                 {backLabel}
               </button>

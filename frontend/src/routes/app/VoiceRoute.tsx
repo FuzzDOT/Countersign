@@ -118,11 +118,11 @@ export default function VoiceRoute() {
 
           <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
             <div className="flex flex-col gap-1">
-              <span className="text-body-sm font-medium text-ink-50">What to cover</span>
+              <span className="text-body-sm font-semibold text-card-fg">What to cover</span>
               <SegmentedControl ariaLabel="Briefing scope" options={SCOPES} value={scope} onChange={setScope} />
             </div>
             <div role="group" aria-label="Maximum items" className="flex flex-col gap-1">
-              <span className="text-body-sm font-medium text-ink-50">Maximum items</span>
+              <span className="text-body-sm font-semibold text-card-fg">Maximum items</span>
               <div className="flex items-center gap-1">
                 <IconButton label="Fewer items" disabled={maxItems <= 1} onClick={() => setMaxItems((n) => Math.max(1, n - 1))}>
                   <MinusIcon />

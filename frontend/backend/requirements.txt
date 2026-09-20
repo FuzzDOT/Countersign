@@ -1,0 +1,53 @@
+# ── web ──────────────────────────────────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+# Required by `EmailStr` in api/v1/schemas.py. Pydantic does NOT pull this in
+# by default — it imports lazily at model-build time, so a missing install
+# fails at import of the router rather than at request time. Equivalent to
+# pydantic[email]; pinned separately so the version is visible.
+email-validator==2.2.0
+pydantic-settings==2.7.0
+python-multipart==0.0.20
+httpx==0.28.1
+
+# ── database ─────────────────────────────────────────────────────────────────
+sqlalchemy==2.0.36
+alembic==1.14.0
+psycopg[binary,pool]==3.2.3
+pgvector==0.3.6
+
+# ── auth / security ──────────────────────────────────────────────────────────
+pyjwt==2.10.1
+argon2-cffi==23.1.0
+slowapi==0.1.9
+
+# ── ml ───────────────────────────────────────────────────────────────────────
+# torch is installed separately in the Dockerfile (CPU wheel index).
+#
+# torch-geometric is deliberately absent (plan §1.2, removed in the Stage 10
+# cleanup that section schedules). The GAT is hand-rolled in ml/relations/gat.py
+# because ablation needs to mask *named edges at inference time* and read
+# per-edge, per-layer attention back out; PyG's GATConv would mean either
+# mutating edge_index — a different counterfactual than the one claim 4 makes —
+# or forking its forward pass. Nothing imports it, and it was one more thing
+# that had to install correctly inside a slim image.
+numpy==2.2.0
+scipy==1.14.1
+scikit-learn==1.6.0
+spacy==3.8.3
+nltk==3.9.1
+xgboost==2.1.3
+
+# ── documents ────────────────────────────────────────────────────────────────
+pypdf==5.1.0
+python-dateutil==2.9.0.post0
+
+# ── audio ────────────────────────────────────────────────────────────────────
+elevenlabs==1.50.3
+
+# ── util ─────────────────────────────────────────────────────────────────────
+structlog==24.4.0
+tenacity==9.0.0
+orjson==3.10.12
+faker==33.1.0

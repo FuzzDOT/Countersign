@@ -1,0 +1,16 @@
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "You do not have permission to do that.",
+    "status": 403,
+    "request_id": "01JBQ7X3K9M2N4P6R8T0V2W4Y6",
+    "details": {
+      "required": [
+        "calibration:run"
+      ],
+      "missing": [
+        "calibration:run"
+      ]
+    }
+  }
+}

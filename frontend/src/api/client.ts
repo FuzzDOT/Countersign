@@ -46,7 +46,7 @@ export function buildQuery(query: QueryParams | undefined): string {
     if (Array.isArray(value)) {
       for (const item of value as readonly (string | number)[]) params.append(key, String(item));
     } else {
-      params.append(key, String(value as string | number | boolean));
+      params.append(key, String(value));
     }
   }
   const text = params.toString();
