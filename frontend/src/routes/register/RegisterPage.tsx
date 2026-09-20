@@ -1,28 +1,37 @@
 import { useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../lib/auth-context";
-import { ApiError } from "../../api/errors";
+import { useAuth } from "../../auth/useAuth";
+import { request } from "../../api/client";
+import { isApiError, fieldErrors } from "../../api/errors";
+import type { AuthResponse } from "../../api/types";
 import { Input } from "../../components/primitives/Input";
 import { Button } from "../../components/primitives/Button";
 
-const COMMON_PASSWORDS = new Set(["password123", "12345678901", "qwertyuiop"]); // trimmed illustrative list
+// GAP: no api.auth.register wrapper exists yet in endpoints.ts — confirm
+// this exact path/shape with Faaz before relying on it further.
+function registerAccount(email: string, password: string, orgName: string) {
+  return request<AuthResponse>("/auth/register", {
+    method: "POST",
+    json: { email, password, org_name: orgName },
+    auth: false,
+  });
+}
 
 function checkPasswordRequirements(password: string) {
   return {
     length: password.length >= 12,
-    notCommon: password.length > 0 && !COMMON_PASSWORDS.has(password.toLowerCase()),
   };
 }
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [orgName, setOrgName] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -31,22 +40,23 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setFieldErrors({});
+    setErrors({});
     setFormError(null);
 
     if (!passwordsMatch) {
-      setFieldErrors({ confirm: "Passwords don't match" });
+      setErrors({ confirm: "Passwords don't match" });
       return;
     }
 
     setPending(true);
     try {
-      await register(email, password, orgName);
+      const response = await registerAccount(email, password, orgName);
+      await signIn(response);
       navigate("/app/feed", { replace: true });
     } catch (err) {
-      if (err instanceof ApiError && err.code === "VALIDATION_FAILED" && err.details?.fields) {
-        setFieldErrors(err.details.fields as Record<string, string>);
-      } else if (err instanceof ApiError) {
+      if (isApiError(err) && err.code === "VALIDATION_FAILED") {
+        setErrors(fieldErrors(err));
+      } else if (isApiError(err)) {
         setFormError(err.message);
       } else {
         setFormError("Something went wrong. Try again.");
@@ -73,7 +83,7 @@ export default function RegisterPage() {
             autoComplete="organization"
             value={orgName}
             onChange={(e) => setOrgName(e.target.value)}
-            error={fieldErrors.org_name}
+            error={errors.org_name}
             required
           />
           <Input
@@ -82,7 +92,7 @@ export default function RegisterPage() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            error={fieldErrors.email}
+            error={errors.email}
             required
           />
           <Input
@@ -91,17 +101,13 @@ export default function RegisterPage() {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            error={fieldErrors.password}
+            error={errors.password}
             required
           />
 
-          {/* Courtesy checklist only — server is the source of truth for these rules */}
           <ul className="text-body-sm flex flex-col gap-1">
             <li className={requirements.length ? "text-verify" : "text-ink-200"}>
               {requirements.length ? "✓" : "○"} At least 12 characters
-            </li>
-            <li className={requirements.notCommon ? "text-verify" : "text-ink-200"}>
-              {requirements.notCommon ? "✓" : "○"} Not a common password
             </li>
           </ul>
 
@@ -111,7 +117,7 @@ export default function RegisterPage() {
             autoComplete="new-password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            error={fieldErrors.confirm}
+            error={errors.confirm}
             required
           />
 

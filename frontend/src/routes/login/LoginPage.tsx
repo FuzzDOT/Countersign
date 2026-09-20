@@ -1,39 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { useAuth } from "../../lib/auth-context";
-import { ApiError } from "../../api/errors";
+import { useAuth } from "../../auth/useAuth";
+import { api } from "../../api/endpoints";
+import { isApiError, fieldErrors } from "../../api/errors";
 import { Input } from "../../components/primitives/Input";
 import { Button } from "../../components/primitives/Button";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { signIn, notice } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const notice = params.get("notice");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [lockedUntil, setLockedUntil] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setFieldErrors({});
+    setErrors({});
     setFormError(null);
     setPending(true);
 
     try {
-      await login(email, password);
+      const response = await api.auth.login(email, password);
+      await signIn(response);
       const next = params.get("next") ?? "/app/feed";
       navigate(next, { replace: true });
     } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.code === "VALIDATION_FAILED" && err.details?.fields) {
-          setFieldErrors(err.details.fields as Record<string, string>);
-        } else if (err.code === "ACCOUNT_LOCKED" && err.details?.locked_until) {
-          setLockedUntil(err.details.locked_until as string);
+      if (isApiError(err)) {
+        if (err.code === "VALIDATION_FAILED") {
+          setErrors(fieldErrors(err));
+        } else if (err.code === "ACCOUNT_LOCKED") {
+          const until = err.details["locked_until"];
+          if (typeof until === "string") setLockedUntil(until);
         } else {
           setFormError(err.message);
         }
@@ -52,9 +54,9 @@ export default function LoginPage() {
       <div className="w-[420px] panel p-8 flex flex-col gap-4">
         <h1 className="text-h1 text-ink-50">Sign in</h1>
 
-        {notice === "session_ended" && (
+        {notice && (
           <p role="alert" className="text-body-sm text-stamp-amber">
-            Your session was ended for security. Please sign in again.
+            {notice}
           </p>
         )}
         {formError && (
@@ -70,7 +72,7 @@ export default function LoginPage() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            error={fieldErrors.email}
+            error={errors.email}
             required
           />
           <Input
@@ -79,13 +81,11 @@ export default function LoginPage() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            error={fieldErrors.password}
+            error={errors.password}
             required
           />
 
-          {isLocked && lockedUntil && (
-            <LockoutCountdown lockedUntil={lockedUntil} />
-          )}
+          {isLocked && lockedUntil && <LockoutCountdown lockedUntil={lockedUntil} />}
 
           <Button type="submit" pending={pending} pendingLabel="Signing in…" disabled={isLocked}>
             Sign in
@@ -108,12 +108,12 @@ function LockoutCountdown({ lockedUntil }: { lockedUntil: string }) {
     Math.max(0, new Date(lockedUntil).getTime() - Date.now())
   );
 
-  useState(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setRemaining(Math.max(0, new Date(lockedUntil).getTime() - Date.now()));
     }, 1000);
     return () => clearInterval(interval);
-  });
+  }, [lockedUntil]);
 
   const seconds = Math.ceil(remaining / 1000);
 
