@@ -1,14 +1,14 @@
 {
   "scenario": "train_corpus",
   "seed": 20260919,
-  "epochs": 12,
+  "epochs": 10,
   "word_dropout": 0.3,
   "train_documents": 340,
   "dev_documents": 60,
   "train_sentences": 3642,
   "dev_sentences": 426,
   "parameters": 918308,
-  "train_seconds": 60.0,
+  "train_seconds": 569.5,
   "loss_history": [
     {
       "epoch": 1,
@@ -49,28 +49,20 @@
     {
       "epoch": 10,
       "loss": 0.0937
-    },
-    {
-      "epoch": 11,
-      "loss": 0.0812
-    },
-    {
-      "epoch": 12,
-      "loss": 0.0753
     }
   ],
   "dev": {
-    "token_precision": 0.9861,
+    "token_precision": 0.9871,
     "token_recall": 0.993,
-    "token_f1": 0.9895,
-    "span_precision": 0.9763,
-    "span_recall": 0.9794,
-    "span_f1": 0.9778,
+    "token_f1": 0.9901,
+    "span_precision": 0.9794,
+    "span_recall": 0.9825,
+    "span_f1": 0.981,
     "per_type": {
       "ACCOUNT_REF": {
-        "precision": 0.8667,
-        "recall": 0.8835,
-        "f1": 0.875,
+        "precision": 0.8857,
+        "recall": 0.9029,
+        "f1": 0.8942,
         "support": 103.0
       },
       "DATE": {
@@ -157,17 +149,17 @@
   },
   "heldout_scenario": "meridian_shell_ring",
   "heldout": {
-    "token_precision": 0.9902,
-    "token_recall": 0.9912,
-    "token_f1": 0.9907,
-    "span_precision": 0.978,
-    "span_recall": 0.9834,
-    "span_f1": 0.9807,
+    "token_precision": 0.9912,
+    "token_recall": 0.9883,
+    "token_f1": 0.9897,
+    "span_precision": 0.9833,
+    "span_recall": 0.9806,
+    "span_f1": 0.982,
     "per_type": {
       "ACCOUNT_REF": {
-        "precision": 0.9552,
-        "recall": 0.9697,
-        "f1": 0.9624,
+        "precision": 0.9848,
+        "recall": 0.9848,
+        "f1": 0.9848,
         "support": 66.0
       },
       "DATE": {
@@ -183,9 +175,9 @@
         "support": 41.0
       },
       "ORG": {
-        "precision": 0.9724,
-        "recall": 0.9724,
-        "f1": 0.9724,
+        "precision": 0.9858,
+        "recall": 0.9586,
+        "f1": 0.972,
         "support": 145.0
       },
       "PERSON": {
@@ -195,9 +187,9 @@
         "support": 9.0
       },
       "TRANSACTION_TYPE": {
-        "precision": 0.95,
+        "precision": 0.8636,
         "recall": 1.0,
-        "f1": 0.9744,
+        "f1": 0.9268,
         "support": 19.0
       }
     },

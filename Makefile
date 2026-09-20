@@ -148,7 +148,8 @@ fixtures-check:  ## Fail if committed fixtures are stale (used by CI)
 
 # ── models ───────────────────────────────────────────────────────────────────
 
-.PHONY: train-tagger train-relations train tune-gate vacuity fuzz eval baseline offsets
+.PHONY: train-tagger train-relations train tune-gate vacuity fuzz eval baseline offsets \
+        ablation ablation-demo
 
 train-tagger:  ## Train the BiLSTM-CRF and write ml/checkpoints/tagger.pt (~60s)
 	$(BE) python -m scripts.train_tagger
@@ -172,6 +173,12 @@ eval:  ## Build the routing eval set from the generator's ground truth
 
 baseline:  ## Run Nemotron on every labeled case (needs NEMOTRON_API_KEY, ~100 calls)
 	$(BE) python -m scripts.run_baseline
+
+ablation:  ## Sweep ablation intervention size over the demo corpus and write the report
+	$(BE) python -m scripts.ablation_report --write
+
+ablation-demo:  ## Find the minimal edge count for the pinned demo insight
+	$(BE) python -m scripts.ablation_report --demo
 
 offsets:  ## Run the offset-integrity suite on its own (the load-bearing invariant)
 	$(BE) pytest -q tests/test_offsets.py

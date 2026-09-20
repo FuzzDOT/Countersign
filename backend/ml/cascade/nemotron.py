@@ -236,6 +236,25 @@ class NemotronClient:
             # surface honours this; if a deployment does not, the fence
             # stripping in `schema.parse_decision` still handles it.
             "response_format": {"type": "json_object"},
+            # Nemotron 3 Super reasons by default: it emits a chain-of-thought
+            # into `reasoning_content` before the actual answer in `content`.
+            # `MAX_OUTPUT_TOKENS` (220) is sized for the JSON answer alone —
+            # with reasoning on, the trace consumes the whole budget and the
+            # response gets cut off mid-thought, never reaching the JSON
+            # (surfaces here as "no JSON object in '<truncated reasoning>'").
+            # It also explains the occasional timeout: a longer trace on a
+            # harder prompt just takes longer to generate. `enable_thinking:
+            # False` skips the trace entirely; `force_nonempty_content: True`
+            # is a documented pair with it — if disabling thinking ever still
+            # left `content` empty, this backfills it from whatever reasoning
+            # happened rather than handing back nothing. This is a top-level
+            # field in the raw request body, not nested under an `extra_body`
+            # wrapper — that wrapper is an OpenAI-SDK client-side convention
+            # for forwarding unknown params and doesn't exist on the wire.
+            "chat_template_kwargs": {
+                "enable_thinking": False,
+                "force_nonempty_content": True,
+            },
         }
         headers = {
             "Authorization": f"Bearer {self.settings.nemotron_api_key}",

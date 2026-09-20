@@ -84,10 +84,17 @@ class SentenceEncoding:
     unit: SentenceUnit
     tags: tuple[str, ...]
     spans: tuple[TokenSpan, ...]
-    # [T, n_tags] posterior; [T, 2*hidden] encoder states. Both trimmed to the
-    # sentence's real length, so no consumer has to know about padding.
+    # [T, n_tags] posterior; [T, 2*hidden] encoder states; [T, local_dim]
+    # pre-BiLSTM features. All trimmed to the sentence's real length, so no
+    # consumer has to know about padding.
+    #
+    # `local` is what Stage 3's sentence graph is built from. `hidden`
+    # already encodes the whole sentence, which would make the graph's edges
+    # redundant and its attention non-causal — see
+    # `BiLSTMCRFTagger.embed_tokens`.
     marginals: Tensor
     hidden: Tensor
+    local: Tensor
 
 
 @dataclass(frozen=True, slots=True)
@@ -136,7 +143,10 @@ class EntityTagger:
         log.info(
             "tagger_loaded",
             path=str(path),
-            token_f1=metrics.get("token_f1"),
+            # Same collision as `ml/tagger/train.py`'s `tagger_training_done`
+            # event, and the more frequent of the two: this fires on every
+            # command that loads the checkpoint, not just a training run.
+            tagging_f1=metrics.get("token_f1"),
             parameters=sum(p.numel() for p in model.parameters()),
         )
         return cls(model, Vocab.from_dict(vocab_payload), metrics)
@@ -171,7 +181,9 @@ class EntityTagger:
             self.vocab,
             max_word_len=self.model.config.max_word_len,
         )
-        paths, marginals, hidden = self.model.decode(batch.word_ids, batch.char_ids, batch.mask)
+        paths, marginals, hidden, local = self.model.decode(
+            batch.word_ids, batch.char_ids, batch.mask
+        )
 
         out: list[SentenceEncoding] = []
         for position, unit in enumerate(units):
@@ -192,6 +204,7 @@ class EntityTagger:
                     spans=tuple(tags_to_spans(list(tags), confidences)),
                     marginals=token_marginals.clone(),
                     hidden=hidden[position, :length].clone(),
+                    local=local[position, :length].clone(),
                 )
             )
         return out

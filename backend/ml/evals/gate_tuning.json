@@ -1,19 +1,19 @@
 {
   "policy": "vacuity_gate_v2",
-  "n_demo_insights": 60,
-  "n_clean_insights": 43,
-  "routing_flag_threshold": 0.6,
-  "routing_escalate_threshold": 0.8,
-  "vacuity_gate_threshold": 0.225,
+  "n_demo_insights": 58,
+  "n_clean_insights": 44,
+  "routing_flag_threshold": 0.55,
+  "routing_escalate_threshold": 0.75,
+  "vacuity_gate_threshold": 0.625,
   "demo": {
-    "auto_file": 0.6167,
-    "flag_for_review": 0.2667,
-    "escalate_now": 0.1167,
-    "gate_escalation_rate": 0.1167
+    "auto_file": 0.5,
+    "flag_for_review": 0.3448,
+    "escalate_now": 0.1552,
+    "gate_escalation_rate": 0.1379
   },
   "clean_baseline": {
-    "auto_file": 0.6744,
-    "flag_for_review": 0.3256,
+    "auto_file": 0.9773,
+    "flag_for_review": 0.0227,
     "escalate_now": 0.0
   },
   "target_band": [
