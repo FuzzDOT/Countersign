@@ -400,20 +400,20 @@ def _documented_failures(
     metric above it, and it must not be pushed off the list by six
     uninteresting misroutes.
     """
-    failures = [case for case in cases if case.is_failure]
-    failures.sort(key=lambda case: (case.failure_note is None, str(case.id)))
+    failures = [row for row in cases if row.is_failure]
+    failures.sort(key=lambda row: (row.failure_note is None, str(row.id)))
 
     out: list[DocumentedFailure] = []
-    for case in failures[:MAX_DOCUMENTED_FAILURES]:
-        insight = insights.get(case.insight_id) if case.insight_id else None
+    for row in failures[:MAX_DOCUMENTED_FAILURES]:
+        insight = insights.get(row.insight_id) if row.insight_id else None
         out.append(
             DocumentedFailure(
-                case_id=case.id,
-                insight_id=case.insight_id,
-                ground_truth=case.ground_truth,
-                predicted=case.predicted,
+                case_id=row.id,
+                insight_id=row.insight_id,
+                ground_truth=row.ground_truth,
+                predicted=row.predicted,
                 sentence_text=insight.sentence_text if insight else "",
-                note=_failure_note(case, insight),
+                note=_failure_note(row, insight),
             )
         )
     return out
@@ -502,7 +502,5 @@ def calibration_eval(scope: ScopeDep) -> CalibrationEval:
             for snapshot in snapshots
         ],
         current_snapshot_id=current.id if current else None,
-        hard_negatives_logged=len(
-            calib.hard_negatives(calib.load_cases(scope.db, scope.org_id))
-        ),
+        hard_negatives_logged=len(calib.hard_negatives(calib.load_cases(scope.db, scope.org_id))),
     )

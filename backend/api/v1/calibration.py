@@ -80,9 +80,7 @@ def _snapshot_response(
             # was built against that fixture; flipping the sign here to read
             # more intuitively would silently invert an arrow in the UI.
             ece_absolute=round(after.ece - before.ece, 4),
-            ece_relative=round((after.ece - before.ece) / before.ece, 4)
-            if before.ece
-            else 0.0,
+            ece_relative=round((after.ece - before.ece) / before.ece, 4) if before.ece else 0.0,
         ),
         n_hard_negatives=n_hard_negatives,
         elapsed_ms=elapsed_ms,
@@ -156,17 +154,14 @@ def recalibrate(
     # claims to do.
     fitted = calib.fit_temperature(negatives) if negatives else current
 
-    if fitted == current:
-        # Identical temperature, so the "after" series *is* the "before"
-        # series — reuse it rather than recomputing. Rescoring at an
-        # unchanged T round-trips the logits back through `trust_of` and
-        # lands within ~4e-9 of the stored confidence, not exactly on it,
-        # which made "no fit happened, so nothing moved" almost-but-not-quite
-        # true. An endpoint whose no-op path reports a nonzero ECE delta is
-        # reporting float noise as a calibration result.
-        after = before
-    else:
-        after = calib.metrics(calib.rescored(cases, fitted), fitted)
+    # When the temperature is unchanged the "after" series *is* the "before"
+    # series, so it is reused rather than recomputed. Rescoring at an unchanged
+    # T round-trips the logits back through `trust_of` and lands within ~4e-9
+    # of the stored confidence, not exactly on it, which made "no fit happened,
+    # so nothing moved" almost-but-not-quite true. An endpoint whose no-op path
+    # reports a nonzero ECE delta is reporting float noise as a calibration
+    # result.
+    after = before if fitted == current else calib.metrics(calib.rescored(cases, fitted), fitted)
 
     baseline_row = _persist(scope, LABEL_BASELINE, before, key=None, is_current=False)
     post_row = _persist(scope, LABEL_POST, after, key=idempotency_key, is_current=True)

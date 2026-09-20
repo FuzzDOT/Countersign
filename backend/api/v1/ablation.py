@@ -15,6 +15,7 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, Request, Response
+from sqlalchemy import select
 
 from api.deps import PERM_ABLATION_RUN, ScopeDep, require_perm
 from api.errors import InsightNotFound
@@ -26,8 +27,6 @@ from api.v1.schemas import (
     AblationState,
 )
 from core.ratelimit import LIMIT_ABLATION, limiter
-from sqlalchemy import select
-
 from db.models import AblationRun, Insight
 from ml.ablation.engine import ablate
 

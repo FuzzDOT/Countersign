@@ -144,7 +144,7 @@ def build_text_only_briefing(
     segments: list[TranscriptSegment] = []
     cursor = 0
     for index, (body, insight) in enumerate(
-        [(text.opening, None), *[(s, i) for s, i in zip(text.sentences, text.ranked, strict=True)]]
+        [(text.opening, None), *zip(text.sentences, text.ranked, strict=True)]
     ):
         end = cursor + estimated_duration_ms(body)
         segments.append(
@@ -223,7 +223,9 @@ def build_briefing(
 
     opening_end = tts_mod.segment_timing_ms(synthesis.alignment, full_text, opening)[1]
     segments = [
-        TranscriptSegment(segment_id="s0", start_ms=0, end_ms=opening_end, text=opening, insight_id=None)
+        TranscriptSegment(
+            segment_id="s0", start_ms=0, end_ms=opening_end, text=opening, insight_id=None
+        )
     ]
     position = len(opening) + 1  # +1 for the joining space before the first sentence
     for index, (insight, sentence) in enumerate(zip(ranked, sentences, strict=True)):

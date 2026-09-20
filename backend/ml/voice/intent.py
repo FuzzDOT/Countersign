@@ -25,9 +25,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import lru_cache
 
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 from core.config import Settings, get_settings
 
