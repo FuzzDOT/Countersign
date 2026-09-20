@@ -39,7 +39,7 @@ from db.models import Insight, RoutingBucket, RoutingEvalCase
 from db.session import db_session
 from ml.cascade.cascade import CascadeCandidate, neighbourhood
 from ml.cascade.evalset import SPLIT_EVAL, SPLIT_NEMOTRON_ALL
-from ml.cascade.nemotron import NemotronClient, NemotronRequest, NemotronUnavailable
+from ml.cascade.nemotron import NemotronClient, NemotronRequest, NemotronResult, NemotronUnavailable
 from ml.cascade.prompt import PromptContext
 from ml.cascade.routing import ClaimContext, GraphContext
 from ml.cascade.routing import score as route_claim
@@ -60,7 +60,15 @@ def main() -> int:
     configure_logging(level=settings.log_level)
     org_id = uuid.UUID(args.org) if args.org else ids.DEMO_ORG_ID
 
-    client = NemotronClient(settings)
+    # `nemotron_max_concurrency` (6) is tuned for the live cascade, which
+    # escalates a handful of insights per ingest — nowhere near a rate limit.
+    # This script fires up to a hundred requests in one run, and against a
+    # trial-tier key that burst rate hits the limit even with the client's
+    # existing retry+backoff: a real run here got 17/57 permanent 429s. A
+    # copy of settings with much lower concurrency, scoped to this script
+    # only, so the live cascade's own traffic pattern is untouched.
+    baseline_settings = settings.model_copy(update={"nemotron_max_concurrency": 2})
+    client = NemotronClient(baseline_settings)
     if not client.configured:
         print(
             "NEMOTRON_API_KEY is not configured, so the "
@@ -89,6 +97,33 @@ def main() -> int:
             insight.id: insight
             for insight in db.execute(select(Insight).where(Insight.org_id == org_id)).scalars()
         }
+
+        # A `routing_eval_case` row survives a re-seed of the same org; the
+        # insight it points at does not — `make seed` on an already-seeded
+        # tenant produces fresh insight rows with fresh ids, and
+        # `build_routing_eval` has to be re-run to catch up. Filtering here,
+        # once, is what keeps `cases`, the candidates built from them, and
+        # the Nemotron results all the same length in the same order — the
+        # alternative is a `zip(cases, results, strict=True)` that blows up
+        # the moment any one case is stale, which is what actually happened
+        # the first time this ran against a database with a live key: the
+        # crash looked like a Nemotron problem and was a stale-row problem.
+        stale = [case for case in cases if case.insight_id not in insights]
+        if stale:
+            log.warning(
+                "stale_eval_cases_skipped",
+                count=len(stale),
+                hint="run `make eval` (scripts.build_routing_eval) to refresh routing_eval_cases",
+            )
+        cases = [case for case in cases if case.insight_id in insights]
+        if not cases:
+            print(
+                "Every labeled case is stale (points at an insight that no longer "
+                "exists). Run `make eval` to rebuild routing_eval_cases against the "
+                "current insights, then retry."
+            )
+            return 2
+
         names = _entity_names(db, org_id)
         candidates = _candidates(cases, insights, names, settings)
 
@@ -111,7 +146,7 @@ def main() -> int:
             for candidate in candidates
         ]
 
-        results = asyncio.run(client.decide_many(requests))
+        results = asyncio.run(_decide_in_batches(client, requests))
 
         db.execute(
             delete(RoutingEvalCase).where(
@@ -162,6 +197,43 @@ def main() -> int:
         )
     )
     return 0 if succeeded else 1
+
+
+# Chunk size and pause are deliberately conservative rather than tuned against
+# an unknown rate-limit window. A trial-tier key's limit is usually per-minute,
+# and the client's own retry backoff tops out at 2 seconds — nowhere near
+# enough headroom if the whole batch lands in the same window. Halving the
+# concurrency (settings.nemotron_max_concurrency=2, set by the caller) and
+# adding a real pause between chunks costs a few minutes on a ~60-call run;
+# a permanently-failed 30% of the baseline costs the number the cascade
+# argument rests on.
+BASELINE_CHUNK_SIZE = 10
+BASELINE_CHUNK_PAUSE_SECONDS = 15.0
+
+
+async def _decide_in_batches(
+    client: NemotronClient, requests: list[NemotronRequest]
+) -> list[NemotronResult | NemotronUnavailable]:
+    """`decide_many`, paced in chunks instead of fired all at once.
+
+    Each chunk still runs concurrently (up to the client's own semaphore) —
+    only the *chunks* are sequential, with a pause between them so a
+    rolling-window rate limit has time to clear before the next burst.
+    """
+    results: list[NemotronResult | NemotronUnavailable] = []
+    for start in range(0, len(requests), BASELINE_CHUNK_SIZE):
+        chunk = requests[start : start + BASELINE_CHUNK_SIZE]
+        results.extend(await client.decide_many(chunk))
+        remaining = len(requests) - (start + len(chunk))
+        if remaining > 0:
+            log.info(
+                "baseline_pacing",
+                completed=start + len(chunk),
+                remaining=remaining,
+                pause_seconds=BASELINE_CHUNK_PAUSE_SECONDS,
+            )
+            await asyncio.sleep(BASELINE_CHUNK_PAUSE_SECONDS)
+    return results
 
 
 def _entity_names(db, org_id: uuid.UUID) -> dict[uuid.UUID, str]:  # type: ignore[no-untyped-def]

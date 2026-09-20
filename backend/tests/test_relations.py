@@ -98,9 +98,15 @@ def test_edge_features_are_a_direction_one_hot(graph_and_pair) -> None:  # type:
 
 
 def test_node_feature_width_matches_the_declared_layout(graph_and_pair) -> None:  # type: ignore[no-untyped-def]
+    """Node features concatenate the *pre-BiLSTM* embedding, not the encoder
+    hidden state (Stage 7's residual-connection fix, docs/STATE.md) — a
+    residual stream made attention non-causal, and part of the fix was
+    building graph nodes from features the BiLSTM hadn't already smoothed
+    together. `encoder_dim` (512) was the right width before that; it is not
+    now. `pre_bilstm_dim` is."""
     graph, _, _ = graph_and_pair
-    hidden = get_tagger().model.config.encoder_dim
-    assert graph.node_features.size(1) == node_feature_dim(hidden)
+    width = get_tagger().model.config.pre_bilstm_dim
+    assert graph.node_features.size(1) == node_feature_dim(width)
 
 
 def test_edge_ids_are_parallel_to_the_edge_index(graph_and_pair) -> None:  # type: ignore[no-untyped-def]

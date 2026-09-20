@@ -311,7 +311,7 @@ def predict_tags(
     for start in range(0, len(sentences), batch_size):
         chunk = sentences[start : start + batch_size]
         batch = encode_batch(chunk, vocab, max_word_len=model.config.max_word_len)
-        paths, _, _ = model.decode(batch.word_ids, batch.char_ids, batch.mask)
+        paths, _, _, _ = model.decode(batch.word_ids, batch.char_ids, batch.mask)
         out.extend([[TAGS[tag] for tag in path] for path in paths])
     return out
 
@@ -510,8 +510,18 @@ def train(
 
     log.info(
         "tagger_training_done",
-        dev_token_f1=report["dev"]["token_f1"],
-        heldout_token_f1=report["heldout"]["token_f1"],
+        # Named to avoid `core/logging.py`'s redaction pattern, which matches
+        # "token" as a substring anywhere in a key on purpose — the tradeoff
+        # is stated there ("a false positive costs one unreadable log field,
+        # a false negative costs a leaked credential") and is correct as a
+        # policy. It just doesn't know these two are tagger token-level F1
+        # scores, not an auth token, and was swallowing them on every run.
+        # The JSON report below keeps `dev.token_f1` / `heldout.token_f1` —
+        # that field name is real and meaningful (token-level vs span-level),
+        # and `print(json.dumps(report))` never goes through structlog, so
+        # nothing there needed to change.
+        dev_tagging_f1=report["dev"]["token_f1"],
+        heldout_tagging_f1=report["heldout"]["token_f1"],
         heldout_span_f1=report["heldout"]["span_f1"],
         seconds=round(elapsed, 1),
     )

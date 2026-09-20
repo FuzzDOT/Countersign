@@ -98,7 +98,14 @@ class Settings(BaseSettings):
     # ── nemotron ─────────────────────────────────────────────────────────────
     nemotron_api_key: str = ""
     nemotron_base_url: str = "https://integrate.api.nvidia.com/v1"
-    nemotron_model: str = "nvidia/llama-3.3-nemotron-super-49b-v1"
+    # NVIDIA retired the Llama-3.3-based Nemotron generation for a ground-up
+    # Nemotron 3 architecture (GTC, March 2026) — the old slug 404-Gones
+    # rather than 404-Not-Founds, which is the HTTP tell for "permanently
+    # removed" rather than "check the spelling". Confirmed against NVIDIA's
+    # own model card (build.nvidia.com/nvidia/nemotron-3-super-120b-a12b) at
+    # the time of this fix; NVIDIA's catalog moves fast enough that this is
+    # worth re-checking rather than assuming it holds.
+    nemotron_model: str = "nvidia/nemotron-3-super-120b-a12b"
     nemotron_timeout_seconds: float = Field(default=6.0, gt=0)
     nemotron_max_retries: int = Field(default=2, ge=0, le=5)
     nemotron_max_concurrency: int = Field(default=6, ge=1, le=32)

@@ -115,6 +115,17 @@ def test_the_request_looks_like_the_api_expects(settings) -> None:  # type: igno
     assert body["temperature"] == 0.0  # type: ignore[index]
     assert body["response_format"] == {"type": "json_object"}  # type: ignore[index]
     assert [m["role"] for m in body["messages"]] == ["system", "user"]  # type: ignore[index]
+    # Nemotron 3 reasons by default and would otherwise spend the whole
+    # output budget on a chain-of-thought trace before ever reaching the
+    # JSON answer (docs/STATE.md — this is what "no JSON object in
+    # '<truncated reasoning>'" actually meant in the wild). Top-level field,
+    # not nested under an `extra_body` wrapper: that wrapper is an OpenAI-SDK
+    # client-side convention and doesn't exist on the wire, which this raw
+    # httpx client writes directly.
+    assert body["chat_template_kwargs"] == {  # type: ignore[index]
+        "enable_thinking": False,
+        "force_nonempty_content": True,
+    }
 
 
 # ── failure is the normal case ───────────────────────────────────────────────

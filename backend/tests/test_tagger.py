@@ -185,11 +185,17 @@ def test_partition_dominates_any_single_path(tiny_model) -> None:
 
 
 def test_viterbi_returns_one_tag_per_real_token(tiny_model) -> None:  # type: ignore[no-untyped-def]
+    """`decode()` returns four values, not three, since the residual-connection
+    fix (docs/STATE.md, Stage 7): the pre-BiLSTM local features are now
+    returned alongside the encoder hidden states, because those are what
+    `ml/relations/graph_builder.py` builds its nodes from. This test predated
+    that change and only unpacked three."""
     words, chars, mask = _inputs([7, 5, 1])
-    paths, marginals, hidden = tiny_model.decode(words, chars, mask)
+    paths, marginals, hidden, local = tiny_model.decode(words, chars, mask)
     assert [len(p) for p in paths] == [7, 5, 1]
     assert marginals.shape == (3, 7, N_TAGS)
     assert hidden.shape == (3, 7, tiny_model.config.encoder_dim)
+    assert local.shape == (3, 7, tiny_model.config.word_dim + tiny_model.config.char_channels)
 
 
 def test_loss_is_finite_and_decreases_when_fitted(tiny_model) -> None:  # type: ignore[no-untyped-def]

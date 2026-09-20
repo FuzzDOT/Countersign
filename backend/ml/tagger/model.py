@@ -58,6 +58,17 @@ class TaggerConfig:
     def encoder_dim(self) -> int:
         return self.lstm_hidden * 2
 
+    @property
+    def pre_bilstm_dim(self) -> int:
+        """Width of `embed_tokens()`'s output: word embedding + char-CNN.
+
+        This, not `encoder_dim`, is what `ml/relations/graph_builder.py`
+        concatenates its categorical features onto (docs/STATE.md, Stage 7 —
+        the residual-connection fix). A caller computing the graph's node
+        feature width from `encoder_dim` will get the pre-fix number back.
+        """
+        return self.word_dim + self.char_channels
+
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
@@ -256,6 +267,25 @@ class BiLSTMCRFTagger(nn.Module):
         with torch.no_grad():
             self.word_embedding.weight[0].fill_(0.0)
 
+    def embed_tokens(self, word_ids: Tensor, char_ids: Tensor) -> Tensor:
+        """Per-token features *before* the BiLSTM. [B, T, word_dim + char_channels]
+
+        Local by construction: a token's word embedding and the character
+        CNN over its own characters, and nothing from its neighbours. Stage
+        3's sentence graph uses these rather than the BiLSTM states, and the
+        reason is claim 4 — a BiLSTM hidden state already encodes the whole
+        sentence, so a graph built on top of it is carrying information it
+        did not have to route through any edge, and masking an edge changes
+        almost nothing. Measured: with BiLSTM features the top attention
+        edge moved confidence by 0.003; with these it is an order of
+        magnitude larger. See ml/evals/ablation_report.json.
+        """
+        return torch.cat([self.word_embedding(word_ids), self.char_cnn(char_ids)], dim=2)
+
+    @property
+    def local_dim(self) -> int:
+        return self.config.word_dim + self.config.char_channels
+
     def encode(self, word_ids: Tensor, char_ids: Tensor, mask: Tensor) -> Tensor:
         """BiLSTM hidden states. [B, T, 2*hidden]
 
@@ -265,11 +295,7 @@ class BiLSTMCRFTagger(nn.Module):
         first real token's representation depends on how long the batch's
         longest sentence happened to be.
         """
-        features = torch.cat(
-            [self.word_embedding(word_ids), self.char_cnn(char_ids)],
-            dim=2,
-        )
-        features = self.dropout(features)
+        features = self.dropout(self.embed_tokens(word_ids, char_ids))
 
         lengths = mask.sum(dim=1).clamp(min=1).cpu()
         packed = nn.utils.rnn.pack_padded_sequence(
@@ -295,11 +321,23 @@ class BiLSTMCRFTagger(nn.Module):
     @torch.no_grad()
     def decode(
         self, word_ids: Tensor, char_ids: Tensor, mask: Tensor
-    ) -> tuple[list[list[int]], Tensor, Tensor]:
-        """Viterbi paths, per-token marginals, and the encoder states."""
+    ) -> tuple[list[list[int]], Tensor, Tensor, Tensor]:
+        """Viterbi paths, per-token marginals, encoder states, local features.
+
+        All four from one forward pass: the paths become mentions, the
+        marginals become `mentions.tagger_conf`, and the local features
+        become Stage 3's graph nodes. The encoder states are returned for
+        anything that wants full-sentence context and are deliberately *not*
+        what the graph is built from.
+        """
         self.eval()
         emissions, hidden = self.forward(word_ids, char_ids, mask)
-        return self.crf.viterbi(emissions, mask), self.crf.marginals(emissions, mask), hidden
+        return (
+            self.crf.viterbi(emissions, mask),
+            self.crf.marginals(emissions, mask),
+            hidden,
+            self.embed_tokens(word_ids, char_ids),
+        )
 
 
 # ── checkpoint I/O ───────────────────────────────────────────────────────────

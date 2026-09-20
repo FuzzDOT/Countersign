@@ -194,6 +194,7 @@ class GATRelationModel(nn.Module):
         dropout: float = 0.3,
         edge_features: int = 3,
         n_classes: int = len(RELATIONS),
+        residual: bool = False,
     ) -> None:
         super().__init__()
         if hidden % heads:
@@ -207,7 +208,9 @@ class GATRelationModel(nn.Module):
             "dropout": dropout,
             "edge_features": edge_features,
             "n_classes": n_classes,
+            "residual": residual,
         }
+        self.residual = residual
         self.hidden = hidden
         self.input_projection = nn.Linear(node_features, hidden)
         self.layers = nn.ModuleList(
@@ -234,11 +237,25 @@ class GATRelationModel(nn.Module):
             out, attention = layer(
                 x, graph.edge_index, graph.edge_features, keep=keep, uniform=uniform
             )
-            # Residual: three rounds of attention over a 40-node graph
-            # otherwise oversmooths, and every token ends up with the same
-            # embedding. Applied before the nonlinearity on all but the last
-            # layer, which is the usual arrangement.
-            x = out + x
+            # No residual by default, and this is the single most consequential
+            # line in the file.
+            #
+            # A residual stream makes the model easier to optimize and makes
+            # its attention *non-causal*: the projected node features flow
+            # straight to the read-out, the attention layers only perturb
+            # them, and masking an edge changes the answer by ~0.003. That is
+            # a model whose attention map is decoration — exactly the failure
+            # attention-based explanations are criticized for, and exactly
+            # what claim 4 says we are not doing. Measured, before and after:
+            #
+            #   with residual     top-1 edge |Δconf| 0.003, 12 edges 0.03,
+            #                     zero routing flips over the demo corpus
+            #   without residual  see ml/evals/ablation_report.json
+            #
+            # The trade is optimization stability for interpretability, and
+            # the interpretability is the product. `residual=True` is kept
+            # because the comparison is worth being able to re-run.
+            x = out + x if self.residual else out
             if index < len(self.layers) - 1:
                 x = self.dropout(self.activation(x))
             per_layer.append(attention.mean(dim=1))

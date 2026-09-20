@@ -6,8 +6,8 @@ node keeps its own representation through three layers of aggregation.
 
 Node features are
 
-    [ tagger hidden (512) ‖ entity type (7) ‖ POS (17) ‖ dependency label (45)
-      ‖ relative position (2) ]
+    [ tagger local features (164) ‖ entity type (7) ‖ POS (17)
+      ‖ dependency label (45) ‖ relative position (2) ]
 
 which is the plan's vector plus the dependency label. That addition is
 deliberate: the plan puts only a *direction* flag on the edges, so without
@@ -16,10 +16,16 @@ the label on the node the model cannot tell an `nsubj` arc from a `dobj` one
 being classified. Attaching the label to the child node is equivalent to
 putting it on the incoming arc and costs no extra edge machinery.
 
-**The tagger's hidden states are reused, not recomputed.** They come from the
-same forward pass that produced the mentions (`ml/tagger/infer.py`), which
-halves the work per document and guarantees the graph describes the same
-analysis the citation does.
+**Nodes carry the tagger's *local* features, not its BiLSTM states.** Both
+come free from the same forward pass that produced the mentions, and the
+choice between them decides whether claim 4 is true. A BiLSTM hidden state
+is already a summary of the whole sentence, so a graph built on top of one
+is routing information the nodes already had: masking an edge then changes
+the prediction by ~0.003 and the attention map is decoration. Building on
+the pre-BiLSTM word-and-character features forces every cross-token
+dependency through an edge, which is what makes ablating one a real
+counterfactual. It costs some F1 and buys the interpretability claim; the
+numbers for both are in `ml/evals/`.
 """
 
 from __future__ import annotations
@@ -172,7 +178,7 @@ def build_sentence_graph(
         categorical[-2] = local / max(length - 1, 1)
         categorical[-1] = 0.0 if head_local is None else (head_local - local) / max(length, 1)
 
-        rows.append(torch.cat([encoding.hidden[local], categorical]))
+        rows.append(torch.cat([encoding.local[local], categorical]))
 
     node_features = torch.stack(rows) if rows else torch.zeros(0, 0)
 
