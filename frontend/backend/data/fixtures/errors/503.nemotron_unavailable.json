@@ -1,9 +1,0 @@
-{
-  "error": {
-    "code": "NEMOTRON_UNAVAILABLE",
-    "message": "The Nemotron upstream is unavailable.",
-    "status": 503,
-    "request_id": "01JBQ7X3K9M2N4P6R8T0V2W4Y6",
-    "details": {}
-  }
-}
