@@ -254,6 +254,18 @@ def _strength(stats: Correlation) -> str:
             "The correlation is not statistically significant at this sample size, "
             "so we are reporting it as an observation rather than a result."
         )
+    # A *negative* Spearman means vacuity orders fragility backwards — the
+    # thesis failing, not succeeding. `abs()` below is correct for grading
+    # magnitude but would describe that case as "predictive", which is the
+    # one reading this project must not ship. Checked before the magnitude
+    # bands rather than inside them so it cannot be reached by accident.
+    if stats.spearman < 0:
+        return (
+            "The relationship is inverted at this sample: higher vacuity went with "
+            "*lower* measured fragility, which is the opposite of the claim. We are "
+            "reporting it rather than dropping the sign, because a signal that orders "
+            "backwards is a more important result than a weak one that orders forwards."
+        )
     magnitude = abs(stats.spearman)
     if magnitude >= 0.6:
         return "The uncertainty signal is predictive of real fragility, not decorative."

@@ -1044,3 +1044,193 @@ exist (the sample size is top-level `n_insights`), and `interpretation`
 does; the first would have been a `KeyError` at runtime. Still not executed
 here; `make test-be` is the check.
 
+## Stage 9 complete: live recalibration. `BUILD_STAGE = 9`.
+
+**Zero `pending=True` stubs remain anywhere in `api/v1/`.** Every route in
+the published contract is now real.
+
+Two endpoints, not one — `GET /evals/calibration` was also a Stage 9 stub
+and is easy to miss because it lives in `evals.py`.
+
+**Files:** `ml/evidential/calibration.py` (new), `api/v1/calibration.py`,
+`api/v1/evals.py`, `tests/test_calibration.py` (new, 28 tests).
+
+### The mistake I nearly shipped, and what it changes
+
+My first draft fit temperature against the **three routing buckets**. That
+is a category error, not a shortcut. `insights.evidence_logits` is
+`[N_RELATIONS]` — six *relation* classes — and `insights.confidence` is the
+evidential head's `max(α)/S` over those same six
+(`ml/evidential/uncertainty.py`). Routing is a downstream decision made by
+thresholds and, for escalated cases, by Nemotron. Feeding 6-wide relation
+logits to a 3-bucket cross-entropy would have produced a temperature that
+looked plausible and meant nothing, and my own width guard would have
+silently bailed out to `T=1.0` forever — a calibration endpoint that never
+calibrates and never says so.
+
+Caught by reading `ml/relations/interface.py` before trusting the draft.
+The shipped version fits over relation classes, which is the same space
+`ml/evidential/temperature.apply` divides at inference time — the fit and
+the application have to agree or the stored number is meaningless.
+
+I also invented a function that does not exist (`uncertainty.decompose`);
+the real single-example helper is `trust_of`. Both mistakes were the same
+shape: assuming an interface instead of opening the file.
+
+### Design decisions worth knowing
+
+**No `hard_negatives` table, and none needed.** The plan says hard negatives
+are "logged throughout the event", and only the Stage 1 mock fixtures ever
+referenced them. But every term of the definition is already a column on
+`insights` — `routing`, `classical_routing`, `resolved_by`, `confidence` —
+because Stage 3 stored them, and `evidence_logits` is on the same row with
+a comment saying outright that Stage 9 needs it. So hard negatives are
+*derived*, and refitting never re-runs inference over the corpus.
+
+**`load_cases` deliberately keys on the entity pair only** — unlike
+`ml/cascade/evalset.build`, which also keys on the relation. That
+difference is the point: evalset only wants pairs the extractor got right,
+because a missed relation is a recall failure it reports elsewhere.
+Calibration needs the *wrong* ones most of all — a confidently
+misclassified relation is exactly the overconfidence ECE exists to catch.
+Keying on the relation would have dropped every such case and reported a
+flatteringly low error. `test_load_cases_keeps_misclassified_relations`
+guards it.
+
+**Rescoring goes through the evidential head, not a softmax.** At `T=1` the
+rescored confidence must reproduce what the pipeline already stored;
+a softmax would return a systematically larger number and the "before"
+column would not match the confidences already in the feed.
+`test_rescoring_uses_the_evidential_head_not_a_softmax` asserts that
+within 1e-4.
+
+**Accuracy is invariant under rescaling, by construction.** Temperature
+scaling is monotonic, so it cannot move the argmax. `rescored` does not
+recompute `correct`, and a test asserts predictions are identical across
+T ∈ {0.5, 1.0, 2.0, 3.5} — if that ever fails, the transform is not
+temperature scaling.
+
+**`ece_absolute` is `after - before`**, so an improvement is *negative*.
+That matches the Stage 1 fixture the frontend was built against; flipping
+it to read more intuitively would silently invert an arrow in the UI.
+
+**Baseline is measured at the org's live temperature, not a hardcoded 1.0.**
+Recalibrating twice must compare against what the pipeline is doing now,
+or the second run reports an improvement it already banked.
+
+### The ECE-reduction exit criterion, asserted honestly
+
+Plan §4 Stage 9 says recalibration "reduces ECE". Temperature is fit on the
+hard-negative set, so a reduction over the *full* labeled set is **not**
+mathematically guaranteed — that is precisely the caveat the plan
+rehearses. A test asserting an unconditional reduction would assert
+something the method does not promise and would be a coin flip on corpus
+composition.
+
+`test_recalibration_does_not_degrade_ece` asserts what is actually true:
+`improvement.ece_absolute` agrees in sign with the real ECE change (so the
+response cannot claim an improvement it did not produce), and when there
+are no hard negatives the two series are *identical* — no spurious
+movement, temperature unchanged. `interpretation()` ships the full caveat
+in the response body, so the answer to "isn't fitting on the disagreement
+set biased?" does not depend on anyone recalling it at hour 23.
+
+### Verified
+
+Repo-wide compile clean. Undefined-name, unused-import, and
+fixture-resolution checks clean on all six touched files. Settings/env
+parity unchanged (no new settings).
+
+**The metric math was executed, not just reviewed** — stubbing out torch and
+running the pure functions directly confirmed: 10 bins always, counts sum
+to the case total (the exit criterion), confidence of exactly 1.0 lands in
+the last bin rather than falling off the end, perfect calibration gives
+0.0 across ECE/MCE/Brier, total overconfidence gives 1.0, empty input gives
+zeros without raising, and MCE ignores empty bins. One assertion in my own
+harness was wrong (I expected 2 cases in the last bin when 3 belong there);
+the code was right.
+
+Not executed: anything touching torch, Postgres, or L-BFGS.
+`make test-be` is the check.
+
+## Stage 9, round 2: one missing commit, one float, and an inverted thesis
+
+815 passing. Of the 6 failures, **4 were a single bug**: I never committed.
+
+### The commit
+
+`api/v1/calibration.py` flushed the snapshot rows and never called
+`scope.db.commit()`. `db/session.py` says it outright — "Commit is the
+handler's job" — and every other write endpoint in this project does it
+explicitly. The endpoint returned a `snapshot_id` for a row that was rolled
+back at the end of the request, so:
+
+* `labels == set()` — no snapshots persisted at all
+* the idempotency replay found nothing, refit, and returned a **different**
+  id on the second click — reintroducing exactly the bug the partial unique
+  index exists to prevent, one layer above it
+* `is_current` was never observable
+* `GET /evals/calibration` returned an empty list
+
+One line fixed all four. Worth noting the shape of the mistake: every
+individual piece (the partial index, the replay lookup, the `is_current`
+sweep, the 409-on-race handling) was correct, and none of it could work
+without the transaction actually closing.
+
+### The float
+
+`test_recalibration_does_not_degrade_ece` asserted `after == before` when
+no fit happened, and got `0.27437868661114145` vs `0.27437868235366686` —
+a ~4e-9 gap. Not rounding noise to paper over: rescoring at an unchanged
+`T=1.0` round-trips the logits back through `trust_of`, which lands
+*near* the stored confidence rather than exactly on it.
+
+Fixed in the endpoint rather than the assertion: when `fitted == current`,
+the "after" series **is** the "before" series and is now reused directly
+instead of recomputed. An endpoint whose no-op path reports a nonzero ECE
+delta is reporting float noise as a calibration result, and loosening the
+test would have hidden that rather than fixed it.
+
+### The inverted gradient — a real finding, and a real honesty gap in
+shipped code
+
+`test_the_top_vacuity_quartile_is_more_fragile_than_the_bottom` failed with
+top quartile **less** fragile than bottom (0.046 vs 0.081). The thesis
+inverted on this sample.
+
+Chasing it found a genuine bug in the *product*, not the test:
+`ml/fuzzer/fragility.py::_strength` graded correlation strength off
+`abs(spearman)`, so a significant **negative** correlation — vacuity
+ordering fragility backwards — would have been described to a judge as
+"the uncertainty signal is predictive of real fragility, not decorative."
+That is the single reading this project must never ship. Added an explicit
+`spearman < 0` branch ahead of the magnitude bands that says the
+relationship is inverted and that we are reporting it rather than dropping
+the sign. Verified by executing all six branches directly.
+
+The test itself had the same flakiness-by-construction as the p-value test
+fixed last round — perturbations are seeded on `insight.id`, which is a
+fresh UUID per throwaway tenant, so quartile membership and perturbation
+outcomes genuinely vary run to run. A full `make fuzz` measured a clean
+4.5x gradient (q1 0.085 → q4 0.288); this fixture measured it inverted.
+Renamed to `test_the_quartile_table_reports_its_gradient_truthfully` and
+rewritten to assert structural integrity plus prose-matches-numbers in
+either direction. Asserting the direction would either fail on an honest
+measurement or pressure someone into rerunning until the corpus cooperated.
+
+**For the writeup, this matters more than the p-value did.** The quartile
+gradient was the robust statement of the thesis — the one I recommended
+leading with last round. It is sample-dependent too. The defensible claim
+is now: on the full `make fuzz` corpus (n=62) vacuity orders fragility with
+a 4.5x gradient and Spearman 0.60, p=3.1e-07; on a fresh 58-insight tenant
+it inverts. Both are real. Reporting the first without the second would be
+the kind of selective reporting this project's eval design exists to
+prevent — and the endpoint now says which one it is looking at.
+
+### Verified
+
+Repo-wide compile clean; undefined-name, unused-import and
+fixture-resolution clean on all four touched files. `_strength` executed
+across all six branches confirming a significant negative reports as
+inverted and never as predictive.
+
