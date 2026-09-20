@@ -23,11 +23,11 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from api.v1.schemas import BriefingResponse, TranscriptSegment
 from core import ids
 from core.config import Settings, get_settings
 from core.security import sign_media_id
@@ -39,6 +39,16 @@ from ml.voice.briefing_templates import (
     opening_line,
     rank_by_severity,
 )
+
+# `api.v1.schemas` is imported lazily, never at module scope. Importing it here
+# closes a cycle: `api.v1.__init__` builds the aggregator router, which imports
+# `api.v1.voice`, which imports this module. That is invisible when the process
+# starts at `api.main` (api.v1 is initialised first) and fatal when it starts
+# here — `python -m scripts.record_fallback` died on exactly that. Annotations
+# are strings under `from __future__ import annotations`, so only the two call
+# sites that construct these models need the runtime import.
+if TYPE_CHECKING:
+    from api.v1.schemas import BriefingResponse, TranscriptSegment
 
 
 def _candidate_insights(db: Session, org_id: uuid.UUID, request_scope: str) -> list[Insight]:
@@ -126,6 +136,8 @@ def build_text_only_briefing(
     shape is identical to a live briefing and the frontend needs no second
     code path. `audio_available=False` is what tells it to skip the player.
     """
+    from api.v1.schemas import BriefingResponse, TranscriptSegment
+
     settings = settings or get_settings()
     text = compose_briefing_text(db, org_id, scope=scope, max_items=max_items)
 
@@ -180,6 +192,8 @@ def build_briefing(
     per-request audio directory) and passes `write_audio=False` to skip that
     side effect while still getting everything else this function computes.
     """
+    from api.v1.schemas import BriefingResponse, TranscriptSegment
+
     settings = settings or get_settings()
     candidates = _candidate_insights(db, org_id, scope)
     ranked = rank_by_severity(candidates, limit=max_items)
