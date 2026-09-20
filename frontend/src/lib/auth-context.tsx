@@ -1,19 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { apiFetch } from "../api/client";
-
-// Module-level variable, not React state — survives re-renders without
-// ever touching localStorage/sessionStorage, per §4.2 / §18.
-let accessToken: string | null = null;
-
-export function getAccessToken() {
-  return accessToken;
-}
-export function setAccessToken(token: string | null) {
-  accessToken = token;
-}
-export function clearAuth() {
-  accessToken = null;
-}
+import { request } from "../api/client";
+import { getAccessToken, setAccessToken, onSessionEnded } from "../api/token";
+import { isApiError, fieldErrors } from "../api/errors";
 
 type User = {
   id: string;
@@ -39,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadMe = useCallback(async () => {
     try {
-      const me = await apiFetch<User>("/auth/me");
+      const me = await request<User>("/auth/me");
       setUser(me);
     } catch {
       setUser(null);
@@ -49,16 +37,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // On mount, try a silent refresh — covers the case where the person
-    // already has a valid HttpOnly refresh cookie from a prior session.
     loadMe();
   }, [loadMe]);
 
+  useEffect(() => {
+    return onSessionEnded(() => {
+      setUser(null);
+    });
+  }, []);
+
   const login = useCallback(
     async (email: string, password: string) => {
-      const res = await apiFetch<{ access_token: string }>("/auth/login", {
+      const res = await request<{ access_token: string }>("/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        json: { email, password },
+        auth: false,
       });
       setAccessToken(res.access_token);
       await loadMe();
@@ -68,9 +61,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = useCallback(
     async (email: string, password: string, orgName: string) => {
-      const res = await apiFetch<{ access_token: string }>("/auth/register", {
+      const res = await request<{ access_token: string }>("/auth/register", {
         method: "POST",
-        body: JSON.stringify({ email, password, org_name: orgName }),
+        json: { email, password, org_name: orgName },
+        auth: false,
       });
       setAccessToken(res.access_token);
       await loadMe();
@@ -79,8 +73,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    await apiFetch("/auth/logout", { method: "POST" }).catch(() => {});
-    clearAuth();
+    await request("/auth/logout", { method: "POST" }).catch(() => {});
+    setAccessToken(null);
     setUser(null);
   }, []);
 
@@ -101,3 +95,5 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
+
+export { isApiError, fieldErrors };

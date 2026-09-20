@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../lib/auth-context";
-import { ApiError } from "../../api/client";
+import { ApiError } from "../../api/errors";
 import { Input } from "../../components/primitives/Input";
 import { Button } from "../../components/primitives/Button";
 
