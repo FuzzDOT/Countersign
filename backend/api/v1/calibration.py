@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends, Header, Request, Response
 
 from api.deps import PERM_CALIBRATION_RUN, ScopeDep, require_perm
 from api.mock import NotImplementedYet, contract
@@ -28,6 +28,13 @@ router = APIRouter(prefix="/calibration", tags=["calibration"])
 @contract("calibration.recalibrate.json", stage=9, pending=True)
 def recalibrate(
     request: Request,
+    # slowapi needs this to inject X-RateLimit-* headers, or it raises at
+    # call time once this handler actually returns something instead of
+    # immediately raising NotImplementedYet. See api/v1/voice.py's briefing()
+    # for the long version — this is the third time this exact omission has
+    # shown up in one session, so fixing it now, before Stage 9 is built for
+    # real, rather than waiting to find it broken a third time.
+    response: Response,
     scope: ScopeDep,
     payload: RecalibrateRequest,
     idempotency_key: Annotated[

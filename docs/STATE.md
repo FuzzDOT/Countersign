@@ -556,3 +556,491 @@ tuned specifically for it (a real, reportable finding — "a middling number
 with a diagnosis is the research-credible outcome," and this would be more
 than middling, which makes the diagnosis worth having before writing it up
 either way).
+
+## Stage 8 complete: voice. `BUILD_STAGE = 8`.
+
+All four contract routes real (`POST /briefing`, `GET /fallback/briefing`,
+`POST /ask`, `GET /audio/{file_id}.mp3`), plus one addition:
+`GET /voice/fallback/briefing.mp3` — the Stage 1 fixture's `audio_url` has
+pointed at that literal path since it was written, and nothing served it
+until now.
+
+**Files**: `ml/voice/{briefing_templates,briefing,intent,tts,stt,answer}.py`,
+`api/v1/voice.py`, `scripts/record_fallback.py`, plus
+`tests/{test_intent,test_voice_transport,test_voice_api}.py`.
+
+**ElevenLabs, raw `httpx`, not the SDK** — same reasoning as
+`ml/cascade/nemotron.py`, restated because it mattered twice this session
+already (the Nemotron model string, then its reasoning-mode default): a
+pinned transport version drifts less than a hosted SDK's method names.
+Verified against ElevenLabs' own docs for both the `/with-timestamps`
+TTS endpoint and `/speech-to-text` — not guessed, same standard the
+Nemotron model-string fix was held to.
+
+**Intent classification**: TF-IDF + linear SVM over 121 hand-written
+utterances, 6 real classes. `unknown` is a confidence gate
+(`voice_intent_min_confidence`, default 0.40 — chance on 6 classes is
+~0.167), not a seventh trained class — training on invented gibberish would
+teach the model to recognize gibberish, not uncertainty.
+
+### Three real problems found and fixed while building this, worth knowing about
+
+**A stale unpack that `py_compile` cannot catch.** Removed a local import
+during cleanup and left a call site (`intent_mod.classify`) referencing a
+name that no longer existed. Caught by the same AST undefined-name check
+this session has used since the `response: Response` incident in Stage 7 —
+compiling clean and being correct are different claims, restated because it
+happened again.
+
+**A silent file-collision bug from Stage 1, invisible until Stage 8 made it
+real.** `voice_fallback_transcript` and the mock fixture `"voice.fallback
+.json"` resolved to the exact same path, `data/fixtures/voice.fallback.json`
+— `make fixtures` (synthetic) and `make record-fallback` (real ElevenLabs
+audio) would silently overwrite each other with no warning either way,
+depending only on which ran last. Moved the real recording to `data/voice/`,
+a directory `gen_fixtures.py` never touches. `core/config.py` and
+`.env.example` both carry the reasoning inline, not just here.
+
+**A direct conflict with this project's own `test_no_generation.py`.** That
+test bans raw HTTP anywhere under `ml/voice`, to stop a generative call from
+reaching an arbitrary endpoint by going around the SDK-import blocklist.
+`ml/voice/tts.py` and `ml/voice/stt.py` need raw HTTP, deliberately, to
+reach ElevenLabs. Fixed with a *file-level* carve-out
+(`NETWORK_ALLOWED_FILES`), narrower than the existing *directory-level* one
+for the SDK import — a raw socket sneaking into `ml/voice/answer.py` would
+still be exactly the injection risk the test exists to catch, so the ban
+stays live everywhere except the two audited transport files. A new test
+(`test_the_network_carve_out_is_exactly_these_two_files`) asserts the
+carve-out never silently grows to a third file.
+
+### The exit criterion, and what actually backs it
+
+Plan §4 Stage 8: "5 rehearsed phrasings of 'why is Meridian flagged' all
+resolve to the right insight." `tests/test_voice_api.py` has two tests for
+this, not one: `test_the_five_rehearsed_phrasings_resolve_to_the_same_insight`
+checks each phrasing lands on `explain_flag` and an insight that genuinely
+involves the Meridian entity; `test_the_five_phrasings_all_resolve_to_the_
+identical_insight` checks all five land on the literal same insight id, not
+just "an insight involving Meridian each time" — a demo beat that
+alternated between two competing Meridian insights would technically pass
+the first test and still not be the reliable thing the plan is asking for.
+
+All five rehearsed phrasings are, deliberately, verbatim entries in
+`ml/voice/intent.py`'s own training data — that is not the test cheating,
+it is the correct order of operations for a demo-critical classifier: write
+the exact phrasings the demo will use, put them in the training set, then
+verify they resolve. `tests/test_intent.py` also checks four *held-out*
+phrasings (not in the training set) resolve to their intents correctly, so
+generalization beyond rote memorization is checked too, just not conflated
+with the exit criterion itself.
+
+### What is asserted by design, not measured
+
+**A presigned URL, not a scoped one.** `GET /voice/audio/{file_id}.mp3`'s
+signature check (`core/security.py`, already built in Stage 0) verifies
+`file_id|expires_at` against `JWT_SECRET` — nothing in the signed payload
+ties it to an org. This looks, on first read, like the kind of cross-tenant
+gap this project has been fanatical about elsewhere (`docs/STATE.md`'s own
+security posture table: "cross-tenant read... two-org test"). It is not one:
+this is the standard presigned-URL model every major object store uses —
+possession of the exact URL string, within its validity window, *is* the
+authorization, by design, because the URL is only ever handed to someone
+who already passed a real permission check at briefing- or answer-creation
+time. The actual protections are the ones that model relies on and already
+has: a random, unguessable UUID `file_id`, and a 10-minute TTL
+(`audio_url_ttl_seconds`). Worth having the answer ready if asked, same as
+Stage 9's temperature-scaling caveat — better to say this first than be
+caught not having thought about it.
+
+### Not executed, same caveat as every stage
+
+No torch, no sklearn, no httpx, no Postgres, no network in this container —
+nothing above has run against a real database, a real ElevenLabs account,
+or even each other. `make test-be` is the real check, same as every prior
+stage. Two specific things worth re-verifying once it can run for real:
+
+- Whether the linear SVM's calibrated confidence on the five rehearsed
+  phrasings clears the gate by a comfortable margin
+  (`tests/test_intent.py::test_the_rehearsed_phrasings_are_not_borderline`,
+  margin asserted at 0.10 over the 0.40 gate) — plausible given all five are
+  exact training examples for a linear-kernel model, but Platt-scaled SVM
+  probabilities on a small training set are not something to claim
+  confidence about without having watched them once.
+- Whether `scribe_v2` and the `/with-timestamps` response field names this
+  module was written against are what this account's actual ElevenLabs key
+  returns — the same category of risk the Nemotron model string already
+  turned out to be real, twice, this session.
+
+## Stage 8, round 2: the first real `make test-be` against voice found exactly
+the bug I already knew the shape of, plus one I caught, plus a cluster of
+unrelated failures that are a stale config value, not new code.
+
+**The `response: Response` bug, a third time — this one on me, directly.**
+`briefing()` and `ask()` both carry `@limiter.limit(LIMIT_VOICE)` and
+neither declared `response: Response`. I wrote the "lesson learned" note
+about this exact omission on `api/v1/ablation.py` earlier this session,
+then wrote two brand-new rate-limited routes in this same session and left
+the parameter off both. Fixed. Swept every `@limiter.limit`-decorated route
+in the whole API afterward and found a **third** instance:
+`api/v1/calibration.py::recalibrate`, Stage 9's still-`pending=True` stub.
+It isn't causing a live failure yet — `NotImplementedYet` raises before
+slowapi ever gets to inject headers — but it will break exactly this way
+the moment Stage 9 is implemented for real. Fixed now, before that happens,
+rather than finding it broken a third time.
+
+**A real, measured gate failure, not a hypothetical one.**
+`tests/test_intent.py::test_gibberish_becomes_unknown` — flagged in this
+file's own previous entry as "not something to claim confidence about
+without having watched it once" — failed exactly the way that hedge
+anticipated: "purple elephant migratory soup," lexically unrelated to
+every training utterance, scored 0.432 toward `dismiss` and cleared the
+0.40 gate outright. Raised `voice_intent_min_confidence` to 0.60 — above
+the observed failure with real margin, sourced from a measured number, not
+a re-guess. Parametrized the test over three distinct gibberish strings
+instead of one, since a single string clearing the gate is exactly what
+this caught and betting full confidence on one more hand-picked string
+risks the same near-miss with different wording. **Still not proven**: that
+0.60 has no failure mode of its own. One fixed observation is not the same
+claim as "no input scores this high for the wrong reason anymore" — that
+needs another real run to say.
+
+**Everything in `test_cascade_api.py`, `test_relations.py`,
+`test_fragility_api.py`, and `test_fuzzer.py` — 20 errors, 8 failures — is
+almost certainly one stale config value, not a code regression.** The
+startup log shows `"vacuity_gate_threshold": 0.225`. Earlier in this same
+session, after the residual-connection retrain, `make tune-gate` measured
+and recommended **0.625** — a number this file already recorded. `make
+tune-gate` *prints* the recommended threshold; it does not write it back
+to `.env`. `VACUITY_GATE_THRESHOLD` in the running container's `.env` is
+still 0.225 against a model tuned for 0.625, which is consistent with every
+symptom in this run: 82.76% escalation rate (`test_the_escalation_rate_is_
+inside_the_definition_of_done_band`, `test_routing_summary_reports_the_gate_
+and_the_volume`) instead of the 8–20% target band, and the resulting
+avalanche of downstream assertions in `test_relations.py` and
+`test_fragility_api.py` that depend on a realistic escalation rate to have
+enough of the right *kind* of data to test against. **Before treating any
+of these 28 as real bugs**: set `VACUITY_GATE_THRESHOLD=0.625` in `.env`,
+`docker compose up -d --force-recreate backend` (a plain `up -d` will not
+pick up an env-file edit against an already-running container — this
+project's own earlier-established gotcha), and rerun. If failures remain
+after that, they are worth a fresh look; before that, they are one
+unrelated stale number wearing 28 different test names.
+
+**One voice-specific failure I could not root-cause from the log alone,
+and did not want to guess-patch.**
+`test_fallback_briefing_with_nothing_recorded_yet_is_voice_unavailable`
+monkeypatched `voice_fallback_transcript` to a path named specifically not
+to exist, and got back a real, fully-populated briefing (real confidence
+scores, a UUID5 `briefing_id` shaped exactly like `stable_uuid("briefing",
+"fallback")` — the deterministic id `scripts/record_fallback.py` mints)
+instead of the expected 503. The preceding test in the same file
+(`test_fallback_briefing_endpoint_returns_the_recorded_shape`), using the
+identical monkeypatch mechanism against a real tmp_path file, passed — so
+the mechanism itself works in general. The shape of the returned data
+(a real UUID5, real-looking demo confidences) is the strongest clue: this
+looks like `data/voice/fallback_briefing.json` already exists for real on
+this machine, from an actual `make record-fallback` run, and the test's
+premise ("nothing recorded yet") may simply no longer be true in this
+environment — not a bug in the monkeypatch or the route. **Worth one
+check before assuming further**: `ls -la backend/data/voice/`. If a real
+file is sitting there, this test needs a stronger nonexistent-path guarantee
+(e.g. a `tmp_path`-based path guaranteed unique per run) rather than a
+hand-picked filename that this specific machine happened to falsify.
+
+## Stage 8, round 3: 17 failed → the real number is closer to 2 unexplained,
+after sorting out what each one actually was.
+
+**The `response: Response` fix worked completely.** Every voice `KeyError`
+from round 2 is gone. What surfaced once the routes actually ran is more
+interesting than the plumbing bug that had been hiding it.
+
+**A real bug in `resolve_entity`, and it explains 6 of the 17.** The check
+was backward: it asked whether the entity's *full* canonical name
+("meridian supply llc") appeared inside the heard text — which it never
+does, because a person says "why is Meridian flagged," not the company's
+complete legal name. All five rehearsed phrasings failed for this reason
+alone. Rewrote it as word-level matching (splitting both sides into words,
+excluding legal suffixes like "llc"/"inc" so those don't cause false
+cross-entity matches), and separately added a real product gap this
+exposed: `explain_flag` with no named entity and no `context_insight_id`
+now falls back to the single most severe insight org-wide — the same
+default `list_flagged` already uses — rather than a flat refusal. That
+fallback exists because four of the five rehearsed phrasings ("why is
+*this* flagged," "explain *this* flag") never name anything at all; in the
+real product they're asked while a specific insight is already open in the
+UI, which is exactly what `context_insight_id` is for. Fixed the tests to
+simulate that real flow (passing the open insight as context) rather than
+either leaving four contextless "this"es unresolvable or betting the test
+on the fallback happening to land on Meridian specifically, which is a fact
+about this corpus, not a guarantee the resolver makes.
+
+**The fallback-briefing mystery from round 2, solved — and it wasn't what I
+guessed.** Not a real file already on disk. The actual cause:
+`test_fallback_briefing_endpoint_returns_the_recorded_shape`'s only
+assertion was `is_fallback is True` — which is trivially true whether it
+read the test's fixture or any other real fallback file, since every
+recorded fallback sets that flag. That test was never actually proving the
+settings-mutation reached the running app; it just never had an assertion
+strong enough to notice it hadn't. The other two tests, checking specific
+content and a specific status code, did notice — and the honest fix is not
+to chase down the exact mechanical reason `monkeypatch.setattr(settings,
+...)` didn't reach the request (a real question, still open), but to stop
+routing through that indirection at all: all three tests now monkeypatch
+`api.v1.voice._fallback_response` — the one function both routes actually
+call — directly. Tightened the passing test's assertion to check a specific
+`briefing_id` rather than a flag every fallback sets regardless.
+
+**Confirmed, not just theorized: the cascade/routing failures are the stale
+`VACUITY_GATE_THRESHOLD`.** Still 0.225 in this run's startup log, same as
+round 2. `48/58` escalated, `0.8276` escalation rate — the same numbers,
+unchanged, because the `.env` edit from round 2's advice has not been
+applied yet. Not re-diagnosing this a third time: set
+`VACUITY_GATE_THRESHOLD=0.625`, `docker compose up -d --force-recreate
+backend`, rerun.
+
+**Two real, unresolved findings — flagged plainly rather than guessed at.**
+
+*`ml/fuzzer`'s rename family put a renamed party's name back into the
+result via what looks like boilerplate text* (`test_rename_replaces_
+parties_with_names_from_no_corpus` — "Advent Holdings" survives inside "the
+account in the usual way... accounts payable" boilerplate). Present in
+every run this session, unrelated to Stage 8, not something I've
+investigated — it belongs to Stage 5's fuzzer, not voice.
+
+*`test_relations.py`'s 20 errors + 1 failure are a genuine contradiction I
+could not resolve by reading code.* `get_tagger().tag(parse(SENTENCE))` for
+the fixed demo sentence — "Meridian Supply LLC wired $48,200 to Advent
+Holdings..." — finds zero ORG/PERSON mentions, so `candidate_pairs()`
+correctly returns empty and every test built on that fixture cascades. This
+is *not* explained by the vacuity gate, and it directly contradicts the
+retrained tagger's own reported numbers (ORG-type F1 near 1.0 on the full
+corpus, both `dev` and `heldout`). Two companies the retrain says it
+recognizes well are invisible to a standalone call against the exact same
+checkpoint. Present in every run this session; not something I introduced
+in Stage 8, and not something I could reproduce without a working tagger to
+call. **Concrete next step, not a guess:** run this directly and see what
+comes back —
+
+    docker compose exec backend python -c "
+    from ml.text.parse import parse
+    from ml.tagger.infer import get_tagger
+    doc = parse('Meridian Supply LLC wired \$48,200 to Advent Holdings on 14 September 2026.')
+    tagging = get_tagger().tag(doc)
+    for m in tagging.mentions_in_sentence(0):
+        print(m.entity_type, repr(m.surface))
+    "
+
+If that prints nothing, the tagger itself is the problem on this exact
+input despite its aggregate numbers — worth knowing before touching any
+test in that file. If it prints ORG mentions correctly, the break is
+somewhere between tagging and `candidate_pairs`, which would point
+somewhere else entirely.
+
+## Stage 8, round 4: down to 2 test bugs, both mine, both in test code
+
+15 failed → all the round-3 code fixes (`resolve_entity`, the `explain_flag`
+fallback, the direct-function fallback mock) held completely. Every voice
+test that was fixed last round stayed fixed. What's left in
+`tests/test_voice_api.py` is two of my own test-writing mistakes, not
+product bugs:
+
+**`KeyError: 'subject_id'`** — I guessed the insight-detail response shape
+instead of checking it. It's `resolved["subject"]["id"]` (a nested
+`EntityRef`), not a flat `resolved["subject_id"]`. Same mistake I've made
+before this session in a different form: asserting against an assumed
+shape rather than the real schema in `api/v1/schemas.py`. Fixed.
+
+**Two legitimately different insights, both really involving Meridian, and
+that's exactly the bug.** `meridian_insight_id`'s fixture picked
+`.first()` — arbitrary database order — while `resolve_entity` +
+`_most_relevant_insight` pick by (severity, confidence, created_at). Both
+are real, valid "a Meridian insight," but the fixture and the code were
+answering "which one" with two different tie-breaks, so entity-name
+resolution and context-based resolution pointed at two different rows.
+Fixed by having the fixture apply the exact same tie-break
+`ml/voice/answer.SEVERITY_RANK` uses, imported rather than re-derived, so
+it can't drift out of sync with the real logic again.
+
+**Everything else is unchanged from round 3's diagnosis and none of it is
+new:** the cascade/routing failures are still `48/58`, `0.8276` — the same
+numbers, meaning `VACUITY_GATE_THRESHOLD` still hasn't been updated in
+`.env`. `test_relations.py`'s 21 failures are the same tagger contradiction,
+unresolved, diagnostic command already given. `test_fuzzer.py`'s rename
+test is the same pre-existing Stage 5 issue. None of these three need
+another look from me until the `.env` fix is applied and the tagger
+diagnostic has actually been run — repeating the same diagnosis a fourth
+time without new information would not help either of us.
+
+## Stage 8, round 5: all 27 remaining failures root-caused. Two causes, both
+stale test premises — no product bugs.
+
+The `.env` fix landed: escalation rate `0.1034`, inside the 8–20% band,
+`vacuity_gate_threshold: 0.625` in the startup log. That cleared 8 failures
+on its own. The uploaded repo finally made the remaining two causes
+diagnosable instead of guessable.
+
+### Cause 1: three test files were built on deliberately held-out names
+
+`tests/test_relations.py`'s 21 failures and `tests/test_fuzzer.py`'s rename
+failure are the *same* bug, and it is not in the product.
+
+`SENTENCE` read "Meridian Supply LLC wired $48,200 to Advent Holdings…" —
+and both of those companies are in `data/synth/names.py::HELDOUT_ORGS`,
+whose entire purpose is that **the tagger never sees them**, so band D can
+measure generalization to unseen names. Confirmed directly rather than
+inferred: unpacking the committed `tagger.pt` and reading its stored
+vocabulary shows "meridian", "advent", "supply" and "holdings" absent,
+while "brightwater", "calderon", "freight" and "wired" are all present.
+
+So the tagger found no ORG mentions, `candidate_pairs()` correctly returned
+`[]`, and every test depending on that fixture errored. The full 34-document
+ingest tags those names fine (358 mentions, 141 entities) because band D is
+~10% of that corpus and the char-CNN has in-vocabulary context to work
+with; one isolated sentence built *entirely* from held-out names is its
+worst case. `test_fuzzer.py` failed the same way for a subtler reason:
+`RenameFamily` builds its edit list from `tagging.mentions` — only spans the
+tagger *detected* — so an undetected occurrence gets no edit and survives
+verbatim, which is exactly what "Advent Holdings' still in the text" was.
+
+Fixed by rebuilding both fixtures from `TRAIN_ORGS` (`Brightwater
+Industrial LLC`, `Calderon Freight Co`). These tests are about graph
+construction, edge masking and rename completeness — not OOD
+generalization, which has its own measurement in
+`scripts/train_tagger.py`'s `heldout` block. Making them depend on it was
+testing the wrong thing in the wrong place.
+
+### Cause 2: five cascade tests encoded "there is no API key"
+
+The section header said it outright: *"the degraded path, which is what this
+environment actually does."* True for most of this project's life. False
+now — the key works and real calls succeed. Tests asserting "everything
+degraded" while silently depending on a broken environment were testing the
+environment, and they inverted the moment it started working.
+
+Fixed with a `degraded_ingested` fixture that sets `nemotron_force_fail`
+(the flag `ml/cascade/nemotron.py::_guard` already had for the Stage 10
+drill), so the degraded path is **forced rather than assumed**. Those tests
+now pass identically with or without a working key, which is what they
+should always have done. `degraded_with_eval_set` does the same for the
+eval-set variant.
+
+Two needed more than a fixture swap:
+
+**`test_the_planted_failure_comes_first_with_its_mechanism`** asserted that
+the planted timing-anomaly case was `failures[0]`. With the upstream working
+and the gate retuned, the cascade now routes that case **correctly** — a
+planted failure that stops failing is the pipeline improving, and a test
+that breaks when the system gets better is asserting the wrong invariant.
+What `_documented_failures` actually promises is the *ordering*
+(`key=(failure_note is None, id)` — hand-written notes ahead of generated
+ones), which holds regardless. Rewritten to assert that, and renamed to say
+what it checks. Whether the planted case exists at all is a corpus-level
+invariant `test_synth.py` already owns.
+
+**`test_the_baseline_is_honest_about_the_arm_it_did_not_run`** is entirely
+about the no-LLM case, so it now runs against `degraded_with_eval_set`.
+Verified before keeping its `"not configured"` assertion that
+`_baseline_interpretation` still emits that branch whenever
+`cascade_calls == 0` — which the forced-degraded path guarantees. Added
+`test_the_baseline_reports_real_calls_when_they_happened` for the other
+side, so the live path is covered rather than merely no longer asserted
+against.
+
+### Verification actually performed
+
+Compile-clean across the whole backend, undefined-name clean on all three
+edited files, and — new this round, because fixture renames are exactly
+where this would break silently — an AST check that every fixture name
+every test requests resolves to either a local `@pytest.fixture`, a
+`conftest.py` fixture, a `parametrize` argument, or a pytest builtin. All
+clean. Still not executed here (no torch/sklearn/Postgres in this
+container); `make test-be` remains the real check.
+
+## Stage 8, round 6: a real product bug in the Stage 10 drill, and an honest
+finding about the fragility p-value.
+
+Round 5 held: `test_relations.py`'s 21 errors and `test_fuzzer.py`'s rename
+failure are gone. 5 failures left, and the cascade four shared one cause —
+a genuine bug in shipped code, not a test problem.
+
+### `NEMOTRON_FORCE_FAIL` did not actually force a failure
+
+The clue was in every degraded run's log: `"succeeded": 6, "degraded": 0,
+**"cached": 6**`. `decide()` checked the on-disk prompt cache *before*
+calling `_guard()`, so once a scenario's prompts had been answered for real
+even once (`make baseline` did exactly that), every later run served them
+from `data/cache/nemotron/` and returned before the force-fail guard was
+ever reached.
+
+**This is not just a test issue.** `NEMOTRON_FORCE_FAIL=1` is the Stage 10
+resilience drill. On a warm cache it would have reported a clean degraded
+path it never took — the rehearsal would have "passed" while exercising
+nothing, which is worse than not running it.
+
+Fixed by checking `nemotron_force_fail` at the top of `decide()`, above the
+cache lookup. A *missing key* still falls through to the cache
+deliberately: serving a previously-paid-for answer with no key is correct
+and is what lets the demo run offline. "Pretend the upstream is down" and
+"we have no key" are different requests, and only the first has any
+business bypassing a valid cache entry. `_guard()` keeps its own check so a
+future direct caller cannot sidestep the drill.
+
+**Why the existing test didn't catch it:**
+`test_force_fail_exercises_the_whole_degraded_path` sets
+`nemotron_cache_enabled: False`. It worked *around* the bug instead of
+exposing it — which is why the drill looked verified for this whole
+session. `degraded_ingested` deliberately leaves the cache **enabled**,
+mirroring the real drill (key present, cache warm, upstream "down"), and
+that is the configuration that found this.
+
+### The fragility p-value: 0.096, and the test was wrong to demand 0.05
+
+`test_the_endpoint_reports_a_significant_correlation` asserted
+`p_value < 0.05`. It is flaky by construction:
+`ml/fuzzer/runner.py` seeds each perturbation with
+`f"{pipeline_seed}:{insight.id}:{family}:{variant}"`, and `insight.id` is a
+fresh UUID per throwaway test tenant — so the perturbations, and the
+resulting correlation, genuinely differ run to run. A full `make fuzz`
+measured `p = 3.1e-07` (n=62); this fixture's fresh ingest measured
+`p = 0.096` (n=58). Same code, different sample.
+
+**I did not loosen the threshold, and that distinction matters.** Relaxing
+a significance bar to make a test green is precisely the dishonesty this
+project's whole eval design exists to avoid. What the code already does is
+correct: `ml/fuzzer/fragility.py::_strength` ships the sentence "the
+correlation is not statistically significant at this sample size, so we
+are reporting it as an observation rather than a result" whenever
+`p >= 0.05` (`ml/stats.py::Correlation.significant`). The production path
+was already honest; the test was the only thing demanding a particular
+stochastic outcome, and "rerun until it passes" is the worst habit to
+build around a statistical claim.
+
+Rewritten to assert the report's *integrity* rather than its luck: shape,
+coefficient in range, sample size above the 10-point floor, and — the part
+that actually matters — that the endpoint's prose agrees with its own
+p-value in both directions (hedged iff `p >= 0.05`), so it can neither
+overclaim a result it didn't get nor hedge away one it did. The
+directional form of the thesis stays deterministically asserted by
+`test_the_top_vacuity_quartile_is_more_fragile_than_the_bottom`, which
+passed throughout.
+
+**For the writeup, say the honest version:** on a single 58-insight
+scenario the vacuity→fragility correlation is not significant at p<0.05.
+The `make fuzz` figure (Spearman 0.60, p=3.1e-07, n=62) is real and is the
+one to quote, but it is one sample, and the quartile gradient — top
+quartile flips more than bottom — is the more robust statement of the same
+claim. This is consistent with what this file already recorded after the
+retrain: the model got materially better on band D (accuracy 0.06 → 0.667),
+which compressed exactly the vacuity separation the correlation depends on.
+A weaker correlation is the *price of a better model*, and that is a more
+interesting sentence than a clean p-value.
+
+### Verified
+
+Compile-clean repo-wide; undefined-name clean on all three edited files;
+fixture-resolution clean. Two schema assumptions checked against
+`api/v1/schemas.py` rather than assumed — `correlation.n` does **not**
+exist (the sample size is top-level `n_insights`), and `interpretation`
+does; the first would have been a `KeyError` at runtime. Still not executed
+here; `make test-be` is the check.
+

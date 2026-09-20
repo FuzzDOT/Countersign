@@ -41,6 +41,7 @@ from core import ids
 from data.synth.generate import generate
 from data.synth.labels import GoldDocument, GoldRelation, Manifest
 from ml.entities.coref import entity_uuid
+from ml.voice.briefing_templates import spoken_relation, spoken_routing
 
 FIXTURE_SEED = 424242
 GENERATED_AT = datetime(2026, 9, 19, 21, 6, 2, tzinfo=UTC)
@@ -1277,10 +1278,10 @@ class FixtureSet:
         for position, insight in enumerate(ranked):
             spoken = (
                 f"{ordinals[position]}: {insight.gold.subject_canonical} "
-                f"{_spoken_relation(insight.gold.relation)} "
+                f"{spoken_relation(insight.gold.relation)} "
                 f"{insight.gold.object_canonical}. "
                 f"Confidence {round(insight.confidence * 100)} percent. "
-                f"{_spoken_routing(insight.predicted_routing)}."
+                f"{spoken_routing(insight.predicted_routing)}."
             )
             # ~13.5 characters per second is a natural narration rate.
             duration = int(len(spoken) / 13.5 * 1000)
@@ -1326,7 +1327,7 @@ class FixtureSet:
             "resolved_insight_id": str(insight.insight_id),
             "answer_text": (
                 f"{insight.gold.subject_canonical} is flagged because "
-                f"{_spoken_relation(insight.gold.relation)} "
+                f"{spoken_relation(insight.gold.relation)} "
                 f"{insight.gold.object_canonical} on {insight.document.title}. "
                 f"The dependency link between '{edge['src_token']}' and "
                 f"'{edge['dst_token']}' accounts for {points} points of confidence — "
@@ -1413,22 +1414,11 @@ def _fragility_interpretation(
     )
 
 
-def _spoken_relation(relation: str) -> str:
-    return {
-        "WIRED_FUNDS_TO": "routed a payment through",
-        "OWNED_BY": "is owned by",
-        "INVOICED": "invoiced",
-        "SHARES_ADDRESS_WITH": "shares a registered address with",
-        "SIGNATORY_OF": "is a signatory of",
-    }.get(relation, "is linked to")
-
-
-def _spoken_routing(routing: str) -> str:
-    return {
-        "escalate_now": "Escalated",
-        "flag_for_review": "Flagged for review",
-        "auto_file": "Filed",
-    }[routing]
+# `spoken_relation`/`spoken_routing` are imported from
+# ml/voice/briefing_templates.py (Stage 8), not redefined here — the module
+# docstring there explains why: this fixture was built before that module
+# existed, and duplicating the wording would have let the two drift apart
+# the first time someone edited one copy and not the other.
 
 
 # ── fixture registry ─────────────────────────────────────────────────────────
