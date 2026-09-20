@@ -135,7 +135,7 @@ export function RailNav({ escalateCount }: { escalateCount?: number | undefined 
             onClick={toggle}
             aria-label="Collapse navigation"
             aria-expanded={expanded}
-            className="rounded-input border border-ink-200/30 p-1.5 text-ink-50/80 transition-colors duration-quick ease-out hover:border-verify hover:text-ink-50"
+            className="rounded-input border border-ctl-border bg-ctl-alt p-1.5 text-ctl-alt-fg transition-colors duration-quick ease-out hover:border-verify hover:bg-ctl-alt-hover"
           >
             <ChevronIcon expanded={expanded} />
           </button>
@@ -147,7 +147,7 @@ export function RailNav({ escalateCount }: { escalateCount?: number | undefined 
           onClick={toggle}
           aria-label="Expand navigation"
           aria-expanded={expanded}
-          className="mx-auto mt-3 rounded-input border border-ink-200/30 p-1.5 text-ink-50/80 transition-colors duration-quick ease-out hover:border-verify hover:text-ink-50"
+          className="mx-auto mt-3 rounded-input border border-ctl-border bg-ctl-alt p-1.5 text-ctl-alt-fg transition-colors duration-quick ease-out hover:border-verify hover:bg-ctl-alt-hover"
         >
           <ChevronIcon expanded={expanded} />
         </button>

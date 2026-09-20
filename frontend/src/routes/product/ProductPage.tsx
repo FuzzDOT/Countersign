@@ -67,14 +67,14 @@ export default function ProductPage() {
 
         {/* Segmented control, not dots, per the brief. Solid fills so the
             inactive steps stay legible against the navy ground. */}
-        <div className="inline-flex self-start overflow-hidden rounded-input border border-ink-200/40 bg-ink-700">
+        <div className="inline-flex self-start overflow-hidden rounded-input border border-ctl-border bg-ctl-alt">
           {STEPS.map((s) => (
             <button
               key={s}
               onClick={() => setStep(s)}
               aria-pressed={step === s}
               className={`px-5 py-2.5 text-body-sm font-medium transition-colors duration-quick ease-out
-                          ${step === s ? "bg-ink-50 text-ink-900" : "text-ink-50/80 hover:bg-ink-500/60 hover:text-ink-50"}`}
+                          ${step === s ? "bg-ctl text-ctl-fg" : "text-ctl-alt-fg/80 hover:bg-ctl-alt-hover hover:text-ctl-alt-fg"}`}
             >
               {s}
             </button>
@@ -91,17 +91,17 @@ export default function ProductPage() {
         <div className="flex flex-wrap gap-3 border-t border-ink-500/40 pt-8">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-input border border-ink-200/40 bg-ink-700 px-5 py-2.5
-                       text-body-sm font-semibold text-ink-50 transition-colors duration-quick ease-out
-                       hover:border-verify hover:bg-ink-500/70"
+            className="inline-flex items-center gap-2 rounded-input border border-ctl-border bg-ctl-alt px-5 py-2.5
+                       text-body-sm font-semibold text-ctl-alt-fg transition-colors duration-quick ease-out
+                       hover:border-verify hover:bg-ctl-alt-hover"
           >
             Back to home
           </Link>
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 rounded-input bg-ink-50 px-5 py-2.5 text-body-sm
-                       font-semibold text-ink-900 transition-all duration-quick ease-out
-                       hover:-translate-y-0.5 hover:brightness-105"
+            className="inline-flex items-center gap-2 rounded-input bg-ctl px-5 py-2.5 text-body-sm
+                       font-semibold text-ctl-fg transition-all duration-quick ease-out
+                       hover:-translate-y-0.5 hover:bg-verify hover:text-ctl-fg"
           >
             Try it on your documents
           </Link>

@@ -45,7 +45,7 @@ export function SegmentedControl<T extends string>({
     <div
       role="radiogroup"
       aria-label={ariaLabel}
-      className={cn('inline-flex rounded-input border border-ink-200/35 bg-ink-900 p-0.5', className)}
+      className={cn('inline-flex rounded-input border border-ctl-border bg-ctl-alt p-0.5', className)}
     >
       {options.map((option, index) => {
         const selected = option.value === value;
@@ -65,8 +65,8 @@ export function SegmentedControl<T extends string>({
               'rounded-input px-3 font-medium transition-colors duration-instant ease-out',
               size === 'sm' ? 'h-7 text-body-sm' : 'h-8 text-body-sm',
               selected
-                ? 'bg-ink-50 text-ink-900'
-                : 'text-ink-50/75 hover:bg-ink-500/60 hover:text-ink-50',
+                ? 'bg-ctl text-ctl-fg'
+                : 'text-ctl-alt-fg/75 hover:bg-ctl-alt-hover hover:text-ctl-alt-fg',
             )}
           >
             {option.label}

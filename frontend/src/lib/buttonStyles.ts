@@ -7,9 +7,9 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
  * Shared by <Button> and <LinkButton> so a link that looks like a button is
  * styled by the same source.
  *
- * Contrast note: every variant here uses a SOLID background or a full-opacity
- * border. Translucent fills (`bg-ink-700/60`) disappear against the navy
- * ground — buttons are the one place opacity is not worth the elegance.
+ * Contrast rule: every variant uses a SOLID fill and a full-opacity border.
+ * Translucent button surfaces disappear against the deep navy ground — a
+ * control is the one place where opacity is not worth the elegance.
  *
  * `danger` is deliberately not red. --stamp-red means "this insight is
  * escalated" and nothing else (brief §2.2), so a destructive action is marked
@@ -29,32 +29,26 @@ export function buttonClasses(
     size === 'md' && 'h-11 px-6 text-body-sm',
     size === 'lg' && 'h-12 px-8 text-body',
 
-    // Primary: solid paper-white on ink. Highest contrast thing on the page.
-    // On hover it inverts to the accent — a clear, unmistakable state change
-    // rather than a 5% brightness nudge nobody can perceive.
+    // Primary: solid near-white pill, dark label. The brightest thing on the
+    // page. Hover inverts to the accent so the state change is unmistakable.
     variant === 'primary' && [
-      'bg-ink-50 text-ink-900',
+      'bg-ctl text-ctl-fg',
       'shadow-[0_10px_30px_-10px_rgba(0,0,0,0.55)]',
-      'hover:-translate-y-0.5 hover:bg-verify hover:text-ink-50',
-      'hover:shadow-[0_14px_36px_-10px_color-mix(in_srgb,var(--verify)_55%,transparent)]',
+      'hover:-translate-y-0.5 hover:bg-verify hover:text-ctl-fg',
     ],
 
-    // Secondary: SOLID raised surface, full-strength 1px border, bright label.
-    // This is the variant that was previously invisible.
+    // Secondary: solid raised slate surface with a bright 1px border and a
+    // near-white label — readable at a glance against the navy hero.
     variant === 'secondary' && [
-      'bg-ink-700 text-ink-50 border border-ink-200/45',
-      'shadow-[0_2px_8px_-4px_rgba(0,0,0,0.4)]',
-      // Hover fills to a solid, clearly darker/denser surface with a full
-      // accent border, so the state change is obvious at a glance.
-      'hover:-translate-y-0.5 hover:border-verify hover:bg-ink-500',
-      'hover:shadow-[0_10px_28px_-10px_rgba(0,0,0,0.6)]',
+      'border bg-ctl-alt text-ctl-alt-fg border-ctl-border',
+      'shadow-[0_4px_14px_-6px_rgba(0,0,0,0.5)]',
+      'hover:-translate-y-0.5 hover:bg-ctl-alt-hover hover:border-verify',
     ],
 
-    // Quiet: no fill at rest, but a real readable label and a solid hover fill.
-    variant === 'quiet' && 'text-ink-50/85 hover:bg-ink-500/60 hover:text-ink-50',
+    variant === 'quiet' && 'text-ctl-alt-fg/85 hover:bg-ctl-alt-hover hover:text-ctl-alt-fg',
 
-    // Danger: heavy outline, never --stamp-red.
-    variant === 'danger' && 'border-2 border-ink-050/70 text-ink-50 hover:bg-ink-500/60',
+    variant === 'danger' &&
+      'border-2 border-ctl-border text-ctl-alt-fg hover:bg-ctl-alt-hover',
 
     extra,
   );

@@ -35,8 +35,8 @@ export function ThemeToggle({ className }: { className?: string }) {
       title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
       className={cn(
         'inline-flex h-9 w-9 items-center justify-center rounded-input',
-        'border border-ink-200/40 bg-ink-700 text-ink-50',
-        'transition-colors duration-quick ease-out hover:border-verify hover:bg-ink-500/70',
+        'border border-ctl-border bg-ctl-alt text-ctl-alt-fg',
+        'transition-colors duration-quick ease-out hover:border-verify hover:bg-ctl-alt-hover',
         className,
       )}
     >

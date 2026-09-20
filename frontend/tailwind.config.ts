@@ -64,6 +64,30 @@ export default {
           DEFAULT: token('sage'),
           text: token('sage-text'),
         },
+        /* Control roles — per-theme, NOT derived from the inverting ink ramp.
+           See the CONTROL role note in tokens.css. */
+        ctl: {
+          DEFAULT: token('ctl-bg'),
+          fg: token('ctl-fg'),
+          hover: token('ctl-bg-hover'),
+          'fg-hover': token('ctl-fg-hover'),
+          alt: token('ctl-alt-bg'),
+          'alt-hover': token('ctl-alt-bg-hover'),
+          'alt-fg': token('ctl-alt-fg'),
+          border: token('ctl-border'),
+        },
+        card: {
+          DEFAULT: token('card-bg'),
+          fg: token('card-fg'),
+          muted: token('card-muted'),
+          border: token('card-border'),
+        },
+        fld: {
+          DEFAULT: token('fld-bg'),
+          border: token('fld-border'),
+          fg: token('fld-fg'),
+          ph: token('fld-ph'),
+        },
       },
       fontFamily: {
         sans: ['Instrument Sans', 'system-ui', 'sans-serif'],

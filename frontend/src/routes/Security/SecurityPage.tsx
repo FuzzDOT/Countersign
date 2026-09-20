@@ -75,17 +75,17 @@ export default function SecurityPage() {
         <div className="flex flex-wrap gap-3 border-t border-ink-500/40 pt-8">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-input border border-ink-200/40 bg-ink-700 px-5 py-2.5
-                       text-body-sm font-semibold text-ink-50 transition-colors duration-quick ease-out
-                       hover:border-verify hover:bg-ink-500/70"
+            className="inline-flex items-center gap-2 rounded-input border border-ctl-border bg-ctl-alt px-5 py-2.5
+                       text-body-sm font-semibold text-ctl-alt-fg transition-colors duration-quick ease-out
+                       hover:border-verify hover:bg-ctl-alt-hover"
           >
             Back to home
           </Link>
           <Link
             to="/product"
-            className="inline-flex items-center gap-2 rounded-input border border-ink-200/40 bg-ink-700 px-5 py-2.5
-                       text-body-sm font-semibold text-ink-50 transition-colors duration-quick ease-out
-                       hover:border-verify hover:bg-ink-500/70"
+            className="inline-flex items-center gap-2 rounded-input border border-ctl-border bg-ctl-alt px-5 py-2.5
+                       text-body-sm font-semibold text-ctl-alt-fg transition-colors duration-quick ease-out
+                       hover:border-verify hover:bg-ctl-alt-hover"
           >
             See the walkthrough
           </Link>

@@ -29,16 +29,16 @@ export function TopBar({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && onSearch(query)}
-          className="h-9 w-64 rounded-input border border-ink-200/35 bg-ink-900 px-4 text-body-sm text-ink-50
-                     placeholder:text-ink-200 focus-visible:border-verify"
+          className="h-9 w-64 rounded-input border border-fld-border bg-fld px-4 text-body-sm text-ctl-alt-fg
+                     placeholder:text-fld-ph focus-visible:border-verify"
         />
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <button
             aria-label="Account menu"
-            className="rounded-input border border-ink-200/40 bg-ink-700 px-3 py-1.5 text-body-sm text-ink-50
-                       transition-colors duration-quick ease-out hover:border-verify hover:bg-ink-500/70"
+            className="rounded-input border border-ctl-border bg-ctl-alt px-3 py-1.5 text-body-sm text-ctl-alt-fg
+                       transition-colors duration-quick ease-out hover:border-verify hover:bg-ctl-alt-hover"
           >
             Account
           </button>

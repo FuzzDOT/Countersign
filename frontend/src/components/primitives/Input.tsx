@@ -19,7 +19,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const errorId = `${id}-error`;
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className={cn('text-body-sm font-medium text-ink-50', hideLabel && 'sr-only')}>
+      <label htmlFor={id} className={cn('text-body-sm font-semibold text-card-fg', hideLabel && 'sr-only')}>
         {label}
       </label>
       <input
@@ -28,8 +28,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         aria-invalid={error ? true : undefined}
         aria-describedby={cn(hint && hintId, error && errorId) || undefined}
         className={cn(
-          'h-11 rounded-input border border-ink-200/40 bg-ink-700 px-4 text-body text-ink-50',
-          'placeholder:text-ink-200 focus-visible:border-verify',
+          'h-11 rounded-input border border-fld-border bg-fld px-4 text-body text-ctl-alt-fg',
+          'placeholder:text-fld-ph focus-visible:border-verify',
           error && 'border-ink-200',
           className,
         )}

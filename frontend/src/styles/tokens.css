@@ -47,13 +47,13 @@
   --verify-rgb: 110 168 254;
 
   /* editorial alternating surfaces, from the Framer direction: a warm
-     ivory band and a deep sage band that break up the navy. These are
+     light-gray band and a deep navy band that break up the page. These are
      surfaces, not accents — nothing semantic is encoded in them. */
-  --ivory: #f2ece1;
-  --ivory-text: #14181f;
-  --ivory-rule: #ddd5c6;
-  --sage: #7d8c74;
-  --sage-text: #f6f7f4;
+  --ivory: #e8eaee;
+  --ivory-text: #10151d;
+  --ivory-rule: #c9ced6;
+  --sage: #16243a;
+  --sage-text: #eef1f6;
 
   /* texture + glow */
   --grain-opacity: 0.035;
@@ -65,6 +65,31 @@
   --shadow-overlay: 0 32px 64px -16px rgba(0, 0, 0, 0.7);
   --shadow-panel: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset;
   --hairline: rgba(244, 246, 249, 0.1);
+
+  /* ── CONTROL role tokens ──────────────────────────────────────────────
+     The --ink-* ramp inverts between themes, which is correct for surfaces
+     but WRONG for a control: a button's fill and its own label must stay in
+     contrast with each other AND stand off the page. Controls therefore get
+     their own per-theme values rather than being derived from the ramp.
+     (Deriving them from the ramp is what made the light-theme buttons
+     invisible.) */
+  --ctl-bg: #f4f6f9;
+  --ctl-fg: #05070d;
+  --ctl-bg-hover: #6ea8fe;
+  --ctl-fg-hover: #05070d;
+  --ctl-alt-bg: #4a5f85;
+  --ctl-alt-bg-hover: #5d76a0;
+  --ctl-alt-fg: #f4f6f9;
+  --ctl-border: rgba(244, 246, 249, 0.6);
+  --card-bg: #222e40;
+  --card-fg: #f4f6f9;
+  --card-muted: rgba(244, 246, 249, 0.72);
+  --card-border: rgba(244, 246, 249, 0.3);
+  --fld-bg: #0a0f17;
+  --fld-border: rgba(244, 246, 249, 0.5);
+  --fld-fg: #f4f6f9;
+  --fld-ph: rgba(244, 246, 249, 0.45);
+
 }
 
 [data-theme='light'] {
@@ -95,11 +120,11 @@
   --verify: #1c4ed8;
   --verify-rgb: 28 78 216;
 
-  --ivory: #ece5d8;
-  --ivory-text: #14181f;
-  --ivory-rule: #d3cabb;
-  --sage: #6e7d66;
-  --sage-text: #f6f7f4;
+  --ivory: #e4e7ec;
+  --ivory-text: #10151d;
+  --ivory-rule: #c4cad3;
+  --sage: #132033;
+  --sage-text: #eef1f6;
 
   --grain-opacity: 0.025;
   --glow-a: #93c5fd;
@@ -109,7 +134,27 @@
 
   --shadow-overlay: 0 32px 64px -16px rgba(8, 12, 20, 0.18);
   --shadow-panel: 0 1px 2px 0 rgba(8, 12, 20, 0.05);
-  --hairline: rgba(8, 12, 20, 0.1);
+  --hairline: rgba(8, 12, 20, 0.12);
+
+  /* Light theme: the ground is near-white, so every control inverts —
+     dark fills with light labels, white cards with dark text. */
+  --ctl-bg: #111a27;
+  --ctl-fg: #f7f9fc;
+  --ctl-bg-hover: #1c4ed8;
+  --ctl-fg-hover: #ffffff;
+  --ctl-alt-bg: #ffffff;
+  --ctl-alt-bg-hover: #e6e9ef;
+  --ctl-alt-fg: #111a27;
+  --ctl-border: rgba(17, 26, 39, 0.45);
+  --card-bg: #ffffff;
+  --card-fg: #111a27;
+  --card-muted: rgba(17, 26, 39, 0.68);
+  --card-border: rgba(17, 26, 39, 0.18);
+  --fld-bg: #ffffff;
+  --fld-border: rgba(17, 26, 39, 0.35);
+  --fld-fg: #111a27;
+  --fld-ph: rgba(17, 26, 39, 0.45);
+
 }
 
 :root {

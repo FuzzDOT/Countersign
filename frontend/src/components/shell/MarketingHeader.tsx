@@ -21,9 +21,10 @@ export function MarketingHeader({ title }: { title?: ReactNode }) {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 rounded-input border border-ink-200/40 bg-ink-700 px-3.5 py-2
-                     font-mono text-micro uppercase tracking-[0.14em] text-ink-50
-                     transition-colors duration-quick ease-out hover:border-verify hover:bg-ink-500/70"
+          className="inline-flex items-center gap-2 rounded-input border border-ctl-border
+                     bg-ctl-alt px-3.5 py-2 font-mono text-micro uppercase tracking-[0.14em]
+                     text-ctl-alt-fg transition-colors duration-quick ease-out
+                     hover:border-verify hover:bg-ctl-alt-hover"
         >
           <BackArrow />
           Back

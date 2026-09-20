@@ -67,9 +67,27 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="hero-glow grid-floor min-h-screen flex items-center justify-center bg-ink-900 px-6">
-      <div className="panel w-full max-w-[420px] p-8 flex flex-col gap-5">
-        <h1 className="text-h1 text-ink-50">Create account</h1>
+    <div className="relative min-h-screen flex items-center justify-center bg-ink-900 px-6">
+      {/* Decoration only. Kept in its own layer because .grid-floor applies a
+          mask-image that would otherwise fade the card itself. */}
+      <div className="hero-glow grid-floor pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div className="relative z-10 w-full max-w-[420px] rounded-panel border border-card-border
+                      bg-card p-8 flex flex-col gap-5
+                      shadow-[0_28px_70px_-20px_rgba(0,0,0,0.75)]">
+                <Link
+          to="/"
+          className="mb-2 inline-flex items-center gap-2 self-start rounded-input
+                     border border-ctl-border bg-ctl-alt px-3.5 py-2
+                     font-mono text-micro uppercase tracking-[0.14em] text-ctl-alt-fg
+                     transition-colors duration-quick ease-out
+                     hover:border-verify hover:bg-ctl-alt-hover"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Back to home
+        </Link>
+        <h1 className="display-serif text-[2rem] text-card-fg">Create account</h1>
 
         {formError && (
           <p role="alert" className="text-body-sm text-stamp-red">
